@@ -1,65 +1,223 @@
-import Image from "next/image";
+"use client"
+
+import Link from "next/link"
+import { Search, MapPin, Star, Hotel, Plane, Shield, Clock, Users } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Select } from "@/components/ui/select"
+import { DatePicker } from "@/components/ui/date-picker"
+import { useState } from "react"
+
+const featuredDestinations = [
+  {
+    id: 1,
+    name: "Paris, France",
+    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80",
+    description: "The City of Light awaits you",
+    price: "$899",
+    rating: 4.8,
+  },
+  {
+    id: 2,
+    name: "Tokyo, Japan",
+    image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",
+    description: "Experience ancient and modern Japan",
+    price: "$1,299",
+    rating: 4.9,
+  },
+  {
+    id: 3,
+    name: "Bali, Indonesia",
+    image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80",
+    description: "Tropical paradise for your perfect getaway",
+    price: "$699",
+    rating: 4.7,
+  },
+  {
+    id: 4,
+    name: "New York, USA",
+    image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80",
+    description: "The city that never sleeps",
+    price: "$799",
+    rating: 4.6,
+  },
+]
+
+const features = [
+  {
+    icon: Shield,
+    title: "Secure Transactions",
+    description: "Your payment information is encrypted and secure",
+  },
+  {
+    icon: Clock,
+    title: "24/7 Support",
+    description: "Our team is always here to help you",
+  },
+  {
+    icon: Plane,
+    title: "Best Deals",
+    description: "Find the best prices on hotels and travel packages",
+  },
+  {
+    icon: Users,
+    title: "Expert Guidance",
+    description: "Get personalized recommendations from travel experts",
+  },
+]
 
 export default function Home() {
+  const [checkInDate, setCheckInDate] = useState<Date>()
+  const [checkOutDate, setCheckOutDate] = useState<Date>()
+  const [destination, setDestination] = useState("")
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-col">
+      {/* Hero Section */}
+      <section className="relative w-full py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center space-y-8 text-center">
+            <div className="space-y-4">
+              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+                Discover Your Next
+                <span className="text-primary"> Adventure</span>
+              </h1>
+              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                Book hotels and travel packages with confidence. Secure transactions
+                and seamless booking experience.
+              </p>
+            </div>
+
+            {/* Search Bar */}
+            <Card className="w-full max-w-4xl">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="text-sm font-medium mb-2 block">Destination</label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Where are you going?"
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Check In</label>
+                    <DatePicker
+                      date={checkInDate}
+                      onSelect={setCheckInDate}
+                      placeholder="Check in date"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Check Out</label>
+                    <DatePicker
+                      date={checkOutDate}
+                      onSelect={setCheckOutDate}
+                      placeholder="Check out date"
+                    />
+                  </div>
+                </div>
+                <Button className="w-full mt-4" size="lg" asChild>
+                  <Link href="/hotels">
+                    <Search className="mr-2 h-4 w-4" />
+                    Search Hotels
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Featured Destinations */}
+      <section className="py-20 bg-background">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center space-y-4 text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Featured Destinations
+            </h2>
+            <p className="max-w-[700px] text-muted-foreground md:text-lg">
+              Explore our handpicked destinations for an unforgettable experience
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredDestinations.map((destination) => (
+              <Card key={destination.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative h-48 w-full overflow-hidden">
+                  <img
+                    src={destination.image}
+                    alt={destination.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2 flex items-center space-x-1 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm font-medium">{destination.rating}</span>
+                  </div>
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-xl">{destination.name}</CardTitle>
+                  <CardDescription>{destination.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-2xl font-bold text-primary">{destination.price}</span>
+                      <span className="text-sm text-muted-foreground"> / person</span>
+                    </div>
+                    <Button asChild>
+                      <Link href={`/travel?destination=${destination.name}`}>Book Now</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-muted/50">
+        <div className="container px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="flex flex-col items-center text-center space-y-4">
+                <div className="rounded-full bg-primary/10 p-4">
+                  <feature.icon className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-primary text-primary-foreground">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center space-y-8 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Ready to Start Your Journey?
+            </h2>
+            <p className="max-w-[700px] text-lg opacity-90">
+              Join thousands of satisfied travelers who have booked their dream trips with us
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button asChild size="lg" variant="secondary">
+                <Link href="/hotels">Browse Hotels</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10">
+                <Link href="/travel">View Packages</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-  );
+  )
 }
