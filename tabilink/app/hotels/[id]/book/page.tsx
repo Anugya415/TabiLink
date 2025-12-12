@@ -46,7 +46,6 @@ const hotelData = {
 export default function HotelBookingPage() {
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
-  const [currentStep, setCurrentStep] = useState(1)
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),

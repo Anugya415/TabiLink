@@ -137,3 +137,44 @@ img {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
+
+/* 80% width container for all content */
+.container {
+  width: 80% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Ensure containers with max-width classes still respect 80% constraint */
+.container.max-w-6xl,
+.container.max-w-2xl,
+.container.max-w-4xl,
+.container.max-w-3xl {
+  width: 80% !important;
+  max-width: 80% !important;
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 95% !important;
+  }
+  
+  .container.max-w-6xl,
+  .container.max-w-2xl,
+  .container.max-w-4xl,
+  .container.max-w-3xl {
+    width: 95% !important;
+    max-width: 95% !important;
+  }
+}
+
+/* Header should be full width for sticky behavior, but content is 80% */
+header .container {
+  width: 80% !important;
+}
+
+@media (max-width: 768px) {
+  header .container {
+    width: 95% !important;
+  }
+}

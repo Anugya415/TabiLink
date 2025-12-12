@@ -6,42 +6,36 @@ import { Input } from "./input"
 
 const Form = FormProvider
 
-const FormField = <TFieldValues extends Record<string, any> = Record<string, any>>({
+const FormField = ({
   name,
   render,
+  className,
   ...props
 }: {
   name: string
   render: (props: {
-    field: {
-      value: any
-      onChange: (value: any) => void
-      onBlur: () => void
-      name: string
-      ref: React.Ref<any>
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    field: any
     fieldState: {
       error?: { message?: string }
     }
-    formState: any
+    formState: ReturnType<typeof useFormContext>['formState']
   }) => React.ReactNode
+  className?: string
 }) => {
-  const form = useFormContext<TFieldValues>()
+  const form = useFormContext()
   const fieldState = form.formState.errors[name]
     ? { error: form.formState.errors[name] as { message?: string } }
     : { error: undefined }
 
   return (
     <Controller
-      name={name as any}
+      name={name as never}
       control={form.control}
       render={({ field }) => (
-        <div {...props}>
+        <div className={cn("space-y-2", className)} {...props}>
           {render({
-            field: {
-              ...field,
-              ref: field.ref,
-            },
+            field,
             fieldState,
             formState: form.formState,
           })}

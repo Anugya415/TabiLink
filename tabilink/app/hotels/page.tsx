@@ -87,7 +87,7 @@ const hotels = [
   },
 ]
 
-const amenityIcons: Record<string, any> = {
+const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   WiFi: Wifi,
   Parking: Car,
   Gym: Dumbbell,

@@ -26,9 +26,15 @@ export default function ContactPage() {
 
   const onSubmit = async (data: ContactFormData) => {
     // In a real app, this would send the message to your backend
-    console.log("Contact form submission:", data)
-    alert("Thank you for your message! We'll get back to you soon.")
-    form.reset()
+    // For now, we'll just show a success message
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      alert("Thank you for your message! We'll get back to you soon.")
+      form.reset()
+    } catch (error) {
+      alert("Something went wrong. Please try again later.")
+    }
   }
 
   return (

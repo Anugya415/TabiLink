@@ -44,16 +44,18 @@ const PopoverTrigger = React.forwardRef<
 
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     context.onOpenChange(!context.open)
-    onClick?.(e as any)
+    if (onClick) {
+      onClick(e as React.MouseEvent<HTMLButtonElement>)
+    }
   }
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+    return React.cloneElement(children as React.ReactElement<React.ButtonHTMLAttributes<HTMLButtonElement>>, {
       ref,
-      className: cn(className, (children as any).props?.className),
+      className: cn(className, (children.props as { className?: string })?.className),
       onClick: handleClick,
       ...props,
-    })
+    } as React.ButtonHTMLAttributes<HTMLButtonElement>)
   }
 
   return (
