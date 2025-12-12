@@ -20,10 +20,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
+      <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
-          <Plane className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">TabiLink</span>
+          <Plane className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+          <span className="text-lg sm:text-xl font-bold">TabiLink</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
@@ -89,4 +89,5 @@ export function Header() {
     </header>
   )
 }
+
 

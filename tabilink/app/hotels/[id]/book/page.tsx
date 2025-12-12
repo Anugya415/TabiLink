@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -87,13 +88,13 @@ export default function HotelBookingPage() {
   }
 
   return (
-    <div className="container py-8 px-4 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Complete Your Booking</h1>
-        <p className="text-muted-foreground">Secure checkout for {hotelData.name}</p>
+    <div className="container py-6 sm:py-8 px-4 max-w-6xl">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Complete Your Booking</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Secure checkout for {hotelData.name}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Booking Form */}
         <div className="lg:col-span-2 space-y-6">
           <Form {...form}>
@@ -104,7 +105,7 @@ export default function HotelBookingPage() {
                   <CardTitle>Booking Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       name="checkIn"
                       render={({ field, fieldState }) => (
@@ -263,7 +264,7 @@ export default function HotelBookingPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       name="cardExpiry"
                       render={({ field, fieldState }) => (
@@ -329,16 +330,18 @@ export default function HotelBookingPage() {
 
         {/* Booking Summary */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-4">
+          <Card className="lg:sticky lg:top-4">
             <CardHeader>
-              <CardTitle>Booking Summary</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Booking Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex space-x-4">
-                <img
+                <Image
                   src={hotelData.image}
                   alt={hotelData.name}
-                  className="w-24 h-24 object-cover rounded-lg"
+                  width={96}
+                  height={96}
+                  className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold">{hotelData.name}</h3>

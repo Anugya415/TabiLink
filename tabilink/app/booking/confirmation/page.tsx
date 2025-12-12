@@ -13,15 +13,15 @@ function BookingConfirmationContent() {
   const bookingType = searchParams.get("type") || "hotel"
 
   return (
-    <div className="container py-16 px-4 max-w-2xl mx-auto">
-      <div className="text-center mb-8">
+    <div className="container py-8 sm:py-12 lg:py-16 px-4 max-w-2xl mx-auto">
+      <div className="text-center mb-6 sm:mb-8">
         <div className="flex justify-center mb-4">
-          <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-4">
-            <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
+          <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-3 sm:p-4">
+            <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12 text-green-600 dark:text-green-400" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold mb-2">Booking Confirmed!</h1>
-        <p className="text-muted-foreground text-lg">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Booking Confirmed!</h1>
+        <p className="text-muted-foreground text-base sm:text-lg">
           Your {bookingType === "hotel" ? "hotel" : "travel package"} has been successfully booked
         </p>
       </div>

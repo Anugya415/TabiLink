@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { MapPin, Star, Calendar, Users, Plane, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -113,18 +114,18 @@ export default function TravelPage() {
     })
 
   return (
-    <div className="container py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Travel Packages</h1>
-        <p className="text-muted-foreground">
+    <div className="container py-6 sm:py-8 px-4">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Travel Packages</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Discover amazing all-inclusive travel packages
         </p>
       </div>
 
       {/* Search and Filters */}
-      <Card className="mb-8">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <Card className="mb-6 sm:mb-8">
+        <CardContent className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Search</label>
               <Input
@@ -160,14 +161,17 @@ export default function TravelPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredPackages.map((pkg) => (
           <Card key={pkg.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="relative h-48 w-full overflow-hidden">
-              <img
+              <Image
                 src={pkg.image}
                 alt={pkg.title}
+                width={600}
+                height={400}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
               {pkg.originalPrice > pkg.price && (
                 <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground px-2 py-1 rounded text-xs font-semibold">
@@ -202,8 +206,8 @@ export default function TravelPage() {
               </div>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl font-bold text-primary">${pkg.price}</span>
+                  <div className="flex items-center space-x-2 flex-wrap">
+                    <span className="text-xl sm:text-2xl font-bold text-primary">${pkg.price}</span>
                     {pkg.originalPrice > pkg.price && (
                       <span className="text-sm text-muted-foreground line-through">
                         ${pkg.originalPrice}
@@ -227,4 +231,5 @@ export default function TravelPage() {
     </div>
   )
 }
+
 

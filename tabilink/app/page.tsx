@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Search, MapPin, Star, Hotel, Plane, Shield, Clock, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -75,15 +76,15 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative w-full py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+      <section className="relative w-full py-12 sm:py-16 md:py-24 lg:py-32 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-8 text-center">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+          <div className="flex flex-col items-center space-y-6 sm:space-y-8 text-center">
+            <div className="space-y-3 sm:space-y-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tighter leading-tight px-4">
                 Discover Your Next
-                <span className="text-primary"> Adventure</span>
+                <span className="text-primary block sm:inline"> Adventure</span>
               </h1>
-              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+              <p className="mx-auto max-w-[700px] text-muted-foreground text-base sm:text-lg md:text-xl px-4">
                 Book hotels and travel packages with confidence. Secure transactions
                 and seamless booking experience.
               </p>
@@ -91,9 +92,9 @@ export default function Home() {
 
             {/* Search Bar */}
             <Card className="w-full max-w-4xl">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="md:col-span-2">
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="sm:col-span-2">
                     <label className="text-sm font-medium mb-2 block">Destination</label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -110,7 +111,7 @@ export default function Home() {
                     <DatePicker
                       date={checkInDate}
                       onSelect={setCheckInDate}
-                      placeholder="Check in date"
+                      placeholder="Check in"
                     />
                   </div>
                   <div>
@@ -118,7 +119,7 @@ export default function Home() {
                     <DatePicker
                       date={checkOutDate}
                       onSelect={setCheckOutDate}
-                      placeholder="Check out date"
+                      placeholder="Check out"
                     />
                   </div>
                 </div>
@@ -135,24 +136,27 @@ export default function Home() {
       </section>
 
       {/* Featured Destinations */}
-      <section className="py-20 bg-background">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-4 text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+          <div className="flex flex-col items-center space-y-3 sm:space-y-4 text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter px-4">
               Featured Destinations
             </h2>
-            <p className="max-w-[700px] text-muted-foreground md:text-lg">
+            <p className="max-w-[700px] text-muted-foreground text-sm sm:text-base md:text-lg px-4">
               Explore our handpicked destinations for an unforgettable experience
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {featuredDestinations.map((destination) => (
               <Card key={destination.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative h-48 w-full overflow-hidden">
-                  <img
+                  <Image
                     src={destination.image}
                     alt={destination.name}
+                    width={400}
+                    height={300}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                   <div className="absolute top-2 right-2 flex items-center space-x-1 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -164,12 +168,12 @@ export default function Home() {
                   <CardDescription>{destination.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
-                      <span className="text-2xl font-bold text-primary">{destination.price}</span>
+                      <span className="text-xl sm:text-2xl font-bold text-primary">{destination.price}</span>
                       <span className="text-sm text-muted-foreground"> / person</span>
                     </div>
-                    <Button asChild>
+                    <Button asChild className="w-full sm:w-auto">
                       <Link href={`/travel?destination=${destination.name}`}>Book Now</Link>
                     </Button>
                   </div>
@@ -181,9 +185,9 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-muted/50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-muted/50">
         <div className="container px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {features.map((feature, index) => (
               <div key={index} className="flex flex-col items-center text-center space-y-4">
                 <div className="rounded-full bg-primary/10 p-4">
@@ -198,20 +202,20 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
+      <section className="py-12 sm:py-16 lg:py-20 bg-primary text-primary-foreground">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-8 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+          <div className="flex flex-col items-center space-y-6 sm:space-y-8 text-center">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter">
               Ready to Start Your Journey?
             </h2>
-            <p className="max-w-[700px] text-lg opacity-90">
+            <p className="max-w-[700px] text-base sm:text-lg opacity-90 px-4">
               Join thousands of satisfied travelers who have booked their dream trips with us
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" variant="secondary">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto px-4 sm:px-0">
+              <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
                 <Link href="/hotels">Browse Hotels</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10">
+              <Button asChild size="lg" variant="outline" className="w-full sm:w-auto bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10">
                 <Link href="/travel">View Packages</Link>
               </Button>
             </div>

@@ -39,17 +39,27 @@ const Dialog = ({ open = false, onOpenChange, children }: DialogProps) => {
 const DialogTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
->(({ children, onClick, ...props }, ref) => {
+>(({ children, onClick, asChild, ...props }, ref) => {
   const context = React.useContext(DialogContext)
   if (!context) throw new Error("DialogTrigger must be used within Dialog")
+
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    context.onOpenChange(true)
+    onClick?.(e as any)
+  }
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      onClick: handleClick,
+      ...props,
+    })
+  }
 
   return (
     <button
       ref={ref}
-      onClick={(e) => {
-        context.onOpenChange(true)
-        onClick?.(e)
-      }}
+      onClick={handleClick}
       {...props}
     >
       {children}
@@ -142,4 +152,5 @@ export {
   DialogTitle,
   DialogDescription,
 }
+
 

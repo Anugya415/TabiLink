@@ -38,18 +38,29 @@ const Popover = ({ open = false, onOpenChange, children }: PopoverProps) => {
 const PopoverTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
->(({ children, onClick, className, ...props }, ref) => {
+>(({ children, onClick, className, asChild, ...props }, ref) => {
   const context = React.useContext(PopoverContext)
   if (!context) throw new Error("PopoverTrigger must be used within Popover")
+
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    context.onOpenChange(!context.open)
+    onClick?.(e as any)
+  }
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      className: cn(className, (children as any).props?.className),
+      onClick: handleClick,
+      ...props,
+    })
+  }
 
   return (
     <button
       ref={ref}
       className={cn(className)}
-      onClick={(e) => {
-        context.onOpenChange(!context.open)
-        onClick?.(e)
-      }}
+      onClick={handleClick}
       {...props}
     >
       {children}

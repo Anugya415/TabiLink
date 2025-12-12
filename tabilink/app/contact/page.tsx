@@ -32,16 +32,16 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="container py-16 px-4">
+    <div className="container py-8 sm:py-12 lg:py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
-          <p className="text-xl text-muted-foreground">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Contact Us</h1>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
             We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           <Card>
             <CardHeader>
               <Mail className="h-6 w-6 text-primary mb-2" />

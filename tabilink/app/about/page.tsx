@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function AboutPage() {
   return (
-    <div className="container py-16 px-4">
+    <div className="container py-8 sm:py-12 lg:py-16 px-4">
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">About TabiLink</h1>
-          <p className="text-xl text-muted-foreground">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">About TabiLink</h1>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
             Your trusted partner for unforgettable travel experiences
           </p>
         </div>
@@ -26,7 +26,7 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
           <Card>
             <CardHeader>
               <Shield className="h-8 w-8 text-primary mb-2" />
@@ -90,4 +90,5 @@ export default function AboutPage() {
     </div>
   )
 }
+
 
