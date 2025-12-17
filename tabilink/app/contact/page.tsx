@@ -89,7 +89,7 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="name"
-                      render={({ field, fieldState }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
@@ -101,7 +101,7 @@ export default function ContactPage() {
                   />
                   <FormField
                     name="email"
-                      render={({ field, fieldState }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
@@ -114,19 +114,19 @@ export default function ContactPage() {
                 </div>
                 <FormField
                   name="subject"
-                      render={({ field, fieldState }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Subject</FormLabel>
                       <FormControl>
                         <Input placeholder="What's this about?" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage fieldState={fieldState} />
                     </FormItem>
                   )}
                 />
                 <FormField
                   name="message"
-                      render={({ field, fieldState }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Message</FormLabel>
                       <FormControl>
@@ -136,7 +136,7 @@ export default function ContactPage() {
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage fieldState={fieldState} />
                     </FormItem>
                   )}
                 />
