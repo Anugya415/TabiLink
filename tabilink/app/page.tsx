@@ -1,132 +1,304 @@
 "use client"
 
-import Link from "next/link"
 import Image from "next/image"
-import { Search, MapPin, Star, Hotel, Plane, Shield, Clock, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { DatePicker } from "@/components/ui/date-picker"
+import Link from "next/link"
 import { useState } from "react"
+import {
+  ArrowRight,
+  BadgeCheck,
+  Calendar,
+  Compass,
+  Globe2,
+  HeartHandshake,
+  Hotel,
+  Leaf,
+  Map,
+  MapPin,
+  Plane,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Train,
+  Users,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { DatePicker } from "@/components/ui/date-picker"
 
 const featuredDestinations = [
   {
-    id: 1,
-    name: "Paris, France",
-    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80",
-    description: "The City of Light awaits you",
-    price: "$899",
-    rating: 4.8,
-  },
-  {
-    id: 2,
-    name: "Tokyo, Japan",
-    image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",
-    description: "Experience ancient and modern Japan",
-    price: "$1,299",
+    title: "Kyoto Temples",
+    location: "Kyoto, Japan",
+    priceFrom: "$899",
     rating: 4.9,
+    tag: "Member deal",
+    image:
+      "https://images.unsplash.com/photo-1545569341-9eb8b30979d8?w=1000&q=80",
   },
   {
-    id: 3,
-    name: "Bali, Indonesia",
-    image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80",
-    description: "Tropical paradise for your perfect getaway",
-    price: "$699",
+    title: "Algarve Coast",
+    location: "Faro, Portugal",
+    priceFrom: "$1,120",
+    rating: 4.8,
+    tag: "Free breakfast",
+    image:
+      "https://images.unsplash.com/photo-1505764706515-aa95265c5abc?w=1000&q=80",
+  },
+  {
+    title: "Northern Lights",
+    location: "Tromsø, Norway",
+    priceFrom: "$1,480",
     rating: 4.7,
-  },
-  {
-    id: 4,
-    name: "New York, USA",
-    image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80",
-    description: "The city that never sleeps",
-    price: "$799",
-    rating: 4.6,
+    tag: "Popular now",
+    image:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1000&q=80",
   },
 ]
 
-const features = [
+const collections = [
   {
-    icon: Shield,
-    title: "Secure Transactions",
-    description: "Your payment information is encrypted and secure",
+    title: "Weekend escapes",
+    copy: "Fast, flexible trips with late checkout and priority support.",
+    icon: Compass,
   },
   {
-    icon: Clock,
-    title: "24/7 Support",
-    description: "Our team is always here to help you",
+    title: "Work-friendly stays",
+    copy: "Business-ready rooms with Wi‑Fi guarantees and quiet zones.",
+    icon: BadgeCheck,
   },
   {
-    icon: Plane,
-    title: "Best Deals",
-    description: "Find the best prices on hotels and travel packages",
-  },
-  {
+    title: "Family bundles",
+    copy: "Suites, cribs, and airport pickups in one simple booking.",
     icon: Users,
-    title: "Expert Guidance",
-    description: "Get personalized recommendations from travel experts",
   },
+  {
+    title: "Low-impact travel",
+    copy: "Rail-first routes and eco-rated stays to shrink your footprint.",
+    icon: Leaf,
+  },
+]
+
+const journeySteps = [
+  {
+    title: "Book in one place",
+    copy: "Flights, rail, and hotels combined with transparent pricing.",
+    icon: Plane,
+  },
+  {
+    title: "Stay flexible",
+    copy: "Free changes on select fares and instant rebooking during delays.",
+    icon: Calendar,
+  },
+  {
+    title: "Protected on-trip",
+    copy: "24/7 human support plus coverage for disruptions and baggage.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Earn & stack perks",
+    copy: "Member rates, partner perks, and loyalty credits on every trip.",
+    icon: Sparkles,
+  },
+]
+
+const testimonials = [
+  {
+    name: "Priya K.",
+    role: "Frequent traveler",
+    quote:
+      "TabiLink rebooked my delayed flight in minutes and kept my hotel check-in smooth. The discounts are real.",
+  },
+  {
+    name: "Marco L.",
+    role: "Remote founder",
+    quote:
+      "The rail + hotel bundles save time and money. I love the clean dashboard for upcoming trips.",
+  },
+  {
+    name: "Isabella M.",
+    role: "Designer",
+    quote:
+      "Loved the curated stays and the responsive support. Everything felt covered before I landed.",
+  },
+]
+
+const faqs = [
+  {
+    question: "How do changes or cancellations work?",
+    answer:
+      "Many fares include free changes. For stricter tickets, we’ll surface exact fees before you confirm and handle rebooking for you.",
+  },
+  {
+    question: "Do I get member rates automatically?",
+    answer:
+      "Yes. Sign in and eligible rates are applied. Stacked perks appear at checkout for flights, rail, and hotels.",
+  },
+  {
+    question: "Is support really 24/7?",
+    answer:
+      "Absolutely. Live agents can rebook, escalate with partners, and coordinate your transfers at any hour.",
+  },
+]
+
+const stats = [
+  { label: "Trips booked securely", value: "120k+" },
+  { label: "Avg. traveler rating", value: "4.9/5" },
+  { label: "Cities with partners", value: "180+" },
+  { label: "Response time", value: "<2 min" },
 ]
 
 export default function Home() {
   const [checkInDate, setCheckInDate] = useState<Date>()
   const [checkOutDate, setCheckOutDate] = useState<Date>()
   const [destination, setDestination] = useState("")
+  const [travelers, setTravelers] = useState("2 adults")
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative w-full py-12 sm:py-16 md:py-24 lg:py-32 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-6 sm:space-y-8 text-center">
-            <div className="space-y-3 sm:space-y-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tighter leading-tight px-4">
-                Discover Your Next
-                <span className="text-primary block sm:inline"> Adventure</span>
-              </h1>
-              <p className="mx-auto max-w-[700px] text-muted-foreground text-base sm:text-lg md:text-xl px-4">
-                Book hotels and travel packages with confidence. Secure transactions
-                and seamless booking experience.
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#a5b4fc_0,_transparent_35%)]" />
+        <div className="container relative px-4 md:px-6 py-16 md:py-24 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
+            <div className="space-y-6">
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                TabiLink • Travel with confidence
               </p>
-            </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
+                Build smarter trips with protected bookings and real perks.
+              </h1>
+              <p className="text-muted-foreground text-lg max-w-2xl">
+                Search once for flights, trains, and stays. Lock member rates,
+                stay flexible, and get human help when you need it.
+              </p>
 
-            {/* Search Bar */}
-            <Card className="w-full max-w-4xl">
-              <CardContent className="p-4 sm:p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="text-sm font-medium mb-2 block">Destination</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Where are you going?"
-                        value={destination}
-                        onChange={(e) => setDestination(e.target.value)}
-                        className="pl-10"
+              <Card className="shadow-lg">
+                <CardContent className="p-4 sm:p-6 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="sm:col-span-2">
+                      <label className="text-sm font-medium mb-2 block">
+                        Destination
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="City, country, or landmark"
+                          value={destination}
+                          onChange={(e) => setDestination(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Check in
+                      </label>
+                      <DatePicker
+                        date={checkInDate}
+                        onSelect={setCheckInDate}
+                        placeholder="Choose date"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Check out
+                      </label>
+                      <DatePicker
+                        date={checkOutDate}
+                        onSelect={setCheckOutDate}
+                        placeholder="Choose date"
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Check In</label>
-                    <DatePicker
-                      date={checkInDate}
-                      onSelect={setCheckInDate}
-                      placeholder="Check in"
-                    />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Travelers
+                      </label>
+                      <Input
+                        value={travelers}
+                        onChange={(e) => setTravelers(e.target.value)}
+                        placeholder="2 adults"
+                      />
+                    </div>
+                    <div className="flex items-end gap-3">
+                      <Button size="lg" className="w-full" asChild>
+                        <Link href="/hotels">
+                          <Search className="mr-2 h-4 w-4" />
+                          Find stays
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Check Out</label>
-                    <DatePicker
-                      date={checkOutDate}
-                      onSelect={setCheckOutDate}
-                      placeholder="Check out"
-                    />
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    No booking fees. Free changes on select fares. Rebooking help
+                    is included.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  Protected payments
                 </div>
-                <Button className="w-full mt-4" size="lg" asChild>
-                  <Link href="/hotels">
-                    <Search className="mr-2 h-4 w-4" />
-                    Search Hotels
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  Flexible itineraries
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  24/7 human support
+                </div>
+              </div>
+            </div>
+
+            <Card className="shadow-xl border-0 bg-background/90 backdrop-blur">
+              <CardHeader>
+                <CardTitle>Featured destinations</CardTitle>
+                <CardDescription>Curated stays with member perks.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {featuredDestinations.map((trip) => (
+                  <div
+                    key={trip.title}
+                    className="flex items-center gap-4 rounded-lg border bg-muted/50 p-3"
+                  >
+                    <div className="relative h-20 w-24 overflow-hidden rounded-md">
+                      <Image
+                        src={trip.image}
+                        alt={trip.title}
+                        fill
+                        sizes="120px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-semibold">{trip.title}</p>
+                      <p className="text-xs text-muted-foreground">{trip.location}</p>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-semibold">{trip.rating}</span>
+                        <span className="text-muted-foreground">({trip.priceFrom})</span>
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                      {trip.tag}
+                    </span>
+                  </div>
+                ))}
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/travel">
+                    Browse more
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -135,47 +307,161 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Destinations */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-background">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-3 sm:space-y-4 text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter px-4">
-              Featured Destinations
-            </h2>
-            <p className="max-w-[700px] text-muted-foreground text-sm sm:text-base md:text-lg px-4">
-              Explore our handpicked destinations for an unforgettable experience
+      {/* Stats strip */}
+      <section className="border-y bg-background">
+        <div className="container px-4 md:px-6 py-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-center">
+          {stats.map((item) => (
+            <div key={item.label} className="space-y-2">
+              <p className="text-3xl font-bold">{item.value}</p>
+              <p className="text-muted-foreground text-sm">{item.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Collections */}
+      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40">
+        <div className="container px-4 md:px-6 space-y-10">
+          <div className="flex flex-col gap-3 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold">Pick your vibe</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Hand-built collections to match how you like to travel.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {featuredDestinations.map((destination) => (
-              <Card key={destination.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative h-48 w-full overflow-hidden">
-                  <Image
-                    src={destination.image}
-                    alt={destination.name}
-                    width={400}
-                    height={300}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute top-2 right-2 flex items-center space-x-1 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{destination.rating}</span>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {collections.map((item) => (
+              <Card key={item.title} className="shadow-sm h-full">
+                <CardHeader className="space-y-2">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <item.icon className="h-5 w-5" />
                   </div>
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">{destination.name}</CardTitle>
-                  <CardDescription>{destination.description}</CardDescription>
+                  <CardTitle className="text-lg">{item.title}</CardTitle>
+                  <CardDescription>{item.copy}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div>
-                      <span className="text-xl sm:text-2xl font-bold text-primary">{destination.price}</span>
-                      <span className="text-sm text-muted-foreground"> / person</span>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Journey support */}
+      <section className="py-14 sm:py-16 lg:py-20 bg-background">
+        <div className="container px-4 md:px-6 space-y-10">
+          <div className="flex flex-col gap-3 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold">
+              One journey, one support line
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Every leg covered—from booking to check-in to getting home.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {journeySteps.map((step) => (
+              <Card key={step.title} className="shadow-sm h-full">
+                <CardHeader className="space-y-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <step.icon className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-lg">{step.title}</CardTitle>
+                  <CardDescription>{step.copy}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Map + assurance */}
+      <section className="py-14 sm:py-16 lg:py-20 bg-muted/50">
+        <div className="container px-4 md:px-6 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
+          <div className="space-y-6">
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+              Coverage + confidence
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold leading-tight">
+              Stay protected and keep earning on every route.
+            </h2>
+            <p className="text-muted-foreground">
+              Instant confirmations, disruption coverage, and loyalty that stacks
+              with airline and hotel programs. Transparent prices before you pay.
+            </p>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-lg border bg-background p-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <HeartHandshake className="h-4 w-4 text-primary" />
+                  Loyalty that stacks
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Member rates + partner perks applied automatically at checkout.
+                </p>
+              </div>
+              <div className="rounded-lg border bg-background p-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  Protected changes
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Free changes on select fares and priority support when plans shift.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/signup">Create free account</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/about">See how we protect trips</Link>
+              </Button>
+            </div>
+          </div>
+          <Card className="shadow-lg overflow-hidden">
+            <div className="relative h-[260px] w-full bg-gradient-to-br from-primary/15 via-background to-secondary/20">
+              <div className="absolute inset-6 rounded-xl border border-dashed border-primary/40 bg-background/70 backdrop-blur" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Map className="h-32 w-32 text-primary/40" />
+              </div>
+            </div>
+            <CardContent className="space-y-3 p-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                <Globe2 className="h-4 w-4" />
+                Live coverage in 50+ countries
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Local partners, vetted transport options, and on-the-ground support
+                when you need it.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-14 sm:py-16 lg:py-20 bg-background">
+        <div className="container px-4 md:px-6 space-y-8">
+          <div className="flex flex-col gap-3 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold">Travelers trust TabiLink</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Real stories from people who needed reliable booking and fast support.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((item) => (
+              <Card key={item.name} className="shadow-sm">
+                <CardContent className="space-y-4 p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                      {item.name[0]}
                     </div>
-                    <Button asChild className="w-full sm:w-auto">
-                      <Link href={`/travel?destination=${destination.name}`}>Book Now</Link>
-                    </Button>
+                    <div>
+                      <p className="font-semibold">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">{item.role}</p>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground">{item.quote}</p>
+                  <div className="flex items-center gap-1 text-primary">
+                    {[...Array(5)].map((_, idx) => (
+                      <Star key={idx} className="h-4 w-4 fill-primary" />
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -184,41 +470,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-muted/50">
-        <div className="container px-4 md:px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="flex flex-col items-center text-center space-y-4">
-                <div className="rounded-full bg-primary/10 p-4">
-                  <feature.icon className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
+      {/* FAQ */}
+      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40">
+        <div className="container px-4 md:px-6 space-y-8">
+          <div className="flex flex-col gap-3 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold">Questions, answered</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Straightforward policies and real humans when you need them.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {faqs.map((faq) => (
+              <Card key={faq.question} className="shadow-sm h-full">
+                <CardHeader>
+                  <CardTitle className="text-base">{faq.question}</CardTitle>
+                  <CardDescription>{faq.answer}</CardDescription>
+                </CardHeader>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-primary text-primary-foreground">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-6 sm:space-y-8 text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter">
-              Ready to Start Your Journey?
-            </h2>
-            <p className="max-w-[700px] text-base sm:text-lg opacity-90 px-4">
-              Join thousands of satisfied travelers who have booked their dream trips with us
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto px-4 sm:px-0">
-              <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
-                <Link href="/hotels">Browse Hotels</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="w-full sm:w-auto bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10">
-                <Link href="/travel">View Packages</Link>
-              </Button>
-            </div>
+      {/* CTA */}
+      <section className="py-14 sm:py-16 lg:py-20 bg-primary text-primary-foreground">
+        <div className="container px-4 md:px-6 text-center space-y-6">
+          <div className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide">
+            <Globe2 className="h-4 w-4" />
+            Travel made simple
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Start your next trip with better rates and real support.
+          </h2>
+          <p className="max-w-3xl mx-auto text-base sm:text-lg opacity-90">
+            Plan once, manage everywhere. Flights, trains, and stays covered with
+            member perks included.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/signup">Create free account</Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              <Link href="/travel">Browse packages</Link>
+            </Button>
           </div>
         </div>
       </section>
