@@ -165,22 +165,22 @@ export default function Home() {
     <div className="flex flex-col">
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#a5b4fc_0,_transparent_35%)]" />
+        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#a5b4fc_0,_transparent_35%)] animate-float" />
         <div className="container relative px-4 md:px-6 py-16 md:py-24 lg:py-28">
           <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
-            <div className="space-y-6">
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+            <div className="space-y-6 animate-fade-in-left">
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
                 TabiLink • Travel with confidence
               </p>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight animate-fade-in-up">
                 Build smarter trips with protected bookings and real perks.
               </h1>
-              <p className="text-muted-foreground text-lg max-w-2xl">
+              <p className="text-muted-foreground text-lg max-w-2xl animate-fade-in-up">
                 Search once for flights, trains, and stays. Lock member rates,
                 stay flexible, and get human help when you need it.
               </p>
 
-              <Card className="shadow-lg">
+              <Card className="shadow-lg animate-scale-in hover-lift">
                 <CardContent className="p-4 sm:p-6 space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="sm:col-span-2">
@@ -261,18 +261,19 @@ export default function Home() {
               </div>
             </div>
 
-            <Card className="shadow-xl border-0 bg-background/90 backdrop-blur">
+            <Card className="shadow-xl border-0 bg-background/90 backdrop-blur animate-fade-in-right hover-lift">
               <CardHeader>
                 <CardTitle>Featured destinations</CardTitle>
                 <CardDescription>Curated stays with member perks.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {featuredDestinations.map((trip) => (
+                {featuredDestinations.map((trip, index) => (
                   <div
                     key={trip.title}
-                    className="flex items-center gap-4 rounded-lg border bg-muted/50 p-3"
+                    className="flex items-center gap-4 rounded-lg border bg-muted/50 p-3 hover-lift transition-all duration-300"
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <div className="relative h-20 w-24 overflow-hidden rounded-md">
+                    <div className="relative h-20 w-24 overflow-hidden rounded-md hover-scale transition-transform">
                       <Image
                         src={trip.image}
                         alt={trip.title}
@@ -295,7 +296,7 @@ export default function Home() {
                     </span>
                   </div>
                 ))}
-                <Button variant="outline" className="w-full" asChild>
+                <Button variant="outline" className="w-full hover-lift" asChild>
                   <Link href="/travel">
                     Browse more
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -309,9 +310,9 @@ export default function Home() {
 
       {/* Stats strip */}
       <section className="border-y bg-background">
-        <div className="container px-4 md:px-6 py-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-center">
-          {stats.map((item) => (
-            <div key={item.label} className="space-y-2">
+        <div className="container px-4 md:px-6 py-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-center animate-stagger">
+          {stats.map((item, index) => (
+            <div key={item.label} className="space-y-2 hover-scale transition-transform" style={{ animationDelay: `${index * 0.1}s` }}>
               <p className="text-3xl font-bold">{item.value}</p>
               <p className="text-muted-foreground text-sm">{item.label}</p>
             </div>
@@ -322,17 +323,17 @@ export default function Home() {
       {/* Collections */}
       <section className="py-14 sm:py-16 lg:py-20 bg-muted/40">
         <div className="container px-4 md:px-6 space-y-10">
-          <div className="flex flex-col gap-3 text-center">
+          <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Pick your vibe</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Hand-built collections to match how you like to travel.
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {collections.map((item) => (
-              <Card key={item.title} className="shadow-sm h-full">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
+            {collections.map((item, index) => (
+              <Card key={item.title} className="shadow-sm h-full hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardHeader className="space-y-2">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary hover-scale transition-transform">
                     <item.icon className="h-5 w-5" />
                   </div>
                   <CardTitle className="text-lg">{item.title}</CardTitle>
@@ -347,7 +348,7 @@ export default function Home() {
       {/* Journey support */}
       <section className="py-14 sm:py-16 lg:py-20 bg-background">
         <div className="container px-4 md:px-6 space-y-10">
-          <div className="flex flex-col gap-3 text-center">
+          <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">
               One journey, one support line
             </h2>
@@ -355,11 +356,11 @@ export default function Home() {
               Every leg covered—from booking to check-in to getting home.
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {journeySteps.map((step) => (
-              <Card key={step.title} className="shadow-sm h-full">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
+            {journeySteps.map((step, index) => (
+              <Card key={step.title} className="shadow-sm h-full hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardHeader className="space-y-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary hover-scale transition-transform">
                     <step.icon className="h-5 w-5" />
                   </div>
                   <CardTitle className="text-lg">{step.title}</CardTitle>
@@ -374,7 +375,7 @@ export default function Home() {
       {/* Map + assurance */}
       <section className="py-14 sm:py-16 lg:py-20 bg-muted/50">
         <div className="container px-4 md:px-6 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in-left">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               Coverage + confidence
             </p>
@@ -385,8 +386,8 @@ export default function Home() {
               Instant confirmations, disruption coverage, and loyalty that stacks
               with airline and hotel programs. Transparent prices before you pay.
             </p>
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-lg border bg-background p-4 space-y-2">
+            <div className="grid gap-3 md:grid-cols-2 animate-stagger">
+              <div className="rounded-lg border bg-background p-4 space-y-2 hover-lift transition-all duration-300">
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   <HeartHandshake className="h-4 w-4 text-primary" />
                   Loyalty that stacks
@@ -395,7 +396,7 @@ export default function Home() {
                   Member rates + partner perks applied automatically at checkout.
                 </p>
               </div>
-              <div className="rounded-lg border bg-background p-4 space-y-2">
+              <div className="rounded-lg border bg-background p-4 space-y-2 hover-lift transition-all duration-300">
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   <ShieldCheck className="h-4 w-4 text-primary" />
                   Protected changes
@@ -406,15 +407,15 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button asChild>
+              <Button asChild className="hover-lift">
                 <Link href="/signup">Create free account</Link>
               </Button>
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild className="hover-lift">
                 <Link href="/about">See how we protect trips</Link>
               </Button>
             </div>
           </div>
-          <Card className="shadow-lg overflow-hidden">
+          <Card className="shadow-lg overflow-hidden animate-fade-in-right hover-lift">
             <div className="relative h-[260px] w-full bg-gradient-to-br from-primary/15 via-background to-secondary/20">
               <div className="absolute inset-6 rounded-xl border border-dashed border-primary/40 bg-background/70 backdrop-blur" />
               <div className="absolute inset-0 flex items-center justify-center">
@@ -438,18 +439,18 @@ export default function Home() {
       {/* Testimonials */}
       <section className="py-14 sm:py-16 lg:py-20 bg-background">
         <div className="container px-4 md:px-6 space-y-8">
-          <div className="flex flex-col gap-3 text-center">
+          <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Travelers trust TabiLink</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Real stories from people who needed reliable booking and fast support.
             </p>
           </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((item) => (
-              <Card key={item.name} className="shadow-sm">
+          <div className="grid gap-6 md:grid-cols-3 animate-stagger">
+            {testimonials.map((item, index) => (
+              <Card key={item.name} className="shadow-sm hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardContent className="space-y-4 p-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold hover-scale transition-transform">
                       {item.name[0]}
                     </div>
                     <div>
@@ -473,15 +474,15 @@ export default function Home() {
       {/* FAQ */}
       <section className="py-14 sm:py-16 lg:py-20 bg-muted/40">
         <div className="container px-4 md:px-6 space-y-8">
-          <div className="flex flex-col gap-3 text-center">
+          <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Questions, answered</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Straightforward policies and real humans when you need them.
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {faqs.map((faq) => (
-              <Card key={faq.question} className="shadow-sm h-full">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
+            {faqs.map((faq, index) => (
+              <Card key={faq.question} className="shadow-sm h-full hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardHeader>
                   <CardTitle className="text-base">{faq.question}</CardTitle>
                   <CardDescription>{faq.answer}</CardDescription>
@@ -494,27 +495,27 @@ export default function Home() {
 
       {/* CTA */}
       <section className="py-14 sm:py-16 lg:py-20 bg-primary text-primary-foreground">
-        <div className="container px-4 md:px-6 text-center space-y-6">
-          <div className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide">
+        <div className="container px-4 md:px-6 text-center space-y-6 animate-fade-in-up">
+          <div className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide animate-fade-in">
             <Globe2 className="h-4 w-4" />
             Travel made simple
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight animate-fade-in-up">
             Start your next trip with better rates and real support.
           </h2>
-          <p className="max-w-3xl mx-auto text-base sm:text-lg opacity-90">
+          <p className="max-w-3xl mx-auto text-base sm:text-lg opacity-90 animate-fade-in-up">
             Plan once, manage everywhere. Flights, trains, and stays covered with
             member perks included.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild size="lg" variant="secondary" className="hover-lift">
               <Link href="/signup">Create free account</Link>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover-lift"
             >
               <Link href="/travel">Browse packages</Link>
             </Button>

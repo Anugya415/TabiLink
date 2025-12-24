@@ -51,24 +51,25 @@ export function Header() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-fade-in-down">
       <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2 hover-scale transition-transform">
           <Plane className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           <span className="text-lg sm:text-xl font-bold">TabiLink</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
-          {navItems.map((item) => (
+          {navItems.map((item, index) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                "text-sm font-medium transition-all duration-300 hover:text-primary hover-scale",
                 pathname === item.href
                   ? "text-primary"
                   : "text-muted-foreground"
               )}
+              style={{ animationDelay: `${index * 0.05}s` }}
             >
               {item.label}
             </Link>
@@ -77,13 +78,13 @@ export function Header() {
 
         <div className="flex items-center space-x-4">
           {!isLoggedIn ? (
-            <Button asChild className="hidden md:inline-flex">
+            <Button asChild className="hidden md:inline-flex hover-lift">
               <Link href="/login">Login</Link>
             </Button>
           ) : (
             <Button
               variant="outline"
-              className="hidden md:inline-flex"
+              className="hidden md:inline-flex hover-lift"
               onClick={handleSignOut}
             >
               Sign out
@@ -92,7 +93,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="md:hidden hover-scale transition-transform"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -105,29 +106,30 @@ export function Header() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden border-t">
-          <nav className="container flex flex-col space-y-4 p-4">
-            {navItems.map((item) => (
+        <div className="md:hidden border-t animate-slide-up">
+          <nav className="container flex flex-col space-y-4 p-4 animate-stagger">
+            {navItems.map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
+                  "text-sm font-medium transition-all duration-300 hover:text-primary hover-scale",
                   pathname === item.href
                     ? "text-primary"
                     : "text-muted-foreground"
                 )}
                 onClick={() => setMobileMenuOpen(false)}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {item.label}
               </Link>
             ))}
             {!isLoggedIn ? (
-              <Button asChild className="w-full mt-4">
+              <Button asChild className="w-full mt-4 hover-lift" style={{ animationDelay: `${navItems.length * 0.1}s` }}>
                 <Link href="/login">Login</Link>
               </Button>
             ) : (
-              <Button className="w-full mt-4" variant="outline" onClick={handleSignOut}>
+              <Button className="w-full mt-4 hover-lift" variant="outline" onClick={handleSignOut} style={{ animationDelay: `${navItems.length * 0.1}s` }}>
                 Sign out
               </Button>
             )}

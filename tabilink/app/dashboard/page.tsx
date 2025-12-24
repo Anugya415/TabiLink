@@ -109,15 +109,15 @@ export default function DashboardPage() {
   }, [])
 
   return (
-    <div className="container space-y-8 py-12">
-      <div className="flex flex-col gap-3">
+    <div className="container space-y-8 py-12 page-content">
+      <div className="flex flex-col gap-3 animate-fade-in-down">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
               Dashboard
             </p>
-            <h1 className="text-3xl font-bold">Your travel savings</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold animate-fade-in-up">Your travel savings</h1>
+            <p className="text-muted-foreground animate-fade-in-up">
               View discounts for places you have visited and current transport
               offers. This section unlocks after you sign in.
             </p>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
       </div>
 
       {!isLoggedIn ? (
-        <Card className="border-dashed">
+        <Card className="border-dashed animate-scale-in hover-lift">
           <CardHeader>
             <CardTitle>Sign in to unlock discounts</CardTitle>
             <CardDescription>
@@ -164,23 +164,23 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
-          <div className="inline-flex rounded-full border bg-muted/40 p-1 text-sm">
+        <div className="space-y-4 animate-fade-in-up">
+          <div className="inline-flex rounded-full border bg-muted/40 p-1 text-sm animate-scale-in">
             <button
-              className={`rounded-full px-4 py-2 transition ${
+              className={`rounded-full px-4 py-2 transition-all duration-300 hover-scale ${
                 activeTab === "discounts"
                   ? "bg-background shadow-sm font-semibold"
-                  : "text-muted-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => setActiveTab("discounts")}
             >
               Discounts
             </button>
             <button
-              className={`rounded-full px-4 py-2 transition ${
+              className={`rounded-full px-4 py-2 transition-all duration-300 hover-scale ${
                 activeTab === "history"
                   ? "bg-background shadow-sm font-semibold"
-                  : "text-muted-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => setActiveTab("history")}
             >
@@ -189,8 +189,8 @@ export default function DashboardPage() {
           </div>
 
           {activeTab === "discounts" ? (
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Card className="shadow-sm">
+            <div className="grid gap-6 lg:grid-cols-2 animate-stagger">
+              <Card className="shadow-sm hover-lift animate-fade-in-left">
                 <CardHeader className="space-y-1">
                   <CardTitle>Discounts on places you visited</CardTitle>
                   <CardDescription>
@@ -198,10 +198,11 @@ export default function DashboardPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {visitedDiscounts.map((item) => (
+                  {visitedDiscounts.map((item, index) => (
                     <div
                       key={item.place}
-                      className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between hover-lift transition-all duration-300"
+                      style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -216,10 +217,10 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary hover-scale">
                           {item.discount}% off
                         </span>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="hover-lift">
                           Apply deal
                         </Button>
                       </div>
@@ -228,7 +229,7 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-sm">
+              <Card className="shadow-sm hover-lift animate-fade-in-right">
                 <CardHeader className="space-y-1">
                   <CardTitle>Transport discounts</CardTitle>
                   <CardDescription>
@@ -236,13 +237,14 @@ export default function DashboardPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4">
-                  {transportDeals.map((deal) => (
+                  {transportDeals.map((deal, index) => (
                     <div
                       key={deal.provider}
-                      className="flex items-start justify-between gap-3 rounded-lg border bg-muted/40 p-4"
+                      className="flex items-start justify-between gap-3 rounded-lg border bg-muted/40 p-4 hover-lift transition-all duration-300"
+                      style={{ animationDelay: `${index * 0.1}s` }}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary hover-scale transition-transform">
                           <deal.icon className="h-5 w-5" />
                         </div>
                         <div className="space-y-1">
@@ -252,7 +254,7 @@ export default function DashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary hover-scale">
                         {deal.discount}% off
                       </span>
                     </div>
@@ -261,16 +263,17 @@ export default function DashboardPage() {
               </Card>
             </div>
           ) : (
-            <Card className="shadow-sm">
+            <Card className="shadow-sm hover-lift animate-scale-in">
               <CardHeader className="space-y-1">
                 <CardTitle>Your travel history</CardTitle>
                 <CardDescription>Previously completed trips.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {travelHistory.map((trip) => (
+              <CardContent className="space-y-4 animate-stagger">
+                {travelHistory.map((trip, index) => (
                   <div
                     key={trip.destination + trip.dates}
-                    className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between hover-lift transition-all duration-300"
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className="space-y-1">
                       <p className="font-semibold">{trip.destination}</p>
@@ -280,10 +283,10 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary hover-scale">
                         {trip.spend}
                       </span>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="hover-lift">
                         View details
                       </Button>
                     </div>
