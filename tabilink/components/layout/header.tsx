@@ -52,7 +52,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-fade-in-down">
-      <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
+      <div className="container flex h-14 sm:h-16 items-center justify-between">
         <Link href="/" className="flex items-center space-x-2 hover-scale transition-transform">
           <Plane className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           <span className="text-lg sm:text-xl font-bold">TabiLink</span>

@@ -77,8 +77,9 @@ const PopoverContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     align?: "start" | "center" | "end"
+    sideOffset?: number
   }
->(({ className, align = "center", children, ...props }, ref) => {
+>(({ className, align = "center", sideOffset = 4, children, ...props }, ref) => {
   const context = React.useContext(PopoverContext)
   if (!context) throw new Error("PopoverContent must be used within Popover")
 
@@ -99,6 +100,7 @@ const PopoverContent = React.forwardRef<
           align === "end" && "right-0",
           className
         )}
+        style={{ top: `calc(100% + ${sideOffset}px)` }}
         {...props}
       >
         {children}

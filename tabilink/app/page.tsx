@@ -21,6 +21,9 @@ import {
   Star,
   Train,
   Users,
+  Percent,
+  Tag,
+  Gift,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -149,10 +152,41 @@ const faqs = [
 ]
 
 const stats = [
-  { label: "Trips booked securely", value: "120k+" },
-  { label: "Avg. traveler rating", value: "4.9/5" },
-  { label: "Cities with partners", value: "180+" },
-  { label: "Response time", value: "<2 min" },
+  { label: "Happy Customers", value: "15M+" },
+  { label: "Bookings Every Month", value: "1M+" },
+  { label: "Countries Covered", value: "200+" },
+  { label: "24/7 Support", value: "Always On" },
+]
+
+const offers = [
+  {
+    title: "Weekend Getaway Sale",
+    description: "Flat 25% OFF on domestic hotels",
+    code: "WEEKEND25",
+    icon: Percent,
+    gradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    title: "International Flight Deals",
+    description: "Save up to $200 on international flights",
+    code: "FLY200",
+    icon: Plane,
+    gradient: "from-purple-500 to-pink-500",
+  },
+  {
+    title: "Luxury Stays",
+    description: "Extra 15% OFF on premium properties",
+    code: "LUX15",
+    icon: Tag,
+    gradient: "from-amber-500 to-orange-500",
+  },
+  {
+    title: "First Booking Bonus",
+    description: "Get $50 instant discount on first booking",
+    code: "FIRST50",
+    icon: Gift,
+    gradient: "from-emerald-500 to-teal-500",
+  },
 ]
 
 export default function Home() {
@@ -165,8 +199,7 @@ export default function Home() {
     <div className="flex flex-col">
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#a5b4fc_0,_transparent_35%)] animate-float" />
-        <div className="container relative px-4 md:px-6 py-16 md:py-24 lg:py-28">
+        <div className="container relative py-16 md:py-24 lg:py-28 z-10">
           <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
             <div className="space-y-6 animate-fade-in-left">
               <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
@@ -182,44 +215,46 @@ export default function Home() {
 
               <Card className="shadow-lg animate-scale-in hover-lift">
                 <CardContent className="p-4 sm:p-6 space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="sm:col-span-2">
-                      <label className="text-sm font-medium mb-2 block">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-start">
+                    <div className="sm:col-span-2 flex flex-col space-y-2">
+                      <label className="text-sm font-medium">
                         Destination
                       </label>
                       <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
                         <Input
                           placeholder="City, country, or landmark"
                           value={destination}
                           onChange={(e) => setDestination(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 h-9"
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
+                    <div className="flex flex-col space-y-2">
+                      <label className="text-sm font-medium">
                         Check in
                       </label>
                       <DatePicker
                         date={checkInDate}
                         onSelect={setCheckInDate}
                         placeholder="Choose date"
+                        className="w-full"
                       />
                     </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
+                    <div className="flex flex-col space-y-2">
+                      <label className="text-sm font-medium">
                         Check out
                       </label>
                       <DatePicker
                         date={checkOutDate}
                         onSelect={setCheckOutDate}
                         placeholder="Choose date"
+                        className="w-full"
                       />
                     </div>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
+                  <div className="grid gap-3 sm:grid-cols-2 items-start">
+                    <div className="flex flex-col">
                       <label className="text-sm font-medium mb-2 block">
                         Travelers
                       </label>
@@ -227,21 +262,35 @@ export default function Home() {
                         value={travelers}
                         onChange={(e) => setTravelers(e.target.value)}
                         placeholder="2 adults"
+                        className="h-9"
                       />
                     </div>
-                    <div className="flex items-end gap-3">
-                      <Button size="lg" className="w-full" asChild>
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium mb-2 block opacity-0 pointer-events-none select-none">
+                        Search
+                      </label>
+                      <Button className="w-full h-10 text-base font-semibold" asChild>
                         <Link href="/hotels">
-                          <Search className="mr-2 h-4 w-4" />
-                          Find stays
+                          <Search className="mr-2 h-5 w-5" />
+                          SEARCH HOTELS
                         </Link>
                       </Button>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    No booking fees. Free changes on select fares. Rebooking help
-                    is included.
-                  </p>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
+                      <span>Secure Payments</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <BadgeCheck className="h-3.5 w-3.5 text-blue-500" />
+                      <span>Best Price Guaranteed</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5 text-purple-500" />
+                      <span>15M+ Happy Users</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -310,7 +359,7 @@ export default function Home() {
 
       {/* Stats strip */}
       <section className="border-y bg-background">
-        <div className="container px-4 md:px-6 py-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-center animate-stagger">
+        <div className="container py-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-center animate-stagger">
           {stats.map((item, index) => (
             <div key={item.label} className="space-y-2 hover-scale transition-transform" style={{ animationDelay: `${index * 0.1}s` }}>
               <p className="text-3xl font-bold">{item.value}</p>
@@ -320,9 +369,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Offers & Deals Section */}
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
+        <div className="container space-y-10 relative z-10">
+          <div className="flex flex-col gap-3 text-center animate-fade-in-down">
+            <h2 className="text-3xl sm:text-4xl font-bold">Exclusive Offers & Deals</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Save big on your next adventure with our special promotions and discounts
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
+            {offers.map((offer, index) => {
+              const Icon = offer.icon
+              return (
+                <Card key={offer.code} className="shadow-lg border-2 hover:border-primary transition-all duration-300 hover-lift overflow-hidden group" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <div className={`h-2 bg-gradient-to-r ${offer.gradient}`} />
+                  <CardHeader className="space-y-3">
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${offer.gradient} text-white`}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <CardTitle className="text-lg group-hover:text-primary transition-colors">{offer.title}</CardTitle>
+                    <CardDescription className="text-sm">{offer.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
+                      <span className="text-xs text-muted-foreground">Code:</span>
+                      <span className="font-mono font-bold text-primary">{offer.code}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Collections */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40">
-        <div className="container px-4 md:px-6 space-y-10">
+      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40 relative overflow-hidden">
+        <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Pick your vibe</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -346,8 +430,8 @@ export default function Home() {
       </section>
 
       {/* Journey support */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-background">
-        <div className="container px-4 md:px-6 space-y-10">
+      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
+        <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">
               One journey, one support line
@@ -373,8 +457,8 @@ export default function Home() {
       </section>
 
       {/* Map + assurance */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-muted/50">
-        <div className="container px-4 md:px-6 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
+      <section className="py-14 sm:py-16 lg:py-20 bg-muted/50 relative overflow-hidden">
+        <div className="container px-4 md:px-6 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center relative z-10">
           <div className="space-y-6 animate-fade-in-left">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               Coverage + confidence
@@ -417,7 +501,7 @@ export default function Home() {
           </div>
           <Card className="shadow-lg overflow-hidden animate-fade-in-right hover-lift">
             <div className="relative h-[260px] w-full bg-gradient-to-br from-primary/15 via-background to-secondary/20">
-              <div className="absolute inset-6 rounded-xl border border-dashed border-primary/40 bg-background/70 backdrop-blur" />
+              <div className="absolute inset-6 rounded-lg border border-dashed border-primary/40 bg-background/70 backdrop-blur" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <Map className="h-32 w-32 text-primary/40" />
               </div>
@@ -437,8 +521,8 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-background">
-        <div className="container px-4 md:px-6 space-y-8">
+      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
+        <div className="container px-4 md:px-6 space-y-8 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Travelers trust TabiLink</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -472,8 +556,8 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40">
-        <div className="container px-4 md:px-6 space-y-8">
+      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40 relative overflow-hidden">
+        <div className="container px-4 md:px-6 space-y-8 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Questions, answered</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -494,8 +578,8 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-primary text-primary-foreground">
-        <div className="container px-4 md:px-6 text-center space-y-6 animate-fade-in-up">
+      <section className="py-14 sm:py-16 lg:py-20 bg-primary text-primary-foreground relative overflow-hidden">
+        <div className="container px-4 md:px-6 text-center space-y-6 animate-fade-in-up relative z-10">
           <div className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide animate-fade-in">
             <Globe2 className="h-4 w-4" />
             Travel made simple
@@ -525,3 +609,4 @@ export default function Home() {
     </div>
   )
 }
+

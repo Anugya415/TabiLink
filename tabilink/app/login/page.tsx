@@ -203,7 +203,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-xl bg-background/70 p-4 ring-1 ring-border">
+        <div className="flex items-center gap-3 rounded-lg bg-background/70 p-4 ring-1 ring-border">
           <Clock3 className="h-10 w-10 text-primary" />
           <div className="space-y-1">
             <p className="text-sm font-semibold">24/7 expert support</p>

@@ -120,7 +120,7 @@ export default function HotelsPage() {
     })
 
   return (
-    <div className="container py-6 sm:py-8 px-4">
+    <div className="container py-6 sm:py-8">
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Find Your Perfect Hotel</h1>
         <p className="text-sm sm:text-base text-muted-foreground">Search and compare hotels worldwide</p>
@@ -129,7 +129,7 @@ export default function HotelsPage() {
       {/* Search and Filters */}
       <Card className="mb-6 sm:mb-8">
         <CardContent className="p-4 sm:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
             <div className="sm:col-span-2">
               <label className="text-sm font-medium mb-2 block">Search</label>
               <div className="relative">
@@ -142,20 +142,22 @@ export default function HotelsPage() {
                 />
               </div>
             </div>
-            <div>
+            <div className="flex flex-col">
               <label className="text-sm font-medium mb-2 block">Check In</label>
               <DatePicker
                 date={checkInDate}
                 onSelect={setCheckInDate}
+                className="w-full"
                 placeholder="Check in"
               />
             </div>
-            <div>
+            <div className="flex flex-col">
               <label className="text-sm font-medium mb-2 block">Check Out</label>
               <DatePicker
                 date={checkOutDate}
                 onSelect={setCheckOutDate}
                 placeholder="Check out"
+                className="w-full"
               />
             </div>
           </div>

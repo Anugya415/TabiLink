@@ -3,6 +3,8 @@ import { Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { Sidebar } from "@/components/layout/sidebar";
+import { BackgroundAnimations } from "@/components/layout/background-animations";
 import { Toaster } from "@/components/ui/toaster";
 
 const poppins = Poppins({
@@ -31,10 +33,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${poppins.variable} ${jetbrainsMono.variable} antialiased font-sans`}
+        className={`${poppins.variable} ${jetbrainsMono.variable} antialiased font-sans relative`}
       >
+        <BackgroundAnimations />
         <Header />
-        <main className="min-h-screen">{children}</main>
+        <Sidebar />
+        <main className="min-h-screen transition-all duration-300 relative z-10 lg:pl-0">{children}</main>
         <Footer />
         <Toaster />
       </body>
