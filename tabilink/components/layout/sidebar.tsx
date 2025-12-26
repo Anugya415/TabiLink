@@ -82,16 +82,19 @@ function SidebarContent() {
           href: "/dashboard",
           label: "Dashboard",
           icon: LayoutDashboard,
+          iconColor: "text-blue-600",
         },
         {
           href: "/dashboard?tab=bookings",
           label: "My Bookings",
           icon: Calendar,
+          iconColor: "text-green-600",
         },
         {
           href: "/dashboard?tab=saved",
           label: "Saved Trips",
           icon: Heart,
+          iconColor: "text-red-500",
         },
       ],
     },
@@ -102,16 +105,19 @@ function SidebarContent() {
           href: "/dashboard?tab=profile",
           label: "Profile",
           icon: User,
+          iconColor: "text-indigo-600",
         },
         {
           href: "/dashboard?tab=settings",
           label: "Settings",
           icon: Settings,
+          iconColor: "text-slate-600",
         },
         {
           href: "/dashboard?tab=notifications",
           label: "Notifications",
           icon: Bell,
+          iconColor: "text-amber-600",
         },
       ],
     },
@@ -122,26 +128,31 @@ function SidebarContent() {
           href: "/dashboard?tab=transportation",
           label: "Book Transportation",
           icon: Navigation,
+          iconColor: "text-purple-600",
         },
         {
           href: "/dashboard?tab=plan-trip",
           label: "Plan Your Trip",
           icon: Compass,
+          iconColor: "text-cyan-600",
         },
         {
           href: "/hotels",
           label: "Browse Hotels",
           icon: MapPin,
+          iconColor: "text-blue-500",
         },
         {
           href: "/travel",
           label: "Travel Packages",
           icon: Plane,
+          iconColor: "text-orange-600",
         },
         {
           href: "/dashboard?tab=payments",
           label: "Payment Methods",
           icon: CreditCard,
+          iconColor: "text-teal-600",
         },
       ],
     },
@@ -250,7 +261,12 @@ function SidebarContent() {
                         onClick={() => isMobile && setIsOpen(false)}
                         title={!isOpen && !isMobile ? item.label : undefined}
                       >
-                        <Icon className="h-5 w-5 flex-shrink-0" />
+                        <Icon className={cn(
+                          "h-5 w-5 flex-shrink-0 transition-colors",
+                          isActive 
+                            ? "text-primary" 
+                            : (item.iconColor || "text-muted-foreground")
+                        )} />
                         {isOpen && !isMobile && (
                           <span className="animate-fade-in-right truncate">{item.label}</span>
                         )}

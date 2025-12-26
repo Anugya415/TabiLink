@@ -239,7 +239,7 @@ function DashboardContent() {
         title: "Trip Planner",
         description: "Create your complete itinerary with day-by-day plans",
         icon: Navigation,
-        color: "from-gray-800 to-gray-600",
+        color: "from-violet-500 to-purple-600",
         details: {
           features: [
             "Multi-city trip planning",
@@ -262,7 +262,7 @@ function DashboardContent() {
         title: "Explore Destinations",
         description: "Discover amazing places around the world",
         icon: Compass,
-        color: "from-gray-600 to-gray-400",
+        color: "from-cyan-500 to-blue-600",
         details: {
           features: [
             "Popular destinations with ratings",
@@ -285,7 +285,7 @@ function DashboardContent() {
         title: "Restaurants",
         description: "Find the best dining options and local cuisine",
         icon: UtensilsCrossed,
-        color: "from-gray-700 to-gray-500",
+        color: "from-amber-500 to-orange-600",
         details: {
           features: [
             "Restaurant ratings and reviews",
@@ -308,7 +308,7 @@ function DashboardContent() {
         title: "Activities",
         description: "Things to do, experiences, and adventure tours",
         icon: Activity,
-        color: "from-gray-500 to-gray-300",
+        color: "from-emerald-500 to-teal-600",
         details: {
           features: [
             "Adventure sports and outdoor activities",
@@ -331,7 +331,7 @@ function DashboardContent() {
         title: "Shopping",
         description: "Best shopping destinations and local markets",
         icon: ShoppingBag,
-        color: "from-gray-700 to-gray-500",
+        color: "from-rose-500 to-pink-600",
         details: {
           features: [
             "Local markets and bazaars",
@@ -354,7 +354,7 @@ function DashboardContent() {
         title: "Attractions",
         description: "Tourist spots, landmarks, and must-visit places",
         icon: Camera,
-        color: "from-gray-600 to-gray-800",
+        color: "from-blue-500 to-indigo-600",
         details: {
           features: [
             "Historical sites and monuments",
@@ -547,7 +547,7 @@ function DashboardContent() {
                   title: "Flights",
                   description: "Book domestic & international flights",
                   icon: Plane,
-                  color: "from-gray-600 to-gray-400",
+                  color: "from-blue-500 to-cyan-500",
                   features: ["Best Prices", "24/7 Support", "Easy Cancellation"],
                 },
                 {
@@ -555,7 +555,7 @@ function DashboardContent() {
                   title: "Trains",
                   description: "Railway ticket booking",
                   icon: Train,
-                  color: "from-gray-500 to-gray-300",
+                  color: "from-green-500 to-emerald-500",
                   features: ["Instant Booking", "PNR Status", "Seat Selection"],
                 },
                 {
@@ -563,7 +563,7 @@ function DashboardContent() {
                   title: "Buses",
                   description: "Intercity & interstate buses",
                   icon: Bus,
-                  color: "from-gray-700 to-gray-500",
+                  color: "from-orange-500 to-red-500",
                   features: ["Multiple Operators", "Live Tracking", "Flexible Dates"],
                 },
                 {
@@ -571,7 +571,7 @@ function DashboardContent() {
                   title: "Cabs",
                   description: "Taxi, car rentals & airport transfers",
                   icon: Car,
-                  color: "from-gray-800 to-gray-600",
+                  color: "from-indigo-500 to-purple-500",
                   features: ["Doorstep Pickup", "Multiple Options", "Safe Rides"],
                 },
               ].map((transport, index) => {
@@ -1731,12 +1731,28 @@ function DashboardContent() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className={`h-14 w-14 rounded-lg flex items-center justify-center ${
-                        method.isDefault ? "bg-primary/20" : "bg-primary/10"
+                        method.type === "card" 
+                          ? method.brand === "Visa"
+                            ? method.isDefault ? "bg-blue-100" : "bg-blue-50"
+                            : method.brand === "Mastercard"
+                            ? method.isDefault ? "bg-red-100" : "bg-red-50"
+                            : method.isDefault ? "bg-primary/20" : "bg-primary/10"
+                          : method.isDefault ? "bg-yellow-100" : "bg-yellow-50"
                       }`}>
                         {method.type === "card" ? (
-                          <CreditCard className={`h-7 w-7 ${method.isDefault ? "text-orange-500" : "text-orange-500/70"}`} />
+                          <CreditCard className={`h-7 w-7 ${
+                            method.brand === "Visa"
+                              ? method.isDefault ? "text-blue-600" : "text-blue-500"
+                              : method.brand === "Mastercard"
+                              ? method.isDefault ? "text-red-600" : "text-red-500"
+                              : method.isDefault ? "text-orange-500" : "text-orange-500/70"
+                          }`} />
                         ) : (
-                          <div className="h-7 w-7 rounded bg-gray-700" />
+                          <div className={`h-7 w-7 rounded flex items-center justify-center ${
+                            method.isDefault ? "bg-blue-600" : "bg-blue-500"
+                          }`}>
+                            <span className="text-white text-xs font-bold">PP</span>
+                          </div>
                         )}
                       </div>
                       <div className="space-y-1">
@@ -1880,6 +1896,8 @@ function DashboardContent() {
       icon: Navigation,
       href: "/dashboard?tab=planner",
       color: "from-violet-500 to-purple-500",
+      iconColor: "text-white",
+      bgColor: "bg-gradient-to-br from-violet-500 to-purple-600",
     },
     {
       title: "Explore Destinations",
@@ -1887,6 +1905,8 @@ function DashboardContent() {
       icon: Compass,
       href: "/travel",
       color: "from-cyan-500 to-blue-500",
+      iconColor: "text-white",
+      bgColor: "bg-gradient-to-br from-cyan-500 to-blue-600",
     },
     {
       title: "Restaurants",
@@ -1894,6 +1914,8 @@ function DashboardContent() {
       icon: UtensilsCrossed,
       href: "/travel",
       color: "from-amber-500 to-orange-500",
+      iconColor: "text-white",
+      bgColor: "bg-gradient-to-br from-amber-500 to-orange-600",
     },
     {
       title: "Activities",
@@ -1901,6 +1923,8 @@ function DashboardContent() {
       icon: Activity,
       href: "/travel",
       color: "from-emerald-500 to-teal-500",
+      iconColor: "text-white",
+      bgColor: "bg-gradient-to-br from-emerald-500 to-teal-600",
     },
     {
       title: "Shopping",
@@ -1908,6 +1932,8 @@ function DashboardContent() {
       icon: ShoppingBag,
       href: "/travel",
       color: "from-rose-500 to-pink-500",
+      iconColor: "text-white",
+      bgColor: "bg-gradient-to-br from-rose-500 to-pink-600",
     },
     {
       title: "Attractions",
@@ -1915,6 +1941,8 @@ function DashboardContent() {
       icon: Camera,
       href: "/travel",
       color: "from-blue-500 to-indigo-500",
+      iconColor: "text-white",
+      bgColor: "bg-gradient-to-br from-blue-500 to-indigo-600",
     },
   ]
 
@@ -2095,8 +2123,8 @@ function DashboardContent() {
                       <Card className="hover-lift h-full transition-all duration-300 border-2 hover:border-primary">
                         <CardContent className="p-6">
                           <div className="flex items-start gap-4">
-                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${option.color} text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                              <Icon className="h-6 w-6" />
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${option.bgColor || `bg-gradient-to-br ${option.color}`} flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                              <Icon className={`h-6 w-6 ${option.iconColor || "text-white"}`} />
                             </div>
                             <div className="flex-1 space-y-1">
                               <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
