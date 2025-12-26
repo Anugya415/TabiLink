@@ -16,6 +16,8 @@ import {
   Bell,
   X,
   ChevronLeft,
+  Navigation,
+  Compass,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -117,6 +119,16 @@ function SidebarContent() {
       title: "Travel",
       items: [
         {
+          href: "/dashboard?tab=transportation",
+          label: "Book Transportation",
+          icon: Navigation,
+        },
+        {
+          href: "/dashboard?tab=plan-trip",
+          label: "Plan Your Trip",
+          icon: Compass,
+        },
+        {
           href: "/hotels",
           label: "Browse Hotels",
           icon: MapPin,
@@ -135,6 +147,10 @@ function SidebarContent() {
     },
   ]
 
+  // Check if we're on a dashboard-related page (header will be hidden)
+  const dashboardPages = ["/dashboard", "/hotels", "/travel"]
+  const isDashboardPage = dashboardPages.some(page => pathname.startsWith(page))
+
   return (
     <>
       {/* Mobile overlay */}
@@ -148,7 +164,8 @@ function SidebarContent() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background/95 backdrop-blur border-r z-40 transition-all duration-300 ease-in-out shadow-lg",
+          "fixed left-0 bg-background/95 backdrop-blur border-r z-40 transition-all duration-300 ease-in-out shadow-lg",
+          isDashboardPage ? "top-0 h-screen" : "top-16 h-[calc(100vh-4rem)]",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           isOpen && !isMobile ? "w-72" : "w-0 lg:w-20"
         )}

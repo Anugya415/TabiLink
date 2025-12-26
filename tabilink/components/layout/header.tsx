@@ -50,6 +50,14 @@ export function Header() {
     { href: "/about", label: "About" },
   ]
 
+  // Hide header on dashboard and related pages when logged in
+  const dashboardPages = ["/dashboard", "/hotels", "/travel"]
+  const isDashboardPage = dashboardPages.some(page => pathname.startsWith(page))
+  
+  if (isDashboardPage && isLoggedIn) {
+    return null
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-fade-in-down">
       <div className="container flex h-14 sm:h-16 items-center justify-between">

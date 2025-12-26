@@ -319,7 +319,7 @@ export default function TravelBookingPage() {
                   <span>${packageData.price.toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
+                  <div className="flex justify-between text-sm text-gray-700">
                     <span>Discount</span>
                     <span>-${discount.toFixed(2)}</span>
                   </div>

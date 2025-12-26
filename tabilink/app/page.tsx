@@ -164,28 +164,28 @@ const offers = [
     description: "Flat 25% OFF on domestic hotels",
     code: "WEEKEND25",
     icon: Percent,
-    gradient: "from-blue-500 to-cyan-500",
+    gradient: "from-orange-500 to-red-500",
   },
   {
     title: "International Flight Deals",
     description: "Save up to $200 on international flights",
     code: "FLY200",
     icon: Plane,
-    gradient: "from-purple-500 to-pink-500",
+    gradient: "from-blue-500 to-blue-600",
   },
   {
     title: "Luxury Stays",
     description: "Extra 15% OFF on premium properties",
     code: "LUX15",
     icon: Tag,
-    gradient: "from-amber-500 to-orange-500",
+    gradient: "from-purple-500 to-pink-500",
   },
   {
     title: "First Booking Bonus",
     description: "Get $50 instant discount on first booking",
     code: "FIRST50",
     icon: Gift,
-    gradient: "from-emerald-500 to-teal-500",
+    gradient: "from-green-500 to-emerald-500",
   },
 ]
 
@@ -198,7 +198,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+      <section className="relative overflow-hidden bg-white">
         <div className="container relative py-16 md:py-24 lg:py-28 z-10">
           <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
             <div className="space-y-6 animate-fade-in-left">
@@ -221,7 +221,7 @@ export default function Home() {
                         Destination
                       </label>
                       <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500 z-10 pointer-events-none" />
                         <Input
                           placeholder="City, country, or landmark"
                           value={destination}
@@ -296,15 +296,15 @@ export default function Home() {
 
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  <ShieldCheck className="h-4 w-4 text-green-500" />
                   Protected payments
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-primary" />
+                  <Calendar className="h-4 w-4 text-blue-500" />
                   Flexible itineraries
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
+                  <Users className="h-4 w-4 text-purple-500" />
                   24/7 human support
                 </div>
               </div>
@@ -370,7 +370,7 @@ export default function Home() {
       </section>
 
       {/* Offers & Deals Section */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Exclusive Offers & Deals</h2>
@@ -405,7 +405,7 @@ export default function Home() {
       </section>
 
       {/* Collections */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40 relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Pick your vibe</h2>
@@ -414,23 +414,33 @@ export default function Home() {
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
-            {collections.map((item, index) => (
-              <Card key={item.title} className="shadow-sm h-full hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardHeader className="space-y-2">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary hover-scale transition-transform">
-                    <item.icon className="h-5 w-5" />
-                  </div>
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
-                  <CardDescription>{item.copy}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+            {collections.map((item, index) => {
+              const iconColors: Record<string, string> = {
+                "Weekend escapes": "text-blue-500",
+                "Work-friendly stays": "text-blue-500",
+                "Family bundles": "text-purple-500",
+                "Low-impact travel": "text-green-500",
+              }
+              const Icon = item.icon
+              const iconColor = iconColors[item.title] || "text-blue-500"
+              return (
+                <Card key={item.title} className="shadow-sm h-full hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <CardHeader className="space-y-2">
+                    <div className={`flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 ${iconColor} hover-scale transition-transform`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                    <CardDescription>{item.copy}</CardDescription>
+                  </CardHeader>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Journey support */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">
@@ -441,23 +451,33 @@ export default function Home() {
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
-            {journeySteps.map((step, index) => (
-              <Card key={step.title} className="shadow-sm h-full hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardHeader className="space-y-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary hover-scale transition-transform">
-                    <step.icon className="h-5 w-5" />
-                  </div>
-                  <CardTitle className="text-lg">{step.title}</CardTitle>
-                  <CardDescription>{step.copy}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+            {journeySteps.map((step, index) => {
+              const iconColors: Record<string, string> = {
+                "Book in one place": "text-blue-500",
+                "Stay flexible": "text-blue-500",
+                "Protected on-trip": "text-green-500",
+                "Earn & stack perks": "text-yellow-500",
+              }
+              const Icon = step.icon
+              const iconColor = iconColors[step.title] || "text-blue-500"
+              return (
+                <Card key={step.title} className="shadow-sm h-full hover-lift" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <CardHeader className="space-y-2">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 ${iconColor} hover-scale transition-transform`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <CardTitle className="text-lg">{step.title}</CardTitle>
+                    <CardDescription>{step.copy}</CardDescription>
+                  </CardHeader>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Map + assurance */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-muted/50 relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container px-4 md:px-6 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center relative z-10">
           <div className="space-y-6 animate-fade-in-left">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
@@ -473,7 +493,7 @@ export default function Home() {
             <div className="grid gap-3 md:grid-cols-2 animate-stagger">
               <div className="rounded-lg border bg-background p-4 space-y-2 hover-lift transition-all duration-300">
                 <div className="flex items-center gap-2 text-sm font-semibold">
-                  <HeartHandshake className="h-4 w-4 text-primary" />
+                  <HeartHandshake className="h-4 w-4 text-red-500" />
                   Loyalty that stacks
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -482,7 +502,7 @@ export default function Home() {
               </div>
               <div className="rounded-lg border bg-background p-4 space-y-2 hover-lift transition-all duration-300">
                 <div className="flex items-center gap-2 text-sm font-semibold">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  <ShieldCheck className="h-4 w-4 text-green-500" />
                   Protected changes
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -500,15 +520,15 @@ export default function Home() {
             </div>
           </div>
           <Card className="shadow-lg overflow-hidden animate-fade-in-right hover-lift">
-            <div className="relative h-[260px] w-full bg-gradient-to-br from-primary/15 via-background to-secondary/20">
+            <div className="relative h-[260px] w-full bg-white">
               <div className="absolute inset-6 rounded-lg border border-dashed border-primary/40 bg-background/70 backdrop-blur" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Map className="h-32 w-32 text-primary/40" />
+                <Map className="h-32 w-32 text-blue-500/40" />
               </div>
             </div>
             <CardContent className="space-y-3 p-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                <Globe2 className="h-4 w-4" />
+                <Globe2 className="h-4 w-4 text-blue-500" />
                 Live coverage in 50+ countries
               </div>
               <p className="text-sm text-muted-foreground">
@@ -545,7 +565,7 @@ export default function Home() {
                   <p className="text-muted-foreground">{item.quote}</p>
                   <div className="flex items-center gap-1 text-primary">
                     {[...Array(5)].map((_, idx) => (
-                      <Star key={idx} className="h-4 w-4 fill-primary" />
+                      <Star key={idx} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
                 </CardContent>
@@ -556,7 +576,7 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-muted/40 relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container px-4 md:px-6 space-y-8 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">Questions, answered</h2>
@@ -581,7 +601,7 @@ export default function Home() {
       <section className="py-14 sm:py-16 lg:py-20 bg-primary text-primary-foreground relative overflow-hidden">
         <div className="container px-4 md:px-6 text-center space-y-6 animate-fade-in-up relative z-10">
           <div className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide animate-fade-in">
-            <Globe2 className="h-4 w-4" />
+            <Globe2 className="h-4 w-4 text-primary-foreground" />
             Travel made simple
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight animate-fade-in-up">

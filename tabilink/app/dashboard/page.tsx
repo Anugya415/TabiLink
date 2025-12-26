@@ -32,6 +32,16 @@ import {
   VolumeX,
   Hotel,
   Package,
+  Car,
+  Navigation,
+  Compass,
+  Building2,
+  UtensilsCrossed,
+  Camera,
+  ShoppingBag,
+  Activity,
+  Search,
+  ArrowRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,6 +53,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { DatePicker } from "@/components/ui/date-picker"
 import {
   mockUserProfile,
   mockBookings,
@@ -113,13 +124,13 @@ const transportDeals = [
 const getStatusColor = (status: Booking["status"]) => {
   switch (status) {
     case "confirmed":
-      return "bg-green-500/10 text-green-700 dark:text-green-400"
+      return "bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
     case "pending":
-      return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400"
+      return "bg-gray-300 text-gray-900 dark:bg-gray-700 dark:text-gray-100"
     case "cancelled":
-      return "bg-red-500/10 text-red-700 dark:text-red-400"
+      return "bg-gray-400 text-gray-900 dark:bg-gray-600 dark:text-gray-100"
     case "completed":
-      return "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
     default:
       return "bg-muted text-muted-foreground"
   }
@@ -147,6 +158,42 @@ function DashboardContent() {
   const [sidebarTab, setSidebarTab] = useState<string | null>(null)
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(mockPaymentMethods)
+  
+  // Hooks for bookings section
+  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [sortBy, setSortBy] = useState<string>("date")
+  
+  // Hooks for saved trips section
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  
+  // Hooks for settings section
+  const [currency, setCurrency] = useState(mockUserProfile.preferences.currency)
+  const [language, setLanguage] = useState(mockUserProfile.preferences.language)
+  const [emailNotif, setEmailNotif] = useState(mockUserProfile.preferences.notifications.email)
+  const [smsNotif, setSmsNotif] = useState(mockUserProfile.preferences.notifications.sms)
+  const [pushNotif, setPushNotif] = useState(mockUserProfile.preferences.notifications.push)
+  
+  // Hooks for notifications section
+  const [filterType, setFilterType] = useState<"all" | "unread">("all")
+  
+  // Hooks for transportation booking
+  const [selectedTransport, setSelectedTransport] = useState<string | null>(null)
+  const [flightFrom, setFlightFrom] = useState("")
+  const [flightTo, setFlightTo] = useState("")
+  const [flightDate, setFlightDate] = useState<Date>()
+  const [flightReturnDate, setFlightReturnDate] = useState<Date>()
+  const [flightType, setFlightType] = useState<"one-way" | "round-trip">("one-way")
+  const [trainFrom, setTrainFrom] = useState("")
+  const [trainTo, setTrainTo] = useState("")
+  const [trainDate, setTrainDate] = useState<Date>()
+  const [busFrom, setBusFrom] = useState("")
+  const [busTo, setBusTo] = useState("")
+  const [busDate, setBusDate] = useState<Date>()
+  const [cabFrom, setCabFrom] = useState("")
+  const [cabTo, setCabTo] = useState("")
+  const [cabDate, setCabDate] = useState<Date>()
+  const [cabTime, setCabTime] = useState("")
+  const [passengers, setPassengers] = useState("1")
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -181,24 +228,778 @@ function DashboardContent() {
     setPaymentMethods((prev) => prev.filter((pm) => pm.id !== id))
   }
 
+  // Hooks for plan your trip section
+  const [selectedPlanOption, setSelectedPlanOption] = useState<string | null>(null)
+
   // Render content based on sidebar tab
-  if (sidebarTab === "bookings") {
+  if (sidebarTab === "plan-trip") {
+    const planOptions = [
+      {
+        id: "trip-planner",
+        title: "Trip Planner",
+        description: "Create your complete itinerary with day-by-day plans",
+        icon: Navigation,
+        color: "from-gray-800 to-gray-600",
+        details: {
+          features: [
+            "Multi-city trip planning",
+            "Day-by-day itinerary builder",
+            "Budget calculator and tracker",
+            "Timeline view with drag & drop",
+            "Share itinerary with travel companions",
+            "Export to PDF or calendar",
+          ],
+          tips: [
+            "Start by selecting your destination and travel dates",
+            "Add activities and attractions to each day",
+            "Set your budget to get cost estimates",
+            "Use the timeline view to optimize your schedule",
+          ],
+        },
+      },
+      {
+        id: "explore-destinations",
+        title: "Explore Destinations",
+        description: "Discover amazing places around the world",
+        icon: Compass,
+        color: "from-gray-600 to-gray-400",
+        details: {
+          features: [
+            "Popular destinations with ratings",
+            "Detailed travel guides and tips",
+            "Best time to visit information",
+            "Weather forecasts and seasonal advice",
+            "Local culture and customs",
+            "Visa requirements and travel documents",
+          ],
+          tips: [
+            "Filter destinations by budget, climate, or interests",
+            "Read traveler reviews and recommendations",
+            "Check visa requirements before booking",
+            "Consider off-season travel for better deals",
+          ],
+        },
+      },
+      {
+        id: "restaurants",
+        title: "Restaurants",
+        description: "Find the best dining options and local cuisine",
+        icon: UtensilsCrossed,
+        color: "from-gray-700 to-gray-500",
+        details: {
+          features: [
+            "Restaurant ratings and reviews",
+            "Cuisine type filters (Italian, Asian, etc.)",
+            "Price range indicators",
+            "Reservation booking system",
+            "Dietary restrictions filters",
+            "Local food recommendations",
+          ],
+          tips: [
+            "Book popular restaurants in advance",
+            "Try local street food for authentic flavors",
+            "Check for happy hour deals and specials",
+            "Read reviews for hidden gems",
+          ],
+        },
+      },
+      {
+        id: "activities",
+        title: "Activities",
+        description: "Things to do, experiences, and adventure tours",
+        icon: Activity,
+        color: "from-gray-500 to-gray-300",
+        details: {
+          features: [
+            "Adventure sports and outdoor activities",
+            "Cultural tours and heritage walks",
+            "Family-friendly activities",
+            "Water sports and beach activities",
+            "Nightlife and entertainment",
+            "Workshop and class bookings",
+          ],
+          tips: [
+            "Book adventure activities in advance during peak season",
+            "Check age and fitness requirements",
+            "Read cancellation policies before booking",
+            "Look for combo deals on multiple activities",
+          ],
+        },
+      },
+      {
+        id: "shopping",
+        title: "Shopping",
+        description: "Best shopping destinations and local markets",
+        icon: ShoppingBag,
+        color: "from-gray-700 to-gray-500",
+        details: {
+          features: [
+            "Local markets and bazaars",
+            "Shopping malls and outlets",
+            "Souvenir shops and gift stores",
+            "Duty-free shopping information",
+            "Local handicrafts and specialties",
+            "Shopping district guides",
+          ],
+          tips: [
+            "Visit local markets for authentic products",
+            "Bargain at street markets and bazaars",
+            "Check duty-free allowances for international travel",
+            "Buy souvenirs early to avoid last-minute rush",
+          ],
+        },
+      },
+      {
+        id: "attractions",
+        title: "Attractions",
+        description: "Tourist spots, landmarks, and must-visit places",
+        icon: Camera,
+        color: "from-gray-600 to-gray-800",
+        details: {
+          features: [
+            "Historical sites and monuments",
+            "Natural wonders and scenic spots",
+            "Museums and art galleries",
+            "Photo spots and Instagram-worthy locations",
+            "Skip-the-line ticket booking",
+            "Audio guide and tour options",
+          ],
+          tips: [
+            "Book skip-the-line tickets for popular attractions",
+            "Visit early morning or late evening to avoid crowds",
+            "Check opening hours and special events",
+            "Download audio guides for self-paced tours",
+          ],
+        },
+      },
+    ]
+
     return (
       <div className="container space-y-8 py-12 page-content relative">
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-              My Bookings
+              Plan Your Trip
             </p>
-            <h1 className="text-3xl font-bold">Your Reservations</h1>
+            <h1 className="text-3xl font-bold">Plan Your Perfect Trip</h1>
             <p className="text-muted-foreground">
-              Manage and view all your upcoming and past bookings.
+              Explore destinations, plan itineraries, and discover amazing experiences for your next adventure
             </p>
           </div>
         </div>
 
+        {!selectedPlanOption ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
+            {planOptions.map((option, index) => {
+              const Icon = option.icon
+              return (
+                <Card
+                  key={option.id}
+                  className="hover-lift h-full transition-all duration-300 border-2 hover:border-primary cursor-pointer"
+                  onClick={() => setSelectedPlanOption(option.id)}
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-4">
+                        <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${option.color} text-white flex-shrink-0 transition-transform hover:scale-110 shadow-md`}>
+                          <Icon className="h-7 w-7" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <h3 className="font-bold text-lg hover:text-primary transition-colors">
+                            {option.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {option.description}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="outline" className="w-full">
+                        Explore Details
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        ) : (
+          <Card className="border-2 border-primary/30 bg-primary/5 animate-fade-in-up">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSelectedPlanOption(null)}
+                    className="hover-lift"
+                  >
+                    <ArrowRight className="h-4 w-4 rotate-180" />
+                  </Button>
+                  {(() => {
+                    const option = planOptions.find(o => o.id === selectedPlanOption)
+                    if (!option) return null
+                    const Icon = option.icon
+                    return (
+                      <>
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${option.color} text-white`}>
+                          <Icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-2xl">{option.title}</CardTitle>
+                          <CardDescription className="text-base">{option.description}</CardDescription>
+                        </div>
+                      </>
+                    )
+                  })()}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {(() => {
+                const option = planOptions.find(o => o.id === selectedPlanOption)
+                if (!option) return null
+                return (
+                  <>
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <Card className="hover-lift">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Check className="h-5 w-5 text-green-500" />
+                            Features
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-3">
+                            {option.details.features.map((feature, idx) => (
+                              <li key={idx} className="flex items-start gap-3">
+                                <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                                <span className="text-sm">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="hover-lift">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Star className="h-5 w-5 text-yellow-500" />
+                            Tips & Recommendations
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-3">
+                            {option.details.tips.map((tip, idx) => (
+                              <li key={idx} className="flex items-start gap-3">
+                                <Star className="h-4 w-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                                <span className="text-sm">{tip}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t">
+                      <Button className="hover-lift flex-1" size="lg">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Start Planning
+                      </Button>
+                      <Button variant="outline" className="hover-lift" size="lg">
+                        <Link href="/travel">Browse Options</Link>
+                      </Button>
+                    </div>
+                  </>
+                )
+              })()}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    )
+  }
+
+  // Render content based on sidebar tab
+  if (sidebarTab === "transportation") {
+    return (
+      <div className="container space-y-8 py-12 page-content relative">
+        <div className="flex flex-col gap-3 animate-fade-in-down">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+              Book Transportation
+            </p>
+            <h1 className="text-3xl font-bold">Book Your Transportation</h1>
+            <p className="text-muted-foreground">
+              Select your preferred mode of travel and book instantly - flights, trains, buses, or cabs
+            </p>
+          </div>
+        </div>
+
+        <Card className="hover-lift border-2 border-primary/20">
+          <CardContent className="p-6 space-y-6">
+            {/* Transport Type Selection */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
+              {[
+                {
+                  id: "flights",
+                  title: "Flights",
+                  description: "Book domestic & international flights",
+                  icon: Plane,
+                  color: "from-gray-600 to-gray-400",
+                  features: ["Best Prices", "24/7 Support", "Easy Cancellation"],
+                },
+                {
+                  id: "trains",
+                  title: "Trains",
+                  description: "Railway ticket booking",
+                  icon: Train,
+                  color: "from-gray-500 to-gray-300",
+                  features: ["Instant Booking", "PNR Status", "Seat Selection"],
+                },
+                {
+                  id: "buses",
+                  title: "Buses",
+                  description: "Intercity & interstate buses",
+                  icon: Bus,
+                  color: "from-gray-700 to-gray-500",
+                  features: ["Multiple Operators", "Live Tracking", "Flexible Dates"],
+                },
+                {
+                  id: "cabs",
+                  title: "Cabs",
+                  description: "Taxi, car rentals & airport transfers",
+                  icon: Car,
+                  color: "from-gray-800 to-gray-600",
+                  features: ["Doorstep Pickup", "Multiple Options", "Safe Rides"],
+                },
+              ].map((transport, index) => {
+                const Icon = transport.icon
+                const isSelected = selectedTransport === transport.id
+                return (
+                  <Card
+                    key={transport.id}
+                    className={`hover-lift h-full transition-all duration-300 border-2 cursor-pointer ${
+                      isSelected ? "border-primary shadow-lg bg-primary/5" : "hover:border-primary hover:shadow-lg"
+                    }`}
+                    onClick={() => setSelectedTransport(transport.id)}
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${transport.color} text-white transition-transform shadow-lg ${isSelected ? "scale-110" : ""}`}>
+                          <Icon className="h-8 w-8" />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className={`font-bold text-xl transition-colors ${isSelected ? "text-primary" : ""}`}>
+                            {transport.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {transport.description}
+                          </p>
+                        </div>
+                        <div className="w-full space-y-1.5 pt-2 border-t">
+                          {transport.features.map((feature, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+
+            {/* Booking Forms */}
+            {selectedTransport && (
+              <Card className="border-2 border-primary/30 bg-primary/5 animate-fade-in-up">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      {selectedTransport === "flights" && <Plane className="h-5 w-5 text-blue-500" />}
+                      {selectedTransport === "trains" && <Train className="h-5 w-5 text-green-500" />}
+                      {selectedTransport === "buses" && <Bus className="h-5 w-5 text-orange-500" />}
+                      {selectedTransport === "cabs" && <Car className="h-5 w-5 text-red-500" />}
+                      Book {selectedTransport === "flights" ? "Flight" : selectedTransport === "trains" ? "Train" : selectedTransport === "buses" ? "Bus" : "Cab"}
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setSelectedTransport(null)
+                        setFlightFrom("")
+                        setFlightTo("")
+                        setFlightDate(undefined)
+                        setFlightReturnDate(undefined)
+                        setTrainFrom("")
+                        setTrainTo("")
+                        setTrainDate(undefined)
+                        setBusFrom("")
+                        setBusTo("")
+                        setBusDate(undefined)
+                        setCabFrom("")
+                        setCabTo("")
+                        setCabDate(undefined)
+                        setCabTime("")
+                      }}
+                      className="hover-lift"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {selectedTransport === "flights" && (
+                    <div className="space-y-4">
+                      <div className="flex gap-2 mb-4">
+                        <Button
+                          variant={flightType === "one-way" ? "default" : "outline"}
+                          onClick={() => setFlightType("one-way")}
+                          className="hover-lift"
+                        >
+                          One Way
+                        </Button>
+                        <Button
+                          variant={flightType === "round-trip" ? "default" : "outline"}
+                          onClick={() => setFlightType("round-trip")}
+                          className="hover-lift"
+                        >
+                          Round Trip
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="space-y-2">
+                          <Label>From</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="City or Airport"
+                              value={flightFrom}
+                              onChange={(e) => setFlightFrom(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>To</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="City or Airport"
+                              value={flightTo}
+                              onChange={(e) => setFlightTo(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Departure Date</Label>
+                          <DatePicker
+                            date={flightDate}
+                            onSelect={setFlightDate}
+                            placeholder="Select date"
+                            className="w-full"
+                          />
+                        </div>
+                        {flightType === "round-trip" && (
+                          <div className="space-y-2">
+                            <Label>Return Date</Label>
+                            <DatePicker
+                              date={flightReturnDate}
+                              onSelect={setFlightReturnDate}
+                              placeholder="Select date"
+                              className="w-full"
+                            />
+                          </div>
+                        )}
+                        {flightType === "one-way" && (
+                          <div className="space-y-2">
+                            <Label>Passengers</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              value={passengers}
+                              onChange={(e) => setPassengers(e.target.value)}
+                              placeholder="1"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {flightType === "round-trip" && (
+                        <div className="space-y-2">
+                          <Label>Passengers</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={passengers}
+                            onChange={(e) => setPassengers(e.target.value)}
+                            placeholder="1"
+                            className="w-full md:w-48"
+                          />
+                        </div>
+                      )}
+                      <Button className="w-full hover-lift" size="lg">
+                        <Search className="h-4 w-4 mr-2" />
+                        Search Flights
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedTransport === "trains" && (
+                    <div className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="space-y-2">
+                          <Label>From Station</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="Enter station"
+                              value={trainFrom}
+                              onChange={(e) => setTrainFrom(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>To Station</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="Enter station"
+                              value={trainTo}
+                              onChange={(e) => setTrainTo(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Journey Date</Label>
+                          <DatePicker
+                            date={trainDate}
+                            onSelect={setTrainDate}
+                            placeholder="Select date"
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Passengers</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={passengers}
+                            onChange={(e) => setPassengers(e.target.value)}
+                            placeholder="1"
+                          />
+                        </div>
+                      </div>
+                      <Button className="w-full hover-lift" size="lg">
+                        <Search className="h-4 w-4 mr-2" />
+                        Search Trains
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedTransport === "buses" && (
+                    <div className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="space-y-2">
+                          <Label>From City</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="Enter city"
+                              value={busFrom}
+                              onChange={(e) => setBusFrom(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>To City</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="Enter city"
+                              value={busTo}
+                              onChange={(e) => setBusTo(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Travel Date</Label>
+                          <DatePicker
+                            date={busDate}
+                            onSelect={setBusDate}
+                            placeholder="Select date"
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Passengers</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={passengers}
+                            onChange={(e) => setPassengers(e.target.value)}
+                            placeholder="1"
+                          />
+                        </div>
+                      </div>
+                      <Button className="w-full hover-lift" size="lg">
+                        <Search className="h-4 w-4 mr-2" />
+                        Search Buses
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedTransport === "cabs" && (
+                    <div className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="space-y-2">
+                          <Label>Pickup Location</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="Enter pickup location"
+                              value={cabFrom}
+                              onChange={(e) => setCabFrom(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Drop Location</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                            <Input
+                              placeholder="Enter drop location"
+                              value={cabTo}
+                              onChange={(e) => setCabTo(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Pickup Date</Label>
+                          <DatePicker
+                            date={cabDate}
+                            onSelect={setCabDate}
+                            placeholder="Select date"
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Pickup Time</Label>
+                          <Input
+                            type="time"
+                            value={cabTime}
+                            onChange={(e) => setCabTime(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <Button className="w-full hover-lift" size="lg">
+                        <Search className="h-4 w-4 mr-2" />
+                        Search Cabs
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Render content based on sidebar tab
+  if (sidebarTab === "bookings") {
+    const filteredBookings = mockBookings.filter(booking => {
+      if (filterStatus === "all") return true
+      return booking.status === filterStatus
+    })
+
+    const sortedBookings = [...filteredBookings].sort((a, b) => {
+      if (sortBy === "date") {
+        return new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime()
+      }
+      if (sortBy === "amount") {
+        return b.amount - a.amount
+      }
+      return 0
+    })
+
+  return (
+      <div className="container space-y-8 py-12 page-content relative">
+        <div className="flex flex-col gap-3 animate-fade-in-down">
+          <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                My Bookings
+            </p>
+              <h1 className="text-3xl font-bold">Your Reservations</h1>
+            <p className="text-muted-foreground">
+                Manage and view all your upcoming and past bookings.
+              </p>
+            </div>
+            <Button className="hover-lift">
+              <Plus className="h-4 w-4 mr-2" />
+              New Booking
+            </Button>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <Card className="hover-lift">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Filter:</label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                >
+                  <option value="all">All Status</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Sort by:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                >
+                  <option value="date">Date</option>
+                  <option value="amount">Amount</option>
+                </select>
+              </div>
+              <div className="ml-auto text-sm text-muted-foreground">
+                Showing {sortedBookings.length} of {mockBookings.length} bookings
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="space-y-4">
-          {mockBookings.map((booking, index) => (
+          {sortedBookings.length === 0 ? (
+            <Card className="hover-lift">
+              <CardContent className="p-12 text-center">
+                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No bookings found with the selected filter.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            sortedBookings.map((booking, index) => (
             <Card key={booking.id} className="hover-lift animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
@@ -215,19 +1016,19 @@ function DashboardContent() {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           {booking.type === "hotel" ? (
-                            <Hotel className="h-5 w-5 text-primary" />
+                            <Hotel className="h-5 w-5 text-blue-500" />
                           ) : (
-                            <Package className="h-5 w-5 text-primary" />
+                            <Package className="h-5 w-5 text-purple-500" />
                           )}
                           <h3 className="text-xl font-semibold">{booking.title}</h3>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
+                          <MapPin className="h-4 w-4 text-blue-500" />
                           <span>{booking.destination}</span>
                         </div>
                         {booking.checkIn && booking.checkOut && (
                           <div className="flex items-center gap-2 text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
+                            <Calendar className="h-4 w-4 text-blue-500" />
                             <span>
                               {new Date(booking.checkIn).toLocaleDateString()} - {new Date(booking.checkOut).toLocaleDateString()}
                             </span>
@@ -269,7 +1070,8 @@ function DashboardContent() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))
+          )}
         </div>
       </div>
     )
@@ -279,18 +1081,39 @@ function DashboardContent() {
     return (
       <div className="container space-y-8 py-12 page-content relative">
         <div className="flex flex-col gap-3 animate-fade-in-down">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Saved Trips
-            </p>
-            <h1 className="text-3xl font-bold">Your Wishlist</h1>
-            <p className="text-muted-foreground">
-              Trips you've saved for later. Book them when you're ready!
-            </p>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                Saved Trips
+              </p>
+              <h1 className="text-3xl font-bold">Your Wishlist</h1>
+              <p className="text-muted-foreground">
+                {mockSavedTrips.length} trips saved for later. Book them when you're ready!
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className="hover-lift"
+              >
+                Grid
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+                className="hover-lift"
+              >
+                List
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
+        {viewMode === "grid" ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
           {mockSavedTrips.map((trip, index) => (
             <Card key={trip.id} className="hover-lift overflow-hidden" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="relative h-48 w-full">
@@ -313,7 +1136,7 @@ function DashboardContent() {
                   <div className="space-y-1">
                     <CardTitle className="text-lg">{trip.destination}</CardTitle>
                     <CardDescription className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
+                      <MapPin className="h-3 w-3 text-blue-500" />
                       {trip.location}
                     </CardDescription>
                   </div>
@@ -347,13 +1170,72 @@ function DashboardContent() {
             </Card>
           ))}
         </div>
+        ) : (
+          <div className="space-y-4 animate-stagger">
+            {mockSavedTrips.map((trip, index) => (
+              <Card key={trip.id} className="hover-lift" style={{ animationDelay: `${index * 0.05}s` }}>
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <div className="relative h-48 w-full md:w-64 rounded-lg overflow-hidden">
+                      <Image
+                        src={trip.image}
+                        alt={trip.destination}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-xl font-semibold">{trip.destination}</h3>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-semibold">{trip.rating}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <MapPin className="h-4 w-4 text-blue-500" />
+                            <span>{trip.location}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{trip.description}</p>
+                        </div>
+                        <div className="text-right">
+                          {trip.originalPrice && (
+                            <p className="text-sm text-muted-foreground line-through">
+                              ${trip.originalPrice}
+                            </p>
+                          )}
+                          <p className="text-2xl font-bold">${trip.price}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Saved on {new Date(trip.savedDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button className="hover-lift flex-1">
+                          <Link href={trip.type === "hotel" ? `/hotels/${trip.id}` : `/travel/${trip.id}`}>
+                            Book Now
+                          </Link>
+                        </Button>
+                        <Button variant="outline" size="icon" className="hover-lift">
+                          <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
 
   if (sidebarTab === "profile") {
     return (
-      <div className="container space-y-8 py-12 page-content relative max-w-4xl">
+      <div className="container space-y-8 py-12 page-content relative max-w-5xl">
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
@@ -366,75 +1248,140 @@ function DashboardContent() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3 items-start">
-          <Card className="md:col-span-1 hover-lift">
+        <div className="grid gap-6 lg:grid-cols-3 items-start">
+          <Card className="lg:col-span-1 hover-lift border-2">
             <CardContent className="p-6">
               <div className="flex flex-col items-center space-y-6">
-                <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-primary/20">
-                  <Image
-                    src={mockUserProfile.avatar}
-                    alt={mockUserProfile.name}
-                    fill
-                    className="object-cover"
-                  />
+                <div className="relative group">
+                  <div className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg">
+                    <Image
+                      src={mockUserProfile.avatar}
+                      alt={mockUserProfile.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <Button
+                    size="icon"
+                    className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md hover-lift"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
                 </div>
                 <div className="text-center space-y-2 w-full">
-                  <h3 className="font-semibold text-lg">{mockUserProfile.name}</h3>
+                  <h3 className="font-bold text-xl">{mockUserProfile.name}</h3>
                   <p className="text-sm text-muted-foreground break-words">{mockUserProfile.email}</p>
-                  <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mt-2">
+                  <span className="inline-block rounded-full bg-gradient-to-r from-primary to-primary/80 px-4 py-1.5 text-xs font-semibold text-primary-foreground mt-2 shadow-sm">
                     {mockUserProfile.membershipTier} Member
                   </span>
                 </div>
-                <div className="w-full space-y-3 text-sm pt-2 border-t">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Total Trips</span>
-                    <span className="font-semibold">{mockUserProfile.totalTrips}</span>
+                <div className="w-full space-y-4 pt-4 border-t">
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm text-muted-foreground">Total Trips</span>
+                    </div>
+                    <span className="font-bold text-lg">{mockUserProfile.totalTrips}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Loyalty Points</span>
-                    <span className="font-semibold">{mockUserProfile.loyaltyPoints.toLocaleString()}</span>
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span className="text-sm text-muted-foreground">Loyalty Points</span>
+                    </div>
+                    <span className="font-bold text-lg">{mockUserProfile.loyaltyPoints.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Member Since</span>
-                    <span className="font-semibold text-right">{mockUserProfile.memberSince}</span>
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm text-muted-foreground">Member Since</span>
+                    </div>
+                    <span className="font-semibold text-sm text-right">{mockUserProfile.memberSince}</span>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="md:col-span-2 hover-lift">
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Update your profile details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" defaultValue={mockUserProfile.name} className="w-full" />
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="hover-lift">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-500" />
+                  Personal Information
+                </CardTitle>
+                <CardDescription>Update your profile details and contact information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-blue-500" />
+                      Full Name
+                    </Label>
+                    <Input id="name" defaultValue={mockUserProfile.name} className="w-full h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-blue-500" />
+                      Email Address
+                    </Label>
+                    <Input id="email" type="email" defaultValue={mockUserProfile.email} className="w-full h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-green-500" />
+                      Phone Number
+                    </Label>
+                    <Input id="phone" defaultValue={mockUserProfile.phone} className="w-full h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="memberSince" className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-blue-500" />
+                      Member Since
+                    </Label>
+                    <Input id="memberSince" defaultValue={mockUserProfile.memberSince} disabled className="w-full h-10" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue={mockUserProfile.email} className="w-full" />
+                <div className="flex justify-end pt-4 border-t">
+                  <Button className="hover-lift" size="lg">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </Button>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover-lift">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-green-500" />
+                  Account Security
+                </CardTitle>
+                <CardDescription>Manage your password and security settings</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" defaultValue={mockUserProfile.phone} className="w-full" />
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input id="currentPassword" type="password" placeholder="Enter current password" className="w-full h-10" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="memberSince">Member Since</Label>
-                  <Input id="memberSince" defaultValue={mockUserProfile.memberSince} disabled className="w-full" />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword">New Password</Label>
+                    <Input id="newPassword" type="password" placeholder="Enter new password" className="w-full h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input id="confirmPassword" type="password" placeholder="Confirm new password" className="w-full h-10" />
+                  </div>
                 </div>
-              </div>
-              <div className="flex justify-end pt-2 border-t">
-                <Button className="hover-lift">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="flex justify-end pt-2">
+                  <Button variant="outline" className="hover-lift">
+                    Update Password
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     )
@@ -442,7 +1389,7 @@ function DashboardContent() {
 
   if (sidebarTab === "settings") {
     return (
-      <div className="container space-y-8 py-12 page-content relative max-w-4xl">
+      <div className="container space-y-8 py-12 page-content relative max-w-5xl">
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
@@ -450,110 +1397,147 @@ function DashboardContent() {
             </p>
             <h1 className="text-3xl font-bold">Account Settings</h1>
             <p className="text-muted-foreground">
-              Customize your account preferences and preferences.
+              Customize your account preferences and notification settings.
             </p>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
           <Card className="hover-lift">
             <CardHeader>
-              <CardTitle>Preferences</CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-blue-500" />
+                General Preferences
+              </CardTitle>
+              <CardDescription>Manage your language and currency preferences</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label>Currency</Label>
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    <option value="USD">USD - US Dollar</option>
-                    <option value="EUR">EUR - Euro</option>
-                    <option value="GBP">GBP - British Pound</option>
-                    <option value="JPY">JPY - Japanese Yen</option>
-                  </select>
-                </div>
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-blue-500" />
+                  Currency
+                </Label>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                  <option value="JPY">JPY - Japanese Yen</option>
+                </select>
               </div>
               <div className="space-y-2">
-                <Label>Language</Label>
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    <option value="en">English</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
-                    <option value="de">German</option>
-                  </select>
-                </div>
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-blue-500" />
+                  Language
+                </Label>
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                </select>
               </div>
               <div className="space-y-2">
                 <Label>Theme</Label>
-                <div className="flex items-center gap-4">
-                  <Button variant="outline" className="hover-lift">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1 hover-lift"
+                    onClick={() => {}}
+                  >
                     <Sun className="h-4 w-4 mr-2" />
                     Light
                   </Button>
-                  <Button variant="outline" className="hover-lift">
+                  <Button
+                    variant="outline"
+                    className="flex-1 hover-lift"
+                    onClick={() => {}}
+                  >
                     <Moon className="h-4 w-4 mr-2" />
                     Dark
                   </Button>
                 </div>
+              </div>
+              <div className="flex justify-end pt-4 border-t">
+                <Button className="hover-lift">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Save Preferences
+                </Button>
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-lift">
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-purple-500" />
+                Notification Preferences
+              </CardTitle>
               <CardDescription>Choose how you want to be notified</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
                 <div className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
+                  <Mail className="h-5 w-5 text-blue-500" />
                   <div>
                     <p className="font-medium">Email Notifications</p>
                     <p className="text-sm text-muted-foreground">Receive updates via email</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="hover-lift">
-                  {mockUserProfile.preferences.notifications.email ? (
-                    <Volume2 className="h-4 w-4" />
-                  ) : (
-                    <VolumeX className="h-4 w-4" />
-                  )}
+                <Button
+                  variant={emailNotif ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setEmailNotif(!emailNotif)}
+                  className="hover-lift"
+                >
+                  {emailNotif ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
                 </Button>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
                 <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-muted-foreground" />
+                  <Phone className="h-5 w-5 text-green-500" />
                   <div>
                     <p className="font-medium">SMS Notifications</p>
                     <p className="text-sm text-muted-foreground">Receive text message alerts</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="hover-lift">
-                  {mockUserProfile.preferences.notifications.sms ? (
-                    <Volume2 className="h-4 w-4" />
-                  ) : (
-                    <VolumeX className="h-4 w-4" />
-                  )}
+                <Button
+                  variant={smsNotif ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSmsNotif(!smsNotif)}
+                  className="hover-lift"
+                >
+                  {smsNotif ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
                 </Button>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
                 <div className="flex items-center gap-3">
-                  <Bell className="h-5 w-5 text-muted-foreground" />
+                  <Bell className="h-5 w-5 text-purple-500" />
                   <div>
                     <p className="font-medium">Push Notifications</p>
                     <p className="text-sm text-muted-foreground">Browser and app notifications</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="hover-lift">
-                  {mockUserProfile.preferences.notifications.push ? (
-                    <Volume2 className="h-4 w-4" />
-                  ) : (
-                    <VolumeX className="h-4 w-4" />
-                  )}
+                <Button
+                  variant={pushNotif ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPushNotif(!pushNotif)}
+                  className="hover-lift"
+                >
+                  {pushNotif ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                </Button>
+              </div>
+              <div className="flex justify-end pt-4 border-t">
+                <Button className="hover-lift">
+                  <Bell className="h-4 w-4 mr-2" />
+                  Save Notifications
                 </Button>
               </div>
             </CardContent>
@@ -566,8 +1550,12 @@ function DashboardContent() {
   if (sidebarTab === "notifications") {
     const unreadCount = notifications.filter((n) => !n.read).length
 
+    const filteredNotifications = filterType === "unread"
+      ? notifications.filter(n => !n.read)
+      : notifications
+
     return (
-      <div className="container space-y-8 py-12 page-content relative max-w-4xl">
+      <div className="container space-y-8 py-12 page-content relative max-w-5xl">
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -579,47 +1567,98 @@ function DashboardContent() {
                 Stay updated with your bookings and special offers.
               </p>
             </div>
-            {unreadCount > 0 && (
-              <span className="rounded-full bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
-                {unreadCount} New
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {unreadCount > 0 && (
+                <span className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-sm">
+                  {unreadCount} New
+                </span>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+                }}
+                className="hover-lift"
+              >
+                Mark all as read
+              </Button>
+            </div>
           </div>
         </div>
 
+        {/* Filter Tabs */}
+        <div className="inline-flex rounded-full border bg-muted/40 p-1 text-sm">
+          <button
+            className={`rounded-full px-4 py-2 transition-all duration-300 hover-scale ${
+              filterType === "all"
+                ? "bg-background shadow-sm font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => setFilterType("all")}
+          >
+            All ({notifications.length})
+          </button>
+          <button
+            className={`rounded-full px-4 py-2 transition-all duration-300 hover-scale ${
+              filterType === "unread"
+                ? "bg-background shadow-sm font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => setFilterType("unread")}
+          >
+            Unread ({unreadCount})
+          </button>
+        </div>
+
         <div className="space-y-4">
-          {notifications.length === 0 ? (
-            <Card>
+          {filteredNotifications.length === 0 ? (
+            <Card className="hover-lift">
               <CardContent className="p-12 text-center">
-                <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No notifications yet</p>
+                <Bell className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  {filterType === "unread" ? "No unread notifications" : "No notifications yet"}
+                </p>
               </CardContent>
             </Card>
           ) : (
-            notifications.map((notification, index) => (
+            filteredNotifications.map((notification, index) => (
               <Card
                 key={notification.id}
-                className={`hover-lift animate-fade-in-up ${!notification.read ? "border-primary/50 bg-primary/5" : ""}`}
+                className={`hover-lift animate-fade-in-up transition-all ${
+                  !notification.read
+                    ? "border-l-4 border-l-primary bg-primary/5 shadow-md"
+                    : "border-l-4 border-l-transparent"
+                }`}
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{notification.title}</h3>
-                        {!notification.read && (
-                          <span className="h-2 w-2 rounded-full bg-primary" />
-                        )}
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                        !notification.read ? "bg-primary/10" : "bg-muted"
+                      }`}>
+                        <Bell className={`h-5 w-5 ${!notification.read ? "text-purple-500" : "text-purple-500/50"}`} />
                       </div>
-                      <p className="text-sm text-muted-foreground">{notification.message}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(notification.date).toLocaleString()}
-                      </p>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className={`font-semibold ${!notification.read ? "text-primary" : ""}`}>
+                            {notification.title}
+                          </h3>
+                          {!notification.read && (
+                            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{notification.message}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(notification.date).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {!notification.read && (
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => markNotificationAsRead(notification.id)}
                           className="hover-lift"
@@ -648,7 +1687,7 @@ function DashboardContent() {
 
   if (sidebarTab === "payments") {
     return (
-      <div className="container space-y-8 py-12 page-content relative max-w-4xl">
+      <div className="container space-y-8 py-12 page-content relative max-w-5xl">
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -657,10 +1696,10 @@ function DashboardContent() {
               </p>
               <h1 className="text-3xl font-bold">Your Payment Methods</h1>
               <p className="text-muted-foreground">
-                Manage your saved payment methods for faster checkout.
+                Manage your saved payment methods for faster and secure checkout.
               </p>
             </div>
-            <Button className="hover-lift">
+            <Button className="hover-lift" size="lg">
               <Plus className="h-4 w-4 mr-2" />
               Add Payment Method
             </Button>
@@ -668,70 +1707,217 @@ function DashboardContent() {
         </div>
 
         <div className="space-y-4">
-          {paymentMethods.map((method, index) => (
-            <Card key={method.id} className="hover-lift animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                      {method.type === "card" ? (
-                        <CreditCard className="h-6 w-6 text-primary" />
-                      ) : (
-                        <div className="h-6 w-6 rounded bg-blue-500" />
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      {method.type === "card" ? (
-                        <>
-                          <p className="font-semibold">
-                            {method.brand} •••• {method.last4}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Expires {method.expiryMonth}/{method.expiryYear} • {method.name}
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="font-semibold">PayPal</p>
-                          <p className="text-sm text-muted-foreground">{method.name}</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {method.isDefault ? (
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                        Default
-                      </span>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setDefaultPayment(method.id)}
-                        className="hover-lift"
-                      >
-                        Set as Default
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deletePaymentMethod(method.id)}
-                      className="hover-lift text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+          {paymentMethods.length === 0 ? (
+            <Card className="hover-lift">
+              <CardContent className="p-12 text-center">
+                <CreditCard className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">No payment methods saved yet</p>
+                <Button className="hover-lift">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Payment Method
+                </Button>
               </CardContent>
             </Card>
-          ))}
+          ) : (
+            paymentMethods.map((method, index) => (
+              <Card
+                key={method.id}
+                className={`hover-lift animate-fade-in-up transition-all ${
+                  method.isDefault ? "border-2 border-primary/50 shadow-md bg-primary/5" : ""
+                }`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`h-14 w-14 rounded-lg flex items-center justify-center ${
+                        method.isDefault ? "bg-primary/20" : "bg-primary/10"
+                      }`}>
+                        {method.type === "card" ? (
+                          <CreditCard className={`h-7 w-7 ${method.isDefault ? "text-orange-500" : "text-orange-500/70"}`} />
+                        ) : (
+                          <div className="h-7 w-7 rounded bg-gray-700" />
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        {method.type === "card" ? (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold text-lg">
+                                {method.brand} •••• {method.last4}
+                              </p>
+                              {method.isDefault && (
+                                <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              Expires {method.expiryMonth}/{method.expiryYear} • {method.name}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold text-lg">PayPal</p>
+                              {method.isDefault && (
+                                <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">{method.name}</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!method.isDefault && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setDefaultPayment(method.id)}
+                          className="hover-lift"
+                        >
+                          Set as Default
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deletePaymentMethod(method.id)}
+                        className="hover-lift text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
+
+        {/* Security Notice */}
+        <Card className="hover-lift border-l-4 border-l-gray-700 bg-gray-100">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <ShieldCheck className="h-6 w-6 text-green-500 flex-shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold">Secure Payment Processing</p>
+                <p className="text-sm text-muted-foreground">
+                  All payment methods are encrypted and securely stored. We never store your full card details.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   // Default dashboard view (discounts/history tabs)
+  const totalBookings = mockBookings.length
+  const upcomingBookings = mockBookings.filter(b => b.status === "confirmed" || b.status === "pending").length
+  const totalSaved = mockSavedTrips.length
+  const totalSpent = mockBookings.reduce((sum, b) => sum + b.amount, 0)
+
+  const bookingOptions = [
+    {
+      title: "Hotels",
+      description: "Book hotels & stays",
+      icon: Hotel,
+      href: "/hotels",
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-gray-100",
+    },
+    {
+      title: "Flights",
+      description: "Domestic & International",
+      icon: Plane,
+      href: "/dashboard?tab=transportation",
+        color: "from-gray-700 to-gray-500",
+      bgColor: "bg-gray-100",
+    },
+    {
+      title: "Trains",
+      description: "Railway bookings",
+      icon: Train,
+      href: "/dashboard?tab=transportation",
+      color: "from-green-500 to-emerald-500",
+      bgColor: "bg-gray-100",
+    },
+    {
+      title: "Buses",
+      description: "Bus tickets",
+      icon: Bus,
+      href: "/dashboard?tab=transportation",
+      color: "from-orange-500 to-red-500",
+      bgColor: "bg-gray-100",
+    },
+    {
+      title: "Cabs",
+      description: "Taxi & car rentals",
+      icon: Car,
+      href: "/dashboard?tab=transportation",
+      color: "from-indigo-500 to-blue-500",
+      bgColor: "bg-gray-100",
+    },
+    {
+      title: "Packages",
+      description: "Holiday packages",
+      icon: Package,
+      href: "/travel",
+        color: "from-gray-600 to-gray-400",
+      bgColor: "bg-gray-100",
+    },
+  ]
+
+  const planningOptions = [
+    {
+      title: "Trip Planner",
+      description: "Plan your complete itinerary",
+      icon: Navigation,
+      href: "/dashboard?tab=planner",
+      color: "from-violet-500 to-purple-500",
+    },
+    {
+      title: "Explore Destinations",
+      description: "Discover amazing places",
+      icon: Compass,
+      href: "/travel",
+      color: "from-cyan-500 to-blue-500",
+    },
+    {
+      title: "Restaurants",
+      description: "Find best dining options",
+      icon: UtensilsCrossed,
+      href: "/travel",
+      color: "from-amber-500 to-orange-500",
+    },
+    {
+      title: "Activities",
+      description: "Things to do & experiences",
+      icon: Activity,
+      href: "/travel",
+      color: "from-emerald-500 to-teal-500",
+    },
+    {
+      title: "Shopping",
+      description: "Best shopping destinations",
+      icon: ShoppingBag,
+      href: "/travel",
+      color: "from-rose-500 to-pink-500",
+    },
+    {
+      title: "Attractions",
+      description: "Tourist spots & landmarks",
+      icon: Camera,
+      href: "/travel",
+      color: "from-blue-500 to-indigo-500",
+    },
+  ]
+
   return (
     <div className="container space-y-8 py-12 page-content relative">
       <div className="flex flex-col gap-3 animate-fade-in-down">
@@ -740,10 +1926,9 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
               Dashboard
             </p>
-            <h1 className="text-3xl font-bold animate-fade-in-up">Your travel savings</h1>
+            <h1 className="text-3xl font-bold animate-fade-in-up">Welcome back, {mockUserProfile.name.split(' ')[0]}!</h1>
             <p className="text-muted-foreground animate-fade-in-up">
-              View discounts for places you have visited and current transport
-              offers. This section unlocks after you sign in.
+              Here's an overview of your travel activity and exclusive savings.
             </p>
           </div>
           {!isLoggedIn ? (
@@ -788,7 +1973,147 @@ function DashboardContent() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4 animate-fade-in-up">
+        <div className="space-y-6 animate-fade-in-up">
+          {/* Stats Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
+            <Card className="hover-lift border-l-4 border-l-gray-700" style={{ animationDelay: '0s' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Total Bookings</p>
+                    <p className="text-2xl font-bold">{totalBookings}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <Calendar className="h-6 w-6 text-blue-500" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="hover-lift border-l-4 border-l-gray-600" style={{ animationDelay: '0.1s' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Upcoming Trips</p>
+                    <p className="text-2xl font-bold">{upcomingBookings}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <Plane className="h-6 w-6 text-green-500" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="hover-lift border-l-4 border-l-gray-500" style={{ animationDelay: '0.2s' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Saved Trips</p>
+                    <p className="text-2xl font-bold">{totalSaved}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <Heart className="h-6 w-6 text-purple-500" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="hover-lift border-l-4 border-l-gray-400" style={{ animationDelay: '0.3s' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Total Spent</p>
+                    <p className="text-2xl font-bold">${totalSpent.toLocaleString()}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <CreditCard className="h-6 w-6 text-orange-500" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Booking Options */}
+          <Card className="hover-lift">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plane className="h-5 w-5 text-blue-500" />
+                Quick Bookings
+              </CardTitle>
+              <CardDescription>Book hotels, flights, trains, buses, cabs & packages instantly</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
+                {bookingOptions.map((option, index) => {
+                  const Icon = option.icon
+                  return (
+                    <Link
+                      key={option.title}
+                      href={option.href}
+                      className="group"
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
+                      <Card className="hover-lift h-full transition-all duration-300 border-2 hover:border-primary">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${option.color} text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                              <Icon className="h-6 w-6" />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                                {option.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">{option.description}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Planning & Exploration Options */}
+          <Card className="hover-lift">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Compass className="h-5 w-5 text-blue-500" />
+                Plan Your Trip
+              </CardTitle>
+              <CardDescription>Explore destinations, plan itineraries, and discover experiences</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
+                {planningOptions.map((option, index) => {
+                  const Icon = option.icon
+                  return (
+                    <Link
+                      key={option.title}
+                      href={option.href}
+                      className="group"
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
+                      <Card className="hover-lift h-full transition-all duration-300 border-2 hover:border-primary">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${option.color} text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                              <Icon className="h-6 w-6" />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                                {option.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">{option.description}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="inline-flex rounded-full border bg-muted/40 p-1 text-sm animate-scale-in">
             <button
               className={`rounded-full px-4 py-2 transition-all duration-300 hover-scale ${
