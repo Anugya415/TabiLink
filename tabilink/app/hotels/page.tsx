@@ -11,7 +11,6 @@ import {
   Car, 
   Dumbbell, 
   UtensilsCrossed, 
-  Filter,
   ShieldCheck,
   BadgeCheck,
   Sparkles,
@@ -26,7 +25,9 @@ import {
   Bed,
   Waves,
   Mountain,
-  Building2
+  Building2,
+  SlidersHorizontal,
+  X
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -166,6 +167,16 @@ export default function HotelsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [checkInDate, setCheckInDate] = useState<Date>()
   const [checkOutDate, setCheckOutDate] = useState<Date>()
+  const [showFilters, setShowFilters] = useState(false)
+  const [favorites, setFavorites] = useState<number[]>([])
+
+  const toggleFavorite = (id: number) => {
+    setFavorites(prev => 
+      prev.includes(id) 
+        ? prev.filter(favId => favId !== id)
+        : [...prev, id]
+    )
+  }
 
   const filteredHotels = hotels
     .filter((hotel) => {
@@ -191,179 +202,216 @@ export default function HotelsPage() {
       return 0
     })
 
-  return (
-    <div className="flex flex-col bg-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white border-b">
-        <div className="container py-12 md:py-16 lg:py-20">
-          <div className="space-y-6 animate-fade-in-down">
-            <div className="text-center space-y-4 max-w-3xl mx-auto">
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
-                Hotels & Stays
-              </p>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight animate-fade-in-up">
-                Find Your Perfect Stay
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-in-up">
-                Discover amazing hotels worldwide with best prices, instant confirmation, and flexible cancellation
-              </p>
-            </div>
+  const activeFiltersCount = [
+    searchTerm,
+    priceRange !== "all",
+    selectedCategory !== "all",
+    checkInDate,
+    checkOutDate
+  ].filter(Boolean).length
 
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-white">
+        <div className="relative container py-16 md:py-24 lg:py-32">
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium border border-gray-200">
+              <Hotel className="h-4 w-4 text-gray-700" />
+              <span className="text-gray-700">Premium Hotel Collection</span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight text-gray-900">
+              Discover Your Perfect Stay
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Explore thousands of handpicked hotels worldwide. Best prices, instant confirmation, and flexible cancellation policies.
+            </p>
+            
             {/* Trust Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground animate-fade-in-up">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-green-500" />
-                <span>Secure Bookings</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-blue-500" />
-                <span>Best Price Guarantee</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-yellow-500" />
-                <span>Free Cancellation</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-purple-500" />
-                <span>10M+ Happy Guests</span>
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
+              {[
+                { icon: ShieldCheck, text: "Secure Bookings", color: "text-green-600" },
+                { icon: BadgeCheck, text: "Best Price Guarantee", color: "text-yellow-600" },
+                { icon: Sparkles, text: "Free Cancellation", color: "text-pink-600" },
+                { icon: Users, text: "10M+ Happy Guests", color: "text-purple-600" },
+              ].map((badge, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <badge.icon className={`h-4 w-4 ${badge.color}`} />
+                  <span>{badge.text}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Search and Filters Section */}
-      <section className="sticky top-0 z-[60] bg-white border-b shadow-md">
-        <div className="container py-6">
-          <Card className="shadow-lg border-2 hover-lift bg-white">
-            <CardContent className="p-4 sm:p-6">
+      {/* Search Bar Section */}
+      <section className="relative -mt-12 md:-mt-16 lg:-mt-20 z-10">
+        <div className="container px-4 sm:px-6">
+          <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-6 md:p-8">
               <div className="space-y-6">
-                {/* Search Bar */}
+                {/* Main Search */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Search hotels, locations, or destinations..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-12 text-base"
+                    className="pl-12 h-14 text-base border-2 focus:border-primary"
                   />
                 </div>
 
-                {/* Date Pickers */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Date and Filters Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex flex-col space-y-2">
-                    <label className="text-sm font-medium flex items-center gap-2">
+                    <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4 text-primary" />
                       Check In
                     </label>
                     <DatePicker
                       date={checkInDate}
                       onSelect={setCheckInDate}
-                      placeholder="Select check-in date"
-                      className="w-full"
+                      placeholder="Select date"
+                      className="w-full h-12"
                     />
                   </div>
                   <div className="flex flex-col space-y-2">
-                    <label className="text-sm font-medium flex items-center gap-2">
+                    <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4 text-primary" />
                       Check Out
                     </label>
                     <DatePicker
                       date={checkOutDate}
                       onSelect={setCheckOutDate}
-                      placeholder="Select check-out date"
-                      className="w-full"
+                      placeholder="Select date"
+                      className="w-full h-12"
                     />
-                  </div>
-                </div>
-
-                {/* Category Tabs */}
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => {
-                    const Icon = category.icon
-                    return (
-                      <Button
-                        key={category.id}
-                        variant={selectedCategory === category.id ? "default" : "outline"}
-                        onClick={() => setSelectedCategory(category.id)}
-                        className="hover-lift transition-all duration-300"
-                      >
-                        <Icon className="h-4 w-4 mr-2" />
-                        {category.label}
-                      </Button>
-                    )
-                  })}
-                </div>
-
-                {/* Filters */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-primary" />
-                      Sort By
-                    </label>
-                    <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                      <option value="rating">Highest Rating</option>
-                      <option value="price">Lowest Price</option>
-                      <option value="popular">Most Popular</option>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-primary" />
-                      Price Range
-                    </label>
-                    <Select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
-                      <option value="all">All Prices</option>
-                      <option value="low">Under $200</option>
-                      <option value="mid">$200 - $300</option>
-                      <option value="high">Over $300</option>
-                    </Select>
                   </div>
                   <div className="flex items-end">
                     <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchTerm("")
-                        setSortBy("rating")
-                        setPriceRange("all")
-                        setSelectedCategory("all")
-                        setCheckInDate(undefined)
-                        setCheckOutDate(undefined)
-                      }}
-                      className="w-full hover-lift"
+                      onClick={() => setShowFilters(!showFilters)}
+                      variant={showFilters ? "default" : "outline"}
+                      className="w-full h-12 gap-2"
                     >
-                      Clear Filters
+                      <SlidersHorizontal className="h-4 w-4" />
+                      Filters
+                      {activeFiltersCount > 0 && (
+                        <span className="ml-1 px-2 py-0.5 bg-primary/20 rounded-full text-xs font-semibold">
+                          {activeFiltersCount}
+                        </span>
+                      )}
                     </Button>
                   </div>
                 </div>
+
+                {/* Expandable Filters */}
+                {showFilters && (
+                  <div className="pt-4 border-t space-y-4 animate-in slide-in-from-top-2 duration-300">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-semibold mb-2 block text-muted-foreground">
+                          Sort By
+                        </label>
+                        <Select 
+                          value={sortBy} 
+                          onChange={(e) => setSortBy(e.target.value)}
+                          className="h-12"
+                        >
+                          <option value="rating">Highest Rating</option>
+                          <option value="price">Lowest Price</option>
+                          <option value="popular">Most Popular</option>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold mb-2 block text-muted-foreground">
+                          Price Range
+                        </label>
+                        <Select 
+                          value={priceRange} 
+                          onChange={(e) => setPriceRange(e.target.value)}
+                          className="h-12"
+                        >
+                          <option value="all">All Prices</option>
+                          <option value="low">Under $200</option>
+                          <option value="mid">$200 - $300</option>
+                          <option value="high">Over $300</option>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setSearchTerm("")
+                          setSortBy("rating")
+                          setPriceRange("all")
+                          setSelectedCategory("all")
+                          setCheckInDate(undefined)
+                          setCheckOutDate(undefined)
+                        }}
+                        className="flex-1"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Clear All
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
+      {/* Category Tabs */}
+      <section className="container px-4 sm:px-6 py-8">
+        <div className="flex flex-wrap gap-3 justify-center">
+          {categories.map((category) => {
+            const Icon = category.icon
+            const isActive = selectedCategory === category.id
+            return (
+              <Button
+                key={category.id}
+                variant={isActive ? "default" : "outline"}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`h-11 px-6 rounded-full transition-all duration-300 ${
+                  isActive 
+                    ? "shadow-lg scale-105" 
+                    : "hover:scale-105 hover:shadow-md"
+                }`}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                {category.label}
+              </Button>
+            )
+          })}
+        </div>
+      </section>
+
       {/* Results Section */}
-      <section className="container py-8 lg:py-12">
-        <div className="mb-6 flex items-center justify-between">
+      <section className="container px-4 sm:px-6 py-8 lg:py-12">
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold mb-1">
-              {filteredHotels.length} Hotel{filteredHotels.length !== 1 ? "s" : ""} Found
+            <h2 className="text-3xl font-bold mb-2">
+              {filteredHotels.length} Hotel{filteredHotels.length !== 1 ? "s" : ""} Available
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {searchTerm ? `Search results for "${searchTerm}"` : "Explore our curated hotel collection"}
+            <p className="text-muted-foreground">
+              {searchTerm ? `Search results for "${searchTerm}"` : "Handpicked hotels for your perfect stay"}
             </p>
           </div>
         </div>
 
         {filteredHotels.length === 0 ? (
-          <Card className="p-12 text-center animate-fade-in">
-            <div className="space-y-4">
-              <Search className="h-12 w-12 text-muted-foreground mx-auto" />
+          <Card className="p-16 text-center border-2 border-dashed">
+            <div className="space-y-4 max-w-md mx-auto">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mx-auto">
+                <Search className="h-10 w-10 text-muted-foreground" />
+              </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">No hotels found</h3>
-                <p className="text-muted-foreground mb-4">
-                  Try adjusting your search or filter criteria
+                <h3 className="text-2xl font-semibold mb-2">No hotels found</h3>
+                <p className="text-muted-foreground mb-6">
+                  Try adjusting your search or filter criteria to find more options
                 </p>
                 <Button
                   variant="outline"
@@ -375,211 +423,223 @@ export default function HotelsPage() {
                     setCheckInDate(undefined)
                     setCheckOutDate(undefined)
                   }}
-                  className="hover-lift"
+                  className="gap-2"
                 >
+                  <X className="h-4 w-4" />
                   Clear All Filters
                 </Button>
               </div>
             </div>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {filteredHotels.map((hotel, index) => (
-              <Card
-                key={hotel.id}
-                className="overflow-hidden hover-lift transition-all duration-300 border-2 hover:border-primary group animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {/* Image Section */}
-                <div className="relative h-56 w-full overflow-hidden">
-                  <Image
-                    src={hotel.image}
-                    alt={hotel.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  
-                  {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-2">
-                    {hotel.popular && (
-                      <div className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                        <TrendingUp className="h-3 w-3" />
-                        Popular
-                      </div>
-                    )}
-                    {hotel.originalPrice > hotel.price && (
-                      <div className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Save ${hotel.originalPrice - hotel.price}/night
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Rating Badge */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-background/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-semibold">{hotel.rating}</span>
-                  </div>
-
-                  {/* Category Badge */}
-                  <div className="absolute bottom-3 left-3">
-                    <div className="bg-background/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium capitalize">
-                      {hotel.category}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+            {filteredHotels.map((hotel, index) => {
+              const isFavorite = favorites.includes(hotel.id)
+              return (
+                <Card
+                  key={hotel.id}
+                  className="group overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white"
+                >
+                  {/* Image Section */}
+                  <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
+                    <Image
+                      src={hotel.image}
+                      alt={hotel.name}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, (max-width: 1536px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                      {hotel.popular && (
+                        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                          <TrendingUp className="h-3.5 w-3.5" />
+                          Popular
+                        </div>
+                      )}
+                      {hotel.originalPrice > hotel.price && (
+                        <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                          Save ${hotel.originalPrice - hotel.price}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
 
-                {/* Content Section */}
-                <CardHeader className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                      {hotel.name}
-                    </CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 hover-lift"
+                    {/* Favorite Button */}
+                    <button
                       onClick={(e) => {
                         e.preventDefault()
-                        // Handle save functionality
+                        toggleFavorite(hotel.id)
                       }}
+                      className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-lg"
                     >
-                      <Heart className="h-4 w-4 text-muted-foreground hover:text-red-500 transition-colors" />
-                    </Button>
-                  </div>
-                  <CardDescription className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                    <span className="line-clamp-1">{hotel.location}</span>
-                  </CardDescription>
-                  {hotel.distance && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {hotel.distance}
-                    </p>
-                  )}
-                </CardHeader>
+                      <Heart 
+                        className={`h-5 w-5 transition-all duration-200 ${
+                          isFavorite 
+                            ? "fill-red-500 text-red-500 scale-110" 
+                            : "text-gray-600"
+                        }`} 
+                      />
+                    </button>
 
-                <CardContent className="space-y-4">
-                  {/* Description */}
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {hotel.description}
-                  </p>
-
-                  {/* Amenities */}
-                  <div className="flex flex-wrap gap-2">
-                    {hotel.amenities.slice(0, 4).map((amenity) => {
-                      const Icon = amenityIcons[amenity]
-                      return (
-                        <div
-                          key={amenity}
-                          className="flex items-center gap-1.5 text-xs bg-muted/50 px-2 py-1 rounded-md"
-                        >
-                          {Icon && <Icon className="h-3.5 w-3.5 text-blue-500" />}
-                          <span className="text-muted-foreground">{amenity}</span>
-                        </div>
-                      )
-                    })}
-                    {hotel.amenities.length > 4 && (
-                      <div className="flex items-center gap-1.5 text-xs bg-muted/50 px-2 py-1 rounded-md">
-                        <span className="text-muted-foreground">+{hotel.amenities.length - 4} more</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Reviews */}
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                    <span>{hotel.reviews.toLocaleString()} verified reviews</span>
-                  </div>
-
-                  {/* Price Section */}
-                  <div className="pt-4 border-t space-y-3">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-2xl font-bold text-primary">
-                            ${hotel.price}
-                          </span>
-                          <span className="text-sm text-muted-foreground">/ night</span>
-                          {hotel.originalPrice > hotel.price && (
-                            <>
-                              <span className="text-sm text-muted-foreground line-through">
-                                ${hotel.originalPrice}
-                              </span>
-                              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                                {hotel.discount}% OFF
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        {checkInDate && checkOutDate && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Total: ${hotel.price * Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))}
-                          </p>
-                        )}
-                      </div>
+                    {/* Rating Badge */}
+                    <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full shadow-lg">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-bold">{hotel.rating}</span>
                     </div>
 
-                    {/* CTA Button */}
-                    <Button className="w-full hover-lift" asChild>
-                      <Link href={`/hotels/${hotel.id}/book`}>
-                        Book Now
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
+                    {/* Category Badge */}
+                    <div className="absolute bottom-4 left-4">
+                      <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold capitalize shadow-lg">
+                        {hotel.category}
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                  {/* Content Section */}
+                  <CardHeader className="space-y-3 pb-3">
+                    <div>
+                      <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">
+                        {hotel.name}
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-2 text-sm mt-1.5">
+                        <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <span className="line-clamp-1">{hotel.location}</span>
+                      </CardDescription>
+                      {hotel.distance && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                          <MapPin className="h-3 w-3" />
+                          {hotel.distance}
+                        </p>
+                      )}
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4 pt-0">
+                    {/* Description */}
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                      {hotel.description}
+                    </p>
+
+                    {/* Amenities */}
+                    <div className="flex flex-wrap gap-2">
+                      {hotel.amenities.slice(0, 4).map((amenity) => {
+                        const Icon = amenityIcons[amenity]
+                        return (
+                          <div
+                            key={amenity}
+                            className="flex items-center gap-1.5 text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                          >
+                            {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
+                            <span className="text-muted-foreground font-medium">{amenity}</span>
+                          </div>
+                        )
+                      })}
+                      {hotel.amenities.length > 4 && (
+                        <div className="flex items-center gap-1.5 text-xs bg-slate-100 px-2.5 py-1.5 rounded-lg">
+                          <span className="text-muted-foreground font-medium">
+                            +{hotel.amenities.length - 4} more
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Reviews */}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
+                      <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                      <span className="font-medium">{hotel.reviews.toLocaleString()} verified reviews</span>
+                    </div>
+
+                    {/* Price Section */}
+                    <div className="pt-4 border-t space-y-4">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-3xl font-bold text-primary">
+                              ${hotel.price}
+                            </span>
+                            <span className="text-sm text-muted-foreground font-medium">/ night</span>
+                            {hotel.originalPrice > hotel.price && (
+                              <>
+                                <span className="text-sm text-muted-foreground line-through">
+                                  ${hotel.originalPrice}
+                                </span>
+                                <span className="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
+                                  {hotel.discount}% OFF
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          {checkInDate && checkOutDate && (
+                            <p className="text-xs text-muted-foreground mt-2 font-medium">
+                              Total: ${hotel.price * Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* CTA Button */}
+                      <Button className="w-full h-12 text-base font-semibold gap-2 group/btn" asChild>
+                        <Link href={`/hotels/${hotel.id}/book`}>
+                          Book Now
+                          <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </section>
 
       {/* Features Section */}
-      <section className="border-t bg-white py-12 lg:py-16">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="hover-lift border-2">
-              <CardContent className="p-6 text-center space-y-3">
-                <div className="flex justify-center">
-                  <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <ShieldCheck className="h-6 w-6 text-blue-500" />
+      <section className="border-t bg-white py-16 lg:py-20">
+        <div className="container px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-3">Why Choose TabiLink Hotels?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              We're committed to providing you with the best hotel booking experience
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                icon: ShieldCheck,
+                title: "Secure Payments",
+                description: "Your payment information is encrypted and secure with industry-leading protection",
+                color: "bg-blue-100 text-blue-600",
+              },
+              {
+                icon: CheckCircle2,
+                title: "Instant Confirmation",
+                description: "Get immediate booking confirmation via email with all the details you need",
+                color: "bg-green-100 text-green-600",
+              },
+              {
+                icon: Clock,
+                title: "24/7 Support",
+                description: "Round-the-clock assistance for all your travel needs, whenever you need us",
+                color: "bg-purple-100 text-purple-600",
+              },
+            ].map((feature, idx) => (
+              <Card key={idx} className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
+                <CardContent className="p-8 text-center space-y-4">
+                  <div className="flex justify-center">
+                    <div className={`h-16 w-16 rounded-2xl ${feature.color} flex items-center justify-center`}>
+                      <feature.icon className="h-8 w-8" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="font-semibold text-lg">Secure Payments</h3>
-                <p className="text-sm text-muted-foreground">
-                  Your payment information is encrypted and secure
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="hover-lift border-2">
-              <CardContent className="p-6 text-center space-y-3">
-                <div className="flex justify-center">
-                  <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <CheckCircle2 className="h-6 w-6 text-green-500" />
-                  </div>
-                </div>
-                <h3 className="font-semibold text-lg">Instant Confirmation</h3>
-                <p className="text-sm text-muted-foreground">
-                  Get immediate booking confirmation via email
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="hover-lift border-2">
-              <CardContent className="p-6 text-center space-y-3">
-                <div className="flex justify-center">
-                  <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-purple-500" />
-                  </div>
-                </div>
-                <h3 className="font-semibold text-lg">24/7 Support</h3>
-                <p className="text-sm text-muted-foreground">
-                  Round-the-clock assistance for all your travel needs
-                </p>
-              </CardContent>
-            </Card>
+                  <h3 className="font-bold text-xl">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

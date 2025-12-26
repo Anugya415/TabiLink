@@ -164,28 +164,28 @@ const offers = [
     description: "Flat 25% OFF on domestic hotels",
     code: "WEEKEND25",
     icon: Percent,
-    gradient: "from-orange-500 to-red-500",
+    gradient: "from-gray-700 to-gray-500",
   },
   {
     title: "International Flight Deals",
     description: "Save up to $200 on international flights",
     code: "FLY200",
     icon: Plane,
-    gradient: "from-blue-500 to-blue-600",
+    gradient: "from-gray-600 to-gray-400",
   },
   {
     title: "Luxury Stays",
     description: "Extra 15% OFF on premium properties",
     code: "LUX15",
     icon: Tag,
-    gradient: "from-purple-500 to-pink-500",
+    gradient: "from-gray-700 to-gray-500",
   },
   {
     title: "First Booking Bonus",
     description: "Get $50 instant discount on first booking",
     code: "FIRST50",
     icon: Gift,
-    gradient: "from-green-500 to-emerald-500",
+    gradient: "from-gray-500 to-gray-300",
   },
 ]
 
@@ -382,19 +382,33 @@ export default function Home() {
             {offers.map((offer, index) => {
               const Icon = offer.icon
               return (
-                <Card key={offer.code} className="shadow-lg border-2 hover:border-primary transition-all duration-300 hover-lift overflow-hidden group" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className={`h-2 bg-gradient-to-r ${offer.gradient}`} />
-                  <CardHeader className="space-y-3">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${offer.gradient} text-white`}>
-                      <Icon className="h-6 w-6" />
+                <Card key={offer.code} className="shadow-xl border-2 border-gray-200 hover:border-gray-600 hover:shadow-2xl transition-all duration-300 hover-lift overflow-hidden group h-full flex flex-col bg-white relative" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <CardHeader className="space-y-4 flex-shrink-0 p-6 pb-4">
+                    {/* Icon with enhanced styling */}
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-black border-2 border-black shadow-lg group-hover:scale-110 group-hover:shadow-xl group-hover:border-gray-800 transition-all duration-300 relative overflow-hidden">
+                      <Icon className="h-8 w-8 text-white drop-shadow-sm" />
                     </div>
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors">{offer.title}</CardTitle>
-                    <CardDescription className="text-sm">{offer.description}</CardDescription>
+                    
+                    <div className="space-y-2">
+                      <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors leading-tight">{offer.title}</CardTitle>
+                      <CardDescription className="text-sm leading-relaxed text-muted-foreground">{offer.description}</CardDescription>
+                    </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
-                      <span className="text-xs text-muted-foreground">Code:</span>
-                      <span className="font-mono font-bold text-primary">{offer.code}</span>
+                  
+                  <CardContent className="flex-1 flex flex-col justify-end p-6 pt-4">
+                    {/* Enhanced code section */}
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-gray-50 via-gray-100/80 to-gray-50 border-2 border-gray-200 group-hover:border-gray-400 group-hover:bg-gradient-to-r group-hover:from-gray-100 group-hover:via-gray-200/80 group-hover:to-gray-100 transition-all duration-300">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Code:</span>
+                      </div>
+                      <span className="font-mono font-bold text-lg text-primary tracking-wider group-hover:scale-105 transition-transform duration-300">{offer.code}</span>
+                    </div>
+                    
+                    {/* Subtle decorative element */}
+                    <div className="mt-4 flex items-center justify-center gap-1.5 opacity-40 group-hover:opacity-60 transition-opacity">
+                      <div className="h-1.5 w-1.5 rounded-full bg-gray-500" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-gray-500" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-gray-500" />
                     </div>
                   </CardContent>
                 </Card>

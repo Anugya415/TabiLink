@@ -374,7 +374,7 @@ function DashboardContent() {
       },
     ]
 
-    return (
+  return (
       <div className="container space-y-8 py-12 page-content relative">
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="space-y-1">
