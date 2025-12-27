@@ -21,11 +21,14 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { useTranslation } from "@/contexts/TranslationContext"
 
 function SidebarContent() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isOpen, setIsOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
@@ -65,6 +68,9 @@ function SidebarContent() {
       localStorage.removeItem("tabilinkDemoLoggedIn")
       setIsLoggedIn(false)
       setIsOpen(false)
+      toast.success(t("signOutSuccessful"), {
+        description: t("signOutSuccessfulDesc"),
+      })
       router.push("/")
     }
   }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/contexts/TranslationContext"
+import { toast } from "sonner"
 
 export function Header() {
   const pathname = usePathname()
@@ -57,6 +58,10 @@ export function Header() {
     }
     setIsLoggedIn(false)
     setMobileMenuOpen(false)
+    toast.success(t("signOutSuccessful"), {
+      description: t("signOutSuccessfulDesc"),
+    })
+    window.location.href = "/"
   }
 
   const navItems = [

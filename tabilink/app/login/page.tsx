@@ -52,16 +52,16 @@ export default function LoginPage() {
   })
 
   const onSubmit = (values: LoginValues) => {
-    toast.success("Signed in (UI only)", {
-      description: "Hook this form up to your auth service to continue.",
-    })
-    form.reset(values)
     // Persist demo login so the dashboard stays unlocked
     if (typeof window !== "undefined") {
       localStorage.setItem("tabilinkDemoLoggedIn", "1")
       // Notify other tabs/components in this tab
       window.dispatchEvent(new StorageEvent("storage", { key: "tabilinkDemoLoggedIn", newValue: "1" }))
     }
+    toast.success(t("loginSuccessful"), {
+      description: t("loginSuccessfulDesc"),
+    })
+    form.reset(values)
     router.push("/dashboard")
   }
 
