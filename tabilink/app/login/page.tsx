@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
+import { useTranslation } from "@/contexts/TranslationContext"
 import {
   LogIn,
   Mail,
@@ -40,6 +41,7 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -71,12 +73,12 @@ export default function LoginPage() {
             <div className="flex items-center gap-2 text-primary">
               <LogIn className="h-5 w-5" />
               <span className="text-sm font-semibold uppercase tracking-wide">
-                Welcome back
+                {t("welcomeBack")}
               </span>
             </div>
-            <CardTitle className="text-2xl">Login to TabiLink</CardTitle>
+            <CardTitle className="text-2xl">{t("loginToTabiLink")}</CardTitle>
             <CardDescription>
-              Access your trips, manage bookings, and continue your planning.
+              {t("loginDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -89,7 +91,7 @@ export default function LoginPage() {
                   name="email"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("email")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -111,7 +113,7 @@ export default function LoginPage() {
                   name="password"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t("password")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -131,38 +133,38 @@ export default function LoginPage() {
 
                 <div className="flex items-center justify-between text-sm">
                   <div className="text-muted-foreground">
-                    <span>Forgot password?</span>{" "}
+                    <span>{t("forgotPassword")}</span>{" "}
                     <Link
                       href="/contact"
                       className="font-medium text-primary hover:underline"
                     >
-                      Contact support
+                      {t("contactSupport")}
                     </Link>
                   </div>
                   <Link
                     href="/signup"
                     className="font-medium text-primary hover:underline"
                   >
-                    Create account
+                    {t("createAccount")}
                   </Link>
                 </div>
 
                 <Button type="submit" className="w-full">
                   <LogIn className="h-4 w-4" />
-                  Sign in
+                  {t("signIn")}
                 </Button>
               </form>
             </Form>
 
             <div className="rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground">
-              By signing in you agree to our{" "}
+              {t("agreeToPolicies")}{" "}
               <Link
                 href="/about"
                 className="font-medium text-primary hover:underline"
               >
-                policies
+                {t("policies")}
               </Link>{" "}
-              and secure booking standards.
+              {t("andSecureBooking")}
             </div>
           </CardContent>
         </Card>
@@ -173,27 +175,26 @@ export default function LoginPage() {
           <ShieldCheck className="h-6 w-6" />
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest">
-              Secure by design
+              {t("secureByDesign")}
             </p>
             <p className="text-sm text-muted-foreground">
-              Your bookings are protected with encrypted payments.
+              {t("secureBookingDesc")}
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
           <h2 className="text-3xl font-bold leading-tight">
-            Travel confidently with TabiLink
+            {t("travelConfidently")}
           </h2>
           <p className="text-base text-muted-foreground">
-            Manage itineraries, track payments, and chat with support from one
-            streamlined dashboard.
+            {t("manageItineraries")}
           </p>
           <div className="space-y-3">
             {[
-              "One-click access to upcoming trips and reservations",
-              "Real-time updates on itinerary changes",
-              "Priority assistance from our travel specialists",
+              t("oneClickAccess"),
+              t("realTimeUpdates"),
+              t("priorityAssistance"),
             ].map((item) => (
               <div key={item} className="flex items-start gap-3 text-sm">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
@@ -206,9 +207,9 @@ export default function LoginPage() {
         <div className="flex items-center gap-3 rounded-lg bg-background/70 p-4 ring-1 ring-border">
           <Clock3 className="h-10 w-10 text-primary" />
           <div className="space-y-1">
-            <p className="text-sm font-semibold">24/7 expert support</p>
+            <p className="text-sm font-semibold">{t("expertSupport24")}</p>
             <p className="text-sm text-muted-foreground">
-              Our travel concierges are always ready to help you adjust plans.
+              {t("travelConcierges")}
             </p>
           </div>
         </div>

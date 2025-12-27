@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
+import { useTranslation } from "@/contexts/TranslationContext"
 import {
   ArrowRight,
   BadgeCheck,
@@ -66,130 +67,125 @@ const featuredDestinations = [
   },
 ]
 
-const collections = [
-  {
-    title: "Weekend escapes",
-    copy: "Fast, flexible trips with late checkout and priority support.",
-    icon: Compass,
-  },
-  {
-    title: "Work-friendly stays",
-    copy: "Business-ready rooms with Wi‑Fi guarantees and quiet zones.",
-    icon: BadgeCheck,
-  },
-  {
-    title: "Family bundles",
-    copy: "Suites, cribs, and airport pickups in one simple booking.",
-    icon: Users,
-  },
-  {
-    title: "Low-impact travel",
-    copy: "Rail-first routes and eco-rated stays to shrink your footprint.",
-    icon: Leaf,
-  },
-]
-
-const journeySteps = [
-  {
-    title: "Book in one place",
-    copy: "Flights, rail, and hotels combined with transparent pricing.",
-    icon: Plane,
-  },
-  {
-    title: "Stay flexible",
-    copy: "Free changes on select fares and instant rebooking during delays.",
-    icon: Calendar,
-  },
-  {
-    title: "Protected on-trip",
-    copy: "24/7 human support plus coverage for disruptions and baggage.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Earn & stack perks",
-    copy: "Member rates, partner perks, and loyalty credits on every trip.",
-    icon: Sparkles,
-  },
-]
-
-const testimonials = [
-  {
-    name: "Priya K.",
-    role: "Frequent traveler",
-    quote:
-      "TabiLink rebooked my delayed flight in minutes and kept my hotel check-in smooth. The discounts are real.",
-  },
-  {
-    name: "Marco L.",
-    role: "Remote founder",
-    quote:
-      "The rail + hotel bundles save time and money. I love the clean dashboard for upcoming trips.",
-  },
-  {
-    name: "Isabella M.",
-    role: "Designer",
-    quote:
-      "Loved the curated stays and the responsive support. Everything felt covered before I landed.",
-  },
-]
-
-const faqs = [
-  {
-    question: "How do changes or cancellations work?",
-    answer:
-      "Many fares include free changes. For stricter tickets, we’ll surface exact fees before you confirm and handle rebooking for you.",
-  },
-  {
-    question: "Do I get member rates automatically?",
-    answer:
-      "Yes. Sign in and eligible rates are applied. Stacked perks appear at checkout for flights, rail, and hotels.",
-  },
-  {
-    question: "Is support really 24/7?",
-    answer:
-      "Absolutely. Live agents can rebook, escalate with partners, and coordinate your transfers at any hour.",
-  },
-]
-
-const stats = [
-  { label: "Happy Customers", value: "15M+" },
-  { label: "Bookings Every Month", value: "1M+" },
-  { label: "Countries Covered", value: "200+" },
-  { label: "24/7 Support", value: "Always On" },
-]
-
-const offers = [
-  {
-    title: "Weekend Getaway Sale",
-    description: "Flat 25% OFF on domestic hotels",
-    code: "WEEKEND25",
-    icon: Percent,
-    gradient: "from-gray-700 to-gray-500",
-  },
-  {
-    title: "International Flight Deals",
-    description: "Save up to $200 on international flights",
-    code: "FLY200",
-    icon: Plane,
-    gradient: "from-gray-600 to-gray-400",
-  },
-  {
-    title: "Luxury Stays",
-    description: "Extra 15% OFF on premium properties",
-    code: "LUX15",
-    icon: Tag,
-    gradient: "from-gray-700 to-gray-500",
-  },
-  {
-    title: "First Booking Bonus",
-    description: "Get $50 instant discount on first booking",
-    code: "FIRST50",
-    icon: Gift,
-    gradient: "from-gray-500 to-gray-300",
-  },
-]
-
 export default function Home() {
+  const { t } = useTranslation()
+  
+  const collections = [
+    {
+      title: t("weekendEscapes"),
+      copy: t("weekendEscapesDesc"),
+      icon: Compass,
+    },
+    {
+      title: t("workFriendlyStays"),
+      copy: t("workFriendlyStaysDesc"),
+      icon: BadgeCheck,
+    },
+    {
+      title: t("familyBundles"),
+      copy: t("familyBundlesDesc"),
+      icon: Users,
+    },
+    {
+      title: t("lowImpactTravel"),
+      copy: t("lowImpactTravelDesc"),
+      icon: Leaf,
+    },
+  ]
+  
+  const stats = [
+    { label: t("happyCustomers"), value: "15M+" },
+    { label: t("bookingsEveryMonth"), value: "1M+" },
+    { label: t("countriesCovered"), value: "200+" },
+    { label: t("support247"), value: t("alwaysOn") },
+  ]
+
+  const offers = [
+    {
+      title: t("weekendGetawaySale"),
+      description: t("flat25OffDomestic"),
+      code: "WEEKEND25",
+      icon: Percent,
+      gradient: "from-gray-700 to-gray-500",
+    },
+    {
+      title: t("internationalFlightDeals"),
+      description: t("saveUpTo200"),
+      code: "FLY200",
+      icon: Plane,
+      gradient: "from-gray-600 to-gray-400",
+    },
+    {
+      title: t("luxuryStays"),
+      description: t("extra15OffPremium"),
+      code: "LUX15",
+      icon: Tag,
+      gradient: "from-gray-700 to-gray-500",
+    },
+    {
+      title: t("firstBookingBonus"),
+      description: t("get50InstantDiscount"),
+      code: "FIRST50",
+      icon: Gift,
+      gradient: "from-gray-500 to-gray-300",
+    },
+  ]
+  
+  const journeySteps = [
+    {
+      title: t("bookInOnePlace"),
+      copy: t("bookInOnePlaceDesc"),
+      icon: Plane,
+    },
+    {
+      title: t("stayFlexible"),
+      copy: t("stayFlexibleDesc"),
+      icon: Calendar,
+    },
+    {
+      title: t("protectedOnTrip"),
+      copy: t("protectedOnTripDesc"),
+      icon: ShieldCheck,
+    },
+    {
+      title: t("earnStackPerks"),
+      copy: t("earnStackPerksDesc"),
+      icon: Sparkles,
+    },
+  ]
+
+  const testimonials = [
+    {
+      name: "Priya K.",
+      role: t("frequentTraveler"),
+      quote: t("testimonial1"),
+    },
+    {
+      name: "Marco L.",
+      role: t("remoteFounder"),
+      quote: t("testimonial2"),
+    },
+    {
+      name: "Isabella M.",
+      role: t("designer"),
+      quote: t("testimonial3"),
+    },
+  ]
+
+  const faqs = [
+    {
+      question: t("faq1Question"),
+      answer: t("faq1Answer"),
+    },
+    {
+      question: t("faq2Question"),
+      answer: t("faq2Answer"),
+    },
+    {
+      question: t("faq3Question"),
+      answer: t("faq3Answer"),
+    },
+  ]
   const [checkInDate, setCheckInDate] = useState<Date>()
   const [checkOutDate, setCheckOutDate] = useState<Date>()
   const [destination, setDestination] = useState("")
@@ -203,14 +199,13 @@ export default function Home() {
           <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
             <div className="space-y-6 animate-fade-in-left">
               <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
-                TabiLink • Travel with confidence
+                {t("travelWithConfidence")}
               </p>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight animate-fade-in-up">
-                Build smarter trips with protected bookings and real perks.
+                {t("buildSmarterTrips")}
               </h1>
               <p className="text-muted-foreground text-lg max-w-2xl animate-fade-in-up">
-                Search once for flights, trains, and stays. Lock member rates,
-                stay flexible, and get human help when you need it.
+                {t("searchOnceDesc")}
               </p>
 
               <Card className="shadow-lg animate-scale-in hover-lift">
@@ -218,12 +213,12 @@ export default function Home() {
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-start">
                     <div className="sm:col-span-2 flex flex-col space-y-2">
                       <label className="text-sm font-medium">
-                        Destination
+                        {t("destination")}
                       </label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500 z-10 pointer-events-none" />
                         <Input
-                          placeholder="City, country, or landmark"
+                          placeholder={t("cityCountryLandmark")}
                           value={destination}
                           onChange={(e) => setDestination(e.target.value)}
                           className="pl-10 h-9"
@@ -232,23 +227,23 @@ export default function Home() {
                     </div>
                     <div className="flex flex-col space-y-2">
                       <label className="text-sm font-medium">
-                        Check in
+                        {t("checkIn")}
                       </label>
                       <DatePicker
                         date={checkInDate}
                         onSelect={setCheckInDate}
-                        placeholder="Choose date"
+                        placeholder={t("chooseDate")}
                         className="w-full"
                       />
                     </div>
                     <div className="flex flex-col space-y-2">
                       <label className="text-sm font-medium">
-                        Check out
+                        {t("checkOut")}
                       </label>
                       <DatePicker
                         date={checkOutDate}
                         onSelect={setCheckOutDate}
-                        placeholder="Choose date"
+                        placeholder={t("chooseDate")}
                         className="w-full"
                       />
                     </div>
@@ -256,7 +251,7 @@ export default function Home() {
                   <div className="grid gap-3 sm:grid-cols-2 items-start">
                     <div className="flex flex-col">
                       <label className="text-sm font-medium mb-2 block">
-                        Travelers
+                        {t("travelers")}
                       </label>
                       <Input
                         value={travelers}
@@ -267,12 +262,12 @@ export default function Home() {
                     </div>
                     <div className="flex flex-col">
                       <label className="text-sm font-medium mb-2 block opacity-0 pointer-events-none select-none">
-                        Search
+                        {t("search")}
                       </label>
                       <Button className="w-full h-10 text-base font-semibold" asChild>
                         <Link href="/hotels">
                           <Search className="mr-2 h-5 w-5" />
-                          SEARCH HOTELS
+                          {t("searchHotels").toUpperCase()}
                         </Link>
                       </Button>
                     </div>
@@ -297,23 +292,23 @@ export default function Home() {
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-green-500" />
-                  Protected payments
+                  {t("protectedPayments")}
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-blue-500" />
-                  Flexible itineraries
+                  {t("flexibleItineraries")}
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-purple-500" />
-                  24/7 human support
+                  {t("humanSupport")}
                 </div>
               </div>
             </div>
 
             <Card className="shadow-xl border-0 bg-background/90 backdrop-blur animate-fade-in-right hover-lift">
               <CardHeader>
-                <CardTitle>Featured destinations</CardTitle>
-                <CardDescription>Curated stays with member perks.</CardDescription>
+                <CardTitle>{t("featuredDestinations")}</CardTitle>
+                <CardDescription>{t("curatedStays")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {featuredDestinations.map((trip, index) => (
@@ -347,7 +342,7 @@ export default function Home() {
                 ))}
                 <Button variant="outline" className="w-full hover-lift" asChild>
                   <Link href="/travel">
-                    Browse more
+                    {t("browseMore")}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -373,9 +368,9 @@ export default function Home() {
       <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
-            <h2 className="text-3xl sm:text-4xl font-bold">Exclusive Offers & Deals</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">{t("exclusiveOffersDeals")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Save big on your next adventure with our special promotions and discounts
+              {t("saveBigAdventure")}
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
@@ -399,7 +394,7 @@ export default function Home() {
                     {/* Enhanced code section */}
                     <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-gray-50 via-gray-100/80 to-gray-50 border-2 border-gray-200 group-hover:border-gray-400 group-hover:bg-gradient-to-r group-hover:from-gray-100 group-hover:via-gray-200/80 group-hover:to-gray-100 transition-all duration-300">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Code:</span>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("code")}</span>
                       </div>
                       <span className="font-mono font-bold text-lg text-primary tracking-wider group-hover:scale-105 transition-transform duration-300">{offer.code}</span>
                     </div>
@@ -422,9 +417,9 @@ export default function Home() {
       <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
-            <h2 className="text-3xl sm:text-4xl font-bold">Pick your vibe</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">{t("pickYourVibe")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Hand-built collections to match how you like to travel.
+              {t("handBuiltCollections")}
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
@@ -458,10 +453,10 @@ export default function Home() {
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">
-              One journey, one support line
+              {t("oneJourneyOneSupport")}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Every leg covered—from booking to check-in to getting home.
+              {t("everyLegCovered")}
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
@@ -495,41 +490,40 @@ export default function Home() {
         <div className="container px-4 md:px-6 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center relative z-10">
           <div className="space-y-6 animate-fade-in-left">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Coverage + confidence
+              {t("coverageConfidence")}
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold leading-tight">
-              Stay protected and keep earning on every route.
+              {t("stayProtectedEarning")}
             </h2>
             <p className="text-muted-foreground">
-              Instant confirmations, disruption coverage, and loyalty that stacks
-              with airline and hotel programs. Transparent prices before you pay.
+              {t("instantConfirmationsDesc")}
             </p>
             <div className="grid gap-3 md:grid-cols-2 animate-stagger">
               <div className="rounded-lg border bg-background p-4 space-y-2 hover-lift transition-all duration-300">
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   <HeartHandshake className="h-4 w-4 text-red-500" />
-                  Loyalty that stacks
+                  {t("loyaltyThatStacks")}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Member rates + partner perks applied automatically at checkout.
+                  {t("loyaltyThatStacksDesc")}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4 space-y-2 hover-lift transition-all duration-300">
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   <ShieldCheck className="h-4 w-4 text-green-500" />
-                  Protected changes
+                  {t("protectedChanges")}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Free changes on select fares and priority support when plans shift.
+                  {t("protectedChangesDesc")}
                 </p>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild className="hover-lift">
-                <Link href="/signup">Create free account</Link>
+                <Link href="/signup">{t("createFreeAccount")}</Link>
               </Button>
               <Button variant="outline" asChild className="hover-lift">
-                <Link href="/about">See how we protect trips</Link>
+                <Link href="/about">{t("seeHowWeProtect")}</Link>
               </Button>
             </div>
           </div>
@@ -543,11 +537,10 @@ export default function Home() {
             <CardContent className="space-y-3 p-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                 <Globe2 className="h-4 w-4 text-blue-500" />
-                Live coverage in 50+ countries
+                {t("liveCoverage50")}
               </div>
               <p className="text-sm text-muted-foreground">
-                Local partners, vetted transport options, and on-the-ground support
-                when you need it.
+                {t("localPartnersDesc")}
               </p>
             </CardContent>
           </Card>
@@ -558,9 +551,9 @@ export default function Home() {
       <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
         <div className="container px-4 md:px-6 space-y-8 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
-            <h2 className="text-3xl sm:text-4xl font-bold">Travelers trust TabiLink</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">{t("travelersTrust")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Real stories from people who needed reliable booking and fast support.
+              {t("realStoriesDesc")}
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3 animate-stagger">
@@ -593,9 +586,9 @@ export default function Home() {
       <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="container px-4 md:px-6 space-y-8 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
-            <h2 className="text-3xl sm:text-4xl font-bold">Questions, answered</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">{t("questionsAnswered")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Straightforward policies and real humans when you need them.
+              {t("straightforwardPolicies")}
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
@@ -616,14 +609,13 @@ export default function Home() {
         <div className="container px-4 md:px-6 text-center space-y-6 animate-fade-in-up relative z-10">
           <div className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide animate-fade-in">
             <Globe2 className="h-4 w-4 text-primary-foreground" />
-            Travel made simple
+            {t("travelMadeSimple")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight animate-fade-in-up">
-            Start your next trip with better rates and real support.
+            {t("startNextTrip")}
           </h2>
           <p className="max-w-3xl mx-auto text-base sm:text-lg opacity-90 animate-fade-in-up">
-            Plan once, manage everywhere. Flights, trains, and stays covered with
-            member perks included.
+            {t("planOnceManage")}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild size="lg" variant="secondary" className="hover-lift">
@@ -635,7 +627,7 @@ export default function Home() {
               variant="outline"
               className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover-lift"
             >
-              <Link href="/travel">Browse packages</Link>
+              <Link href="/travel">{t("browsePackages")}</Link>
             </Button>
           </div>
         </div>

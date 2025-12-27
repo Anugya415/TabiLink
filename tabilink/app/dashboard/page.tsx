@@ -54,6 +54,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
+import { useTranslation } from "@/contexts/TranslationContext"
 import {
   mockUserProfile,
   mockBookings,
@@ -153,6 +154,7 @@ const getStatusIcon = (status: Booking["status"]) => {
 
 function DashboardContent() {
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [activeTab, setActiveTab] = useState<"discounts" | "history">("discounts")
   const [sidebarTab, setSidebarTab] = useState<string | null>(null)
@@ -169,9 +171,29 @@ function DashboardContent() {
   // Hooks for settings section
   const [currency, setCurrency] = useState(mockUserProfile.preferences.currency)
   const [language, setLanguage] = useState(mockUserProfile.preferences.language)
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("tabilinkTheme") as "light" | "dark" | null
+      return stored || "light"
+    }
+    return "light"
+  })
   const [emailNotif, setEmailNotif] = useState(mockUserProfile.preferences.notifications.email)
   const [smsNotif, setSmsNotif] = useState(mockUserProfile.preferences.notifications.sms)
   const [pushNotif, setPushNotif] = useState(mockUserProfile.preferences.notifications.push)
+  
+  // Apply theme to document
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const html = document.documentElement
+      if (theme === "dark") {
+        html.classList.add("dark")
+      } else {
+        html.classList.remove("dark")
+      }
+      localStorage.setItem("tabilinkTheme", theme)
+    }
+  }, [theme])
   
   // Hooks for notifications section
   const [filterType, setFilterType] = useState<"all" | "unread">("all")
@@ -449,6 +471,93 @@ function DashboardContent() {
     },
   ]
 
+  const mockBestSellingDestinations = [
+    {
+      id: 1,
+      name: "Bali, Indonesia",
+      image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&h=600&fit=crop",
+      price: "From $899",
+      originalPrice: "$1,299",
+      discount: 31,
+      rating: 4.8,
+      reviews: 12450,
+      duration: "7 days",
+      highlights: ["Beaches", "Temples", "Rice Terraces"],
+      icon: Globe,
+      iconColor: "from-blue-500 to-cyan-500",
+    },
+    {
+      id: 2,
+      name: "Tokyo, Japan",
+      image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&h=600&fit=crop",
+      price: "From $1,299",
+      originalPrice: "$1,799",
+      discount: 28,
+      rating: 4.9,
+      reviews: 18920,
+      duration: "5 days",
+      highlights: ["Culture", "Food", "Technology"],
+      icon: Camera,
+      iconColor: "from-purple-500 to-pink-500",
+    },
+    {
+      id: 3,
+      name: "Paris, France",
+      image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&h=600&fit=crop",
+      price: "From $1,199",
+      originalPrice: "$1,599",
+      discount: 25,
+      rating: 4.7,
+      reviews: 15680,
+      duration: "6 days",
+      highlights: ["Art", "History", "Cuisine"],
+      icon: Star,
+      iconColor: "from-amber-500 to-orange-500",
+    },
+    {
+      id: 4,
+      name: "Santorini, Greece",
+      image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800&h=600&fit=crop",
+      price: "From $1,499",
+      originalPrice: "$1,999",
+      discount: 25,
+      rating: 4.9,
+      reviews: 11230,
+      duration: "5 days",
+      highlights: ["Sunsets", "Beaches", "Wine"],
+      icon: Heart,
+      iconColor: "from-rose-500 to-red-500",
+    },
+    {
+      id: 5,
+      name: "Dubai, UAE",
+      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop",
+      price: "From $1,399",
+      originalPrice: "$1,899",
+      discount: 26,
+      rating: 4.6,
+      reviews: 9870,
+      duration: "4 days",
+      highlights: ["Luxury", "Shopping", "Desert"],
+      icon: Building2,
+      iconColor: "from-indigo-500 to-purple-500",
+    },
+    {
+      id: 6,
+      name: "New York, USA",
+      image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&h=600&fit=crop",
+      price: "From $1,099",
+      originalPrice: "$1,499",
+      discount: 27,
+      rating: 4.8,
+      reviews: 20340,
+      duration: "5 days",
+      highlights: ["Broadway", "Museums", "Shopping"],
+      icon: MapPin,
+      iconColor: "from-green-500 to-emerald-500",
+    },
+  ]
+
   // Render content based on sidebar tab
   if (sidebarTab === "plan-trip") {
     const planOptions = [
@@ -512,15 +621,15 @@ function DashboardContent() {
               <span>Plan Your Trip</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900">
-              Plan Your Perfect Trip
+              {t("planYourPerfectTrip")}
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to plan, organize, and experience your dream vacation in one place
+              {t("everythingYouNeed")}
             </p>
-          </div>
+        </div>
 
         {!selectedPlanOption ? (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {planOptions.map((option, index) => {
               const Icon = option.icon
               return (
@@ -529,38 +638,38 @@ function DashboardContent() {
                   className="group relative overflow-hidden border-2 border-gray-200 hover:border-gray-900 transition-all duration-300 cursor-pointer bg-white h-full shadow-sm hover:shadow-xl"
                   onClick={() => setSelectedPlanOption(option.id)}
                 >
-                  <CardContent className="p-8">
-                    <div className="space-y-6">
+                  <CardContent className="p-5">
+                    <div className="space-y-4">
                       {/* Icon Section */}
                       <div className="flex items-center justify-between">
-                        <div className={`flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br ${option.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className="h-10 w-10" />
+                        <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${option.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="h-7 w-7" />
                         </div>
-                        <div className="h-12 w-12 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors"></div>
+                        <div className="h-8 w-8 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors"></div>
                       </div>
 
                       {/* Content */}
-                      <div className="space-y-3">
-                        <h3 className="font-bold text-2xl text-gray-900 group-hover:text-black transition-colors">
-                          {option.title}
-                        </h3>
-                        <p className="text-gray-600 leading-relaxed text-base">
-                          {option.description}
-                        </p>
-                      </div>
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-lg text-gray-900 group-hover:text-black transition-colors">
+                            {option.title}
+                          </h3>
+                        <p className="text-gray-600 leading-relaxed text-sm">
+                            {option.description}
+                          </p>
+                        </div>
 
                       {/* Data Count */}
-                      <div className="pt-4 border-t border-gray-200">
-                        <p className="text-sm font-semibold text-gray-700">
-                          {option.data.length} {option.data.length === 1 ? 'item' : 'items'} available
+                      <div className="pt-3 border-t border-gray-200">
+                        <p className="text-xs font-semibold text-gray-700">
+                          {option.data.length} {option.data.length === 1 ? t("item") : t("items")} {t("itemsAvailable")}
                         </p>
                       </div>
 
                       {/* CTA */}
-                      <div className="pt-4">
-                        <div className="flex items-center gap-2 text-gray-900 font-semibold group-hover:gap-3 transition-all">
+                      <div className="pt-3">
+                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-sm group-hover:gap-3 transition-all">
                           <span>Explore Now</span>
-                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
                     </div>
@@ -571,15 +680,15 @@ function DashboardContent() {
           </div>
         ) : (
           <div className="max-w-6xl mx-auto">
-            {(() => {
-              const option = planOptions.find(o => o.id === selectedPlanOption)
-              if (!option) return null
-              const Icon = option.icon
+                  {(() => {
+                    const option = planOptions.find(o => o.id === selectedPlanOption)
+                    if (!option) return null
+                    const Icon = option.icon
               
               // Render different content based on option type
               const renderContent = () => {
                 if (option.id === "trip-planner") {
-                  return (
+                    return (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">Your Itineraries</h2>
@@ -587,7 +696,7 @@ function DashboardContent() {
                           <Plus className="h-4 w-4 mr-2" />
                           Create New
                         </Button>
-                      </div>
+                        </div>
                       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {mockTripItineraries.map((item) => (
                           <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
@@ -601,7 +710,7 @@ function DashboardContent() {
                                 }`}>
                                   {item.status}
                                 </span>
-                              </div>
+                        </div>
                             </CardHeader>
                             <CardContent className="space-y-3">
                               <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -626,7 +735,87 @@ function DashboardContent() {
                 
                 if (option.id === "explore-destinations") {
                   return (
-                    <div className="space-y-6">
+                    <div className="space-y-8">
+                      {/* Best Selling Destinations Section */}
+                      <div className="space-y-6">
+                        <div className="text-center">
+                          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                            Best Selling Destinations
+                          </h2>
+                        </div>
+
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                          {mockBestSellingDestinations.map((destination) => {
+                            const Icon = destination.icon
+                            return (
+                              <Card
+                                key={destination.id}
+                                className="group relative overflow-hidden border-2 border-gray-200 hover:border-gray-900 transition-all duration-300 bg-white shadow-sm hover:shadow-xl h-full flex flex-col"
+                              >
+                                <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
+                                  <Image
+                                    src={destination.image}
+                                    alt={destination.name}
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                  />
+                                  <div className="absolute top-4 right-4 flex items-center gap-2">
+                                    <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${destination.iconColor} text-white shadow-lg flex-shrink-0`}>
+                                      <Icon className="h-5 w-5" />
+                                    </div>
+                                    <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex-shrink-0">
+                                      <span className="text-sm font-bold text-gray-900">{destination.discount}% OFF</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <CardContent className="p-6 flex flex-col flex-1">
+                                  <div className="space-y-2 flex-shrink-0">
+                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-black transition-colors line-clamp-1">
+                                      {destination.name}
+                                    </h3>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <div className="flex items-center gap-1 flex-shrink-0">
+                                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                        <span className="text-sm font-semibold text-gray-900">{destination.rating}</span>
+                                      </div>
+                                      <span className="text-gray-400 flex-shrink-0">•</span>
+                                      <span className="text-sm text-gray-600">{destination.reviews.toLocaleString()} reviews</span>
+                                      <span className="text-gray-400 flex-shrink-0">•</span>
+                                      <span className="text-sm text-gray-600">{destination.duration}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex flex-wrap gap-2 my-4 min-h-[2.5rem]">
+                                    {destination.highlights.map((highlight, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full border border-gray-200"
+                                      >
+                                        {highlight}
+                                      </span>
+                                    ))}
+                                  </div>
+
+                                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-gray-200 mt-auto">
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="text-2xl font-bold text-gray-900">{destination.price}</span>
+                                        <span className="text-sm text-gray-500 line-through">{destination.originalPrice}</span>
+                                      </div>
+                                      <p className="text-xs text-gray-600">per person</p>
+                                    </div>
+                                    <Button className="bg-gray-900 text-white hover:bg-gray-800 w-full sm:w-auto whitespace-nowrap">
+                                      <ArrowRight className="h-4 w-4 mr-2" />
+                                      Book Now
+                                    </Button>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            )
+                          })}
+                        </div>
+                      </div>
+
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">Popular Destinations</h2>
                         <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
@@ -646,9 +835,9 @@ function DashboardContent() {
                                     <span className="text-sm font-semibold text-gray-700">{item.rating}</span>
                                     <span className="text-sm text-gray-500">({item.reviews.toLocaleString()} reviews)</span>
                                   </div>
-                                </div>
-                              </div>
-                            </CardHeader>
+                </div>
+              </div>
+            </CardHeader>
                             <CardContent className="space-y-3">
                               <div className="flex items-center gap-4 text-sm">
                                 <span className="text-gray-600">Best Time:</span>
@@ -677,10 +866,10 @@ function DashboardContent() {
                 }
                 
                 if (option.id === "restaurants") {
-                  return (
+                return (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Top Restaurants</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">{t("topRestaurants")}</h2>
                         <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
                           <Search className="h-4 w-4 mr-2" />
                           Filter
@@ -689,7 +878,7 @@ function DashboardContent() {
                       <div className="grid gap-4 md:grid-cols-2">
                         {mockRestaurants.map((item) => (
                           <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
-                            <CardHeader>
+                        <CardHeader>
                               <div className="flex items-start justify-between">
                                 <div>
                                   <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
@@ -704,7 +893,7 @@ function DashboardContent() {
                                   <span className="text-sm font-semibold text-gray-700">{item.rating}</span>
                                 </div>
                               </div>
-                            </CardHeader>
+                        </CardHeader>
                             <CardContent className="space-y-3">
                               <div className="flex items-center gap-4 text-sm">
                                 <span className="text-gray-600">Price:</span>
@@ -727,10 +916,10 @@ function DashboardContent() {
                   return (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Popular Activities</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">{t("popularActivities")}</h2>
                         <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
                           <Search className="h-4 w-4 mr-2" />
-                          Browse All
+                          {t("browseAll")}
                         </Button>
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
@@ -761,8 +950,8 @@ function DashboardContent() {
                                 <span className="text-sm text-gray-600">Price</span>
                                 <span className="font-bold text-gray-900">{item.price}</span>
                               </div>
-                            </CardContent>
-                          </Card>
+                        </CardContent>
+                      </Card>
                         ))}
                       </div>
                     </div>
@@ -773,7 +962,7 @@ function DashboardContent() {
                   return (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Shopping Destinations</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">{t("shoppingDestinations")}</h2>
                         <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
                           <Search className="h-4 w-4 mr-2" />
                           Explore
@@ -782,7 +971,7 @@ function DashboardContent() {
                       <div className="grid gap-4 md:grid-cols-2">
                         {mockShopping.map((item) => (
                           <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
-                            <CardHeader>
+                        <CardHeader>
                               <div className="flex items-start justify-between">
                                 <div>
                                   <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
@@ -794,8 +983,8 @@ function DashboardContent() {
                                   </div>
                                 </div>
                               </div>
-                            </CardHeader>
-                            <CardContent>
+                        </CardHeader>
+                        <CardContent>
                               <div className="pt-2">
                                 <p className="text-xs text-gray-600 mb-2">Highlights:</p>
                                 <div className="flex flex-wrap gap-2">
@@ -806,10 +995,10 @@ function DashboardContent() {
                                   ))}
                                 </div>
                               </div>
-                            </CardContent>
-                          </Card>
+                        </CardContent>
+                      </Card>
                         ))}
-                      </div>
+                    </div>
                     </div>
                   )
                 }
@@ -818,10 +1007,10 @@ function DashboardContent() {
                   return (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Must-Visit Attractions</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">{t("mustVisitAttractions")}</h2>
                         <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
                           <Search className="h-4 w-4 mr-2" />
-                          View All
+                          {t("viewAll")}
                         </Button>
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
@@ -895,18 +1084,18 @@ function DashboardContent() {
                   <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
                     <Button className="hover-lift flex-1 h-14 text-lg bg-gray-900 text-white hover:bg-gray-800" size="lg">
                       <Plus className="h-5 w-5 mr-2" />
-                      Start Planning
-                    </Button>
+                        Start Planning
+                      </Button>
                     <Button variant="outline" className="hover-lift h-14 text-lg border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white" size="lg" asChild>
                       <Link href="/travel">
                         <Search className="h-5 w-5 mr-2" />
                         Browse More
                       </Link>
-                    </Button>
-                  </div>
+                      </Button>
+                    </div>
                 </div>
-              )
-            })()}
+                )
+              })()}
           </div>
         )}
         </div>
@@ -923,9 +1112,9 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               Book Transportation
             </p>
-            <h1 className="text-3xl font-bold">Book Your Transportation</h1>
+            <h1 className="text-3xl font-bold">{t("bookYourTransportation")}</h1>
             <p className="text-muted-foreground">
-              Select your preferred mode of travel and book instantly - flights, trains, buses, or cabs
+              {t("selectPreferredMode")}
             </p>
           </div>
         </div>
@@ -937,35 +1126,35 @@ function DashboardContent() {
               {[
                 {
                   id: "flights",
-                  title: "Flights",
-                  description: "Book domestic & international flights",
+                  title: t("flights"),
+                  description: t("bookDomesticInternational"),
                   icon: Plane,
                   color: "from-blue-500 to-cyan-500",
-                  features: ["Best Prices", "24/7 Support", "Easy Cancellation"],
+                  features: [t("bestPrices"), t("support247Title"), t("easyCancellation")],
                 },
                 {
                   id: "trains",
-                  title: "Trains",
-                  description: "Railway ticket booking",
+                  title: t("trains"),
+                  description: t("railwayTicketBooking"),
                   icon: Train,
                   color: "from-green-500 to-emerald-500",
-                  features: ["Instant Booking", "PNR Status", "Seat Selection"],
+                  features: [t("instantBooking"), t("pnrStatus"), t("seatSelection")],
                 },
                 {
                   id: "buses",
-                  title: "Buses",
-                  description: "Intercity & interstate buses",
+                  title: t("buses"),
+                  description: t("intercityInterstateBuses"),
                   icon: Bus,
                   color: "from-orange-500 to-red-500",
-                  features: ["Multiple Operators", "Live Tracking", "Flexible Dates"],
+                  features: [t("multipleOperators"), t("liveTracking"), t("flexibleDates")],
                 },
                 {
                   id: "cabs",
-                  title: "Cabs",
-                  description: "Taxi, car rentals & airport transfers",
+                  title: t("cabs"),
+                  description: t("taxiCarRentalsAirport"),
                   icon: Car,
                   color: "from-indigo-500 to-purple-500",
-                  features: ["Doorstep Pickup", "Multiple Options", "Safe Rides"],
+                  features: [t("doorstepPickup"), t("multipleOptions"), t("safeRides")],
                 },
               ].map((transport, index) => {
                 const Icon = transport.icon
@@ -1333,16 +1522,16 @@ function DashboardContent() {
           <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-                My Bookings
+                {t("myBookings")}
             </p>
-              <h1 className="text-3xl font-bold">Your Reservations</h1>
+              <h1 className="text-3xl font-bold">{t("yourReservations")}</h1>
             <p className="text-muted-foreground">
-                Manage and view all your upcoming and past bookings.
+                {t("manageViewBookings")}
               </p>
             </div>
             <Button className="hover-lift">
               <Plus className="h-4 w-4 mr-2" />
-              New Booking
+              {t("newBooking")}
             </Button>
           </div>
         </div>
@@ -1352,32 +1541,32 @@ function DashboardContent() {
           <CardContent className="p-4">
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Filter:</label>
+                <label className="text-sm font-medium">{t("filter")}:</label>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
-                  <option value="all">All Status</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="all">{t("allStatus")}</option>
+                  <option value="confirmed">{t("confirmed")}</option>
+                  <option value="pending">{t("pending")}</option>
+                  <option value="completed">{t("completed")}</option>
+                  <option value="cancelled">{t("cancelled")}</option>
                 </select>
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Sort by:</label>
+                <label className="text-sm font-medium">{t("sortBy")}:</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
-                  <option value="date">Date</option>
-                  <option value="amount">Amount</option>
+                  <option value="date">{t("date")}</option>
+                  <option value="amount">{t("amount")}</option>
                 </select>
               </div>
               <div className="ml-auto text-sm text-muted-foreground">
-                Showing {sortedBookings.length} of {mockBookings.length} bookings
+                {t("showing")} {sortedBookings.length} {t("of")} {mockBookings.length} {t("bookings")}
               </div>
             </div>
           </CardContent>
@@ -1388,7 +1577,7 @@ function DashboardContent() {
             <Card className="hover-lift">
               <CardContent className="p-12 text-center">
                 <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No bookings found with the selected filter.</p>
+                <p className="text-muted-foreground">{t("noBookingsFound")}</p>
               </CardContent>
             </Card>
           ) : (
@@ -1429,7 +1618,7 @@ function DashboardContent() {
                         )}
                         {booking.travelers && (
                           <p className="text-sm text-muted-foreground">
-                            {booking.travelers} {booking.travelers === 1 ? "Traveler" : "Travelers"}
+                            {booking.travelers} {booking.travelers === 1 ? t("traveler") : t("travelers")}
                           </p>
                         )}
                       </div>
@@ -1440,22 +1629,22 @@ function DashboardContent() {
                         </span>
                         <p className="text-2xl font-bold">${booking.amount.toLocaleString()}</p>
                         <p className="text-xs text-muted-foreground">
-                          Booked {new Date(booking.bookingDate).toLocaleDateString()}
+                          {t("booked")} {new Date(booking.bookingDate).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="hover-lift">
-                        View Details
+                        {t("viewDetails")}
                       </Button>
                       {booking.status === "confirmed" && (
                         <Button variant="outline" size="sm" className="hover-lift">
-                          Modify Booking
+                          {t("modifyBooking")}
                         </Button>
                       )}
                       {booking.status === "pending" && (
                         <Button variant="outline" size="sm" className="hover-lift">
-                          Cancel
+                          {t("cancel")}
                         </Button>
                       )}
                     </div>
@@ -1477,11 +1666,11 @@ function DashboardContent() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-                Saved Trips
+                {t("savedTrips")}
               </p>
-              <h1 className="text-3xl font-bold">Your Wishlist</h1>
+              <h1 className="text-3xl font-bold">{t("yourWishlist")}</h1>
               <p className="text-muted-foreground">
-                {mockSavedTrips.length} trips saved for later. Book them when you're ready!
+                {mockSavedTrips.length} {t("tripsSavedForLater")}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -1491,7 +1680,7 @@ function DashboardContent() {
                 onClick={() => setViewMode("grid")}
                 className="hover-lift"
               >
-                Grid
+                {t("grid")}
               </Button>
               <Button
                 variant={viewMode === "list" ? "default" : "outline"}
@@ -1499,7 +1688,7 @@ function DashboardContent() {
                 onClick={() => setViewMode("list")}
                 className="hover-lift"
               >
-                List
+                {t("list")}
               </Button>
             </div>
           </div>
@@ -1632,11 +1821,11 @@ function DashboardContent() {
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Profile
+              {t("profile")}
             </p>
-            <h1 className="text-3xl font-bold">My Profile</h1>
+            <h1 className="text-3xl font-bold">{t("myProfile")}</h1>
             <p className="text-muted-foreground">
-              Manage your personal information and preferences.
+              {t("managePersonalInfo")}
             </p>
           </div>
         </div>
@@ -1665,7 +1854,7 @@ function DashboardContent() {
                   <h3 className="font-bold text-xl">{mockUserProfile.name}</h3>
                   <p className="text-sm text-muted-foreground break-words">{mockUserProfile.email}</p>
                   <span className="inline-block rounded-full bg-gradient-to-r from-primary to-primary/80 px-4 py-1.5 text-xs font-semibold text-primary-foreground mt-2 shadow-sm">
-                    {mockUserProfile.membershipTier} Member
+                    {mockUserProfile.membershipTier} {t("member")}
                   </span>
                 </div>
                 <div className="w-full space-y-4 pt-4 border-t">
@@ -1700,37 +1889,37 @@ function DashboardContent() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5 text-blue-500" />
-                  Personal Information
+                  {t("personalInformation")}
                 </CardTitle>
-                <CardDescription>Update your profile details and contact information</CardDescription>
+                <CardDescription>{t("updateProfileDetails")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="flex items-center gap-2">
                       <User className="h-4 w-4 text-blue-500" />
-                      Full Name
+                      {t("fullName")}
                     </Label>
                     <Input id="name" defaultValue={mockUserProfile.name} className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email" className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-blue-500" />
-                      Email Address
+                      {t("emailAddress")}
                     </Label>
                     <Input id="email" type="email" defaultValue={mockUserProfile.email} className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="flex items-center gap-2">
                       <Phone className="h-4 w-4 text-green-500" />
-                      Phone Number
+                      {t("phoneNumber")}
                     </Label>
                     <Input id="phone" defaultValue={mockUserProfile.phone} className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="memberSince" className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-blue-500" />
-                      Member Since
+                      {t("memberSince")}
                     </Label>
                     <Input id="memberSince" defaultValue={mockUserProfile.memberSince} disabled className="w-full h-10" />
                   </div>
@@ -1738,7 +1927,7 @@ function DashboardContent() {
                 <div className="flex justify-end pt-4 border-t">
                   <Button className="hover-lift" size="lg">
                     <Edit className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t("saveChanges")}
                   </Button>
                 </div>
               </CardContent>
@@ -1750,26 +1939,26 @@ function DashboardContent() {
                   <ShieldCheck className="h-5 w-5 text-green-500" />
                   Account Security
                 </CardTitle>
-                <CardDescription>Manage your password and security settings</CardDescription>
+                <CardDescription>{t("managePasswordSecurity")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Current Password</Label>
-                  <Input id="currentPassword" type="password" placeholder="Enter current password" className="w-full h-10" />
+                  <Label htmlFor="currentPassword">{t("currentPassword")}</Label>
+                  <Input id="currentPassword" type="password" placeholder={t("enterCurrentPassword")} className="w-full h-10" />
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" placeholder="Enter new password" className="w-full h-10" />
+                    <Label htmlFor="newPassword">{t("newPassword")}</Label>
+                    <Input id="newPassword" type="password" placeholder={t("enterNewPassword")} className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input id="confirmPassword" type="password" placeholder="Confirm new password" className="w-full h-10" />
+                    <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
+                    <Input id="confirmPassword" type="password" placeholder={t("confirmNewPassword")} className="w-full h-10" />
                   </div>
                 </div>
                 <div className="flex justify-end pt-2">
                   <Button variant="outline" className="hover-lift">
-                    Update Password
+                    {t("updatePassword")}
                   </Button>
                 </div>
               </CardContent>
@@ -1786,11 +1975,11 @@ function DashboardContent() {
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Settings
+              {t("settings")}
             </p>
-            <h1 className="text-3xl font-bold">Account Settings</h1>
+            <h1 className="text-3xl font-bold">{t("accountSettings")}</h1>
             <p className="text-muted-foreground">
-              Customize your account preferences and notification settings.
+              {t("customizeAccountPreferences")}
             </p>
           </div>
         </div>
@@ -1800,15 +1989,15 @@ function DashboardContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Globe className="h-5 w-5 text-blue-500" />
-                General Preferences
+                {t("generalPreferences")}
               </CardTitle>
-              <CardDescription>Manage your language and currency preferences</CardDescription>
+              <CardDescription>{t("manageLanguageCurrency")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-blue-500" />
-                  Currency
+                  {t("currency")}
                 </Label>
                 <select
                   value={currency}
@@ -1824,7 +2013,7 @@ function DashboardContent() {
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-blue-500" />
-                  Language
+                  {t("language")}
                 </Label>
                 <select
                   value={language}
@@ -1838,30 +2027,30 @@ function DashboardContent() {
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>Theme</Label>
+                <Label>{t("theme")}</Label>
                 <div className="flex items-center gap-3">
                   <Button
-                    variant="outline"
+                    variant={theme === "light" ? "default" : "outline"}
                     className="flex-1 hover-lift"
-                    onClick={() => {}}
+                    onClick={() => setTheme("light")}
                   >
                     <Sun className="h-4 w-4 mr-2" />
-                    Light
+                    {t("light")}
                   </Button>
                   <Button
-                    variant="outline"
+                    variant={theme === "dark" ? "default" : "outline"}
                     className="flex-1 hover-lift"
-                    onClick={() => {}}
+                    onClick={() => setTheme("dark")}
                   >
                     <Moon className="h-4 w-4 mr-2" />
-                    Dark
+                    {t("dark")}
                   </Button>
                 </div>
               </div>
               <div className="flex justify-end pt-4 border-t">
                 <Button className="hover-lift">
                   <Settings className="h-4 w-4 mr-2" />
-                  Save Preferences
+                  {t("savePreferences")}
                 </Button>
               </div>
             </CardContent>
@@ -1871,17 +2060,17 @@ function DashboardContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-purple-500" />
-                Notification Preferences
+                {t("notificationPreferences")}
               </CardTitle>
-              <CardDescription>Choose how you want to be notified</CardDescription>
+              <CardDescription>{t("chooseHowNotified")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
                 <div className="flex items-center gap-3">
                   <Mail className="h-5 w-5 text-blue-500" />
                   <div>
-                    <p className="font-medium">Email Notifications</p>
-                    <p className="text-sm text-muted-foreground">Receive updates via email</p>
+                    <p className="font-medium">{t("emailNotifications")}</p>
+                    <p className="text-sm text-muted-foreground">{t("receiveUpdatesEmail")}</p>
                   </div>
                 </div>
                 <Button
@@ -1897,8 +2086,8 @@ function DashboardContent() {
                 <div className="flex items-center gap-3">
                   <Phone className="h-5 w-5 text-green-500" />
                   <div>
-                    <p className="font-medium">SMS Notifications</p>
-                    <p className="text-sm text-muted-foreground">Receive text message alerts</p>
+                    <p className="font-medium">{t("smsNotifications")}</p>
+                    <p className="text-sm text-muted-foreground">{t("receiveTextAlerts")}</p>
                   </div>
                 </div>
                 <Button
@@ -1914,8 +2103,8 @@ function DashboardContent() {
                 <div className="flex items-center gap-3">
                   <Bell className="h-5 w-5 text-purple-500" />
                   <div>
-                    <p className="font-medium">Push Notifications</p>
-                    <p className="text-sm text-muted-foreground">Browser and app notifications</p>
+                    <p className="font-medium">{t("pushNotifications")}</p>
+                    <p className="text-sm text-muted-foreground">{t("browserAppNotifications")}</p>
                   </div>
                 </div>
                 <Button
@@ -1930,7 +2119,7 @@ function DashboardContent() {
               <div className="flex justify-end pt-4 border-t">
                 <Button className="hover-lift">
                   <Bell className="h-4 w-4 mr-2" />
-                  Save Notifications
+                  {t("saveNotifications")}
                 </Button>
               </div>
             </CardContent>
@@ -1953,11 +2142,11 @@ function DashboardContent() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-                Notifications
+                {t("notifications")}
               </p>
-              <h1 className="text-3xl font-bold">Your Notifications</h1>
+              <h1 className="text-3xl font-bold">{t("yourNotifications")}</h1>
               <p className="text-muted-foreground">
-                Stay updated with your bookings and special offers.
+                {t("stayUpdatedBookings")}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -1974,7 +2163,7 @@ function DashboardContent() {
                 }}
                 className="hover-lift"
               >
-                Mark all as read
+                {t("markAllAsRead")}
               </Button>
             </div>
           </div>
@@ -1990,7 +2179,7 @@ function DashboardContent() {
             }`}
             onClick={() => setFilterType("all")}
           >
-            All ({notifications.length})
+            {t("all")} ({notifications.length})
           </button>
           <button
             className={`rounded-full px-4 py-2 transition-all duration-300 hover-scale ${
@@ -2000,7 +2189,7 @@ function DashboardContent() {
             }`}
             onClick={() => setFilterType("unread")}
           >
-            Unread ({unreadCount})
+            {t("unread")} ({unreadCount})
           </button>
         </div>
 
@@ -2010,7 +2199,7 @@ function DashboardContent() {
               <CardContent className="p-12 text-center">
                 <Bell className="h-12 w-12 text-purple-500 mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  {filterType === "unread" ? "No unread notifications" : "No notifications yet"}
+                  {filterType === "unread" ? t("noUnreadNotifications") : t("noNotificationsYet")}
                 </p>
               </CardContent>
             </Card>
@@ -2056,7 +2245,7 @@ function DashboardContent() {
                           onClick={() => markNotificationAsRead(notification.id)}
                           className="hover-lift"
                         >
-                          Mark as read
+                          {t("markAsRead")}
                         </Button>
                       )}
                       <Button
@@ -2085,16 +2274,16 @@ function DashboardContent() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-                Payment Methods
+                {t("paymentMethods")}
               </p>
-              <h1 className="text-3xl font-bold">Your Payment Methods</h1>
+              <h1 className="text-3xl font-bold">{t("yourPaymentMethods")}</h1>
               <p className="text-muted-foreground">
-                Manage your saved payment methods for faster and secure checkout.
+                {t("manageSavedPaymentMethods")}
               </p>
             </div>
             <Button className="hover-lift" size="lg">
               <Plus className="h-4 w-4 mr-2" />
-              Add Payment Method
+              {t("addPaymentMethod")}
             </Button>
           </div>
         </div>
@@ -2157,12 +2346,12 @@ function DashboardContent() {
                               </p>
                               {method.isDefault && (
                                 <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">
-                                  Default
+                                  {t("default")}
                                 </span>
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              Expires {method.expiryMonth}/{method.expiryYear} • {method.name}
+                              {t("expires")} {method.expiryMonth}/{method.expiryYear} • {method.name}
                             </p>
                           </>
                         ) : (
@@ -2171,7 +2360,7 @@ function DashboardContent() {
                               <p className="font-bold text-lg">PayPal</p>
                               {method.isDefault && (
                                 <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">
-                                  Default
+                                  {t("default")}
                                 </span>
                               )}
                             </div>
@@ -2188,7 +2377,7 @@ function DashboardContent() {
                           onClick={() => setDefaultPayment(method.id)}
                           className="hover-lift"
                         >
-                          Set as Default
+                          {t("setAsDefault")}
                         </Button>
                       )}
                       <Button
@@ -2213,9 +2402,9 @@ function DashboardContent() {
             <div className="flex items-start gap-4">
               <ShieldCheck className="h-6 w-6 text-green-500 flex-shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="font-semibold">Secure Payment Processing</p>
+                <p className="font-semibold">{t("securePaymentProcessing")}</p>
                 <p className="text-sm text-muted-foreground">
-                  All payment methods are encrypted and securely stored. We never store your full card details.
+                  {t("allPaymentMethodsEncrypted")}
                 </p>
               </div>
             </div>
@@ -2233,59 +2422,65 @@ function DashboardContent() {
 
   const bookingOptions = [
     {
-      title: "Hotels",
-      description: "Book hotels & stays",
+      title: t("hotels"),
+      description: t("bookHotelsStays"),
       icon: Hotel,
       href: "/hotels",
       color: "from-blue-500 to-cyan-500",
-      bgColor: "bg-gray-100",
+      bgColor: "bg-indigo-100",
+      iconColor: "text-indigo-600",
     },
     {
-      title: "Flights",
-      description: "Domestic & International",
+      title: t("flights"),
+      description: t("domesticInternational"),
       icon: Plane,
       href: "/dashboard?tab=transportation",
         color: "from-gray-700 to-gray-500",
-      bgColor: "bg-gray-100",
+      bgColor: "bg-blue-100",
+      iconColor: "text-blue-600",
     },
     {
-      title: "Trains",
-      description: "Railway bookings",
+      title: t("trains"),
+      description: t("railwayBookings"),
       icon: Train,
       href: "/dashboard?tab=transportation",
       color: "from-green-500 to-emerald-500",
-      bgColor: "bg-gray-100",
+      bgColor: "bg-green-100",
+      iconColor: "text-green-600",
     },
     {
-      title: "Buses",
-      description: "Bus tickets",
+      title: t("buses"),
+      description: t("busTickets"),
       icon: Bus,
       href: "/dashboard?tab=transportation",
       color: "from-orange-500 to-red-500",
-      bgColor: "bg-gray-100",
+      bgColor: "bg-orange-100",
+      iconColor: "text-orange-600",
     },
     {
-      title: "Cabs",
-      description: "Taxi & car rentals",
+      title: t("cabs"),
+      description: t("taxiCarRentals"),
       icon: Car,
       href: "/dashboard?tab=transportation",
       color: "from-indigo-500 to-blue-500",
-      bgColor: "bg-gray-100",
+      bgColor: "bg-purple-100",
+      iconColor: "text-purple-600",
     },
     {
-      title: "Packages",
-      description: "Holiday packages",
+      title: t("packages"),
+      description: t("holidayPackages"),
       icon: Package,
       href: "/travel",
         color: "from-gray-600 to-gray-400",
-      bgColor: "bg-gray-100",
+      bgColor: "bg-teal-100",
+      iconColor: "text-teal-600",
     },
   ]
 
   const planningOptions = [
     {
-      title: "Trip Planner",
-      description: "Plan your complete itinerary",
+      title: t("tripPlanner"),
+      description: t("planCompleteItinerary"),
       icon: Navigation,
       href: "/dashboard?tab=planner",
       color: "from-violet-500 to-purple-500",
@@ -2293,8 +2488,8 @@ function DashboardContent() {
       bgColor: "bg-gradient-to-br from-violet-500 to-purple-600",
     },
     {
-      title: "Explore Destinations",
-      description: "Discover amazing places",
+      title: t("exploreDestinations"),
+      description: t("discoverAmazingPlaces"),
       icon: Compass,
       href: "/travel",
       color: "from-cyan-500 to-blue-500",
@@ -2302,8 +2497,8 @@ function DashboardContent() {
       bgColor: "bg-gradient-to-br from-cyan-500 to-blue-600",
     },
     {
-      title: "Restaurants",
-      description: "Find best dining options",
+      title: t("restaurants"),
+      description: t("findBestDining"),
       icon: UtensilsCrossed,
       href: "/travel",
       color: "from-amber-500 to-orange-500",
@@ -2311,8 +2506,8 @@ function DashboardContent() {
       bgColor: "bg-gradient-to-br from-amber-500 to-orange-600",
     },
     {
-      title: "Activities",
-      description: "Things to do & experiences",
+      title: t("activities"),
+      description: t("thingsToDoExperiences"),
       icon: Activity,
       href: "/travel",
       color: "from-emerald-500 to-teal-500",
@@ -2320,8 +2515,8 @@ function DashboardContent() {
       bgColor: "bg-gradient-to-br from-emerald-500 to-teal-600",
     },
     {
-      title: "Shopping",
-      description: "Best shopping destinations",
+      title: t("shopping"),
+      description: t("bestShoppingDestinations"),
       icon: ShoppingBag,
       href: "/travel",
       color: "from-rose-500 to-pink-500",
@@ -2329,8 +2524,8 @@ function DashboardContent() {
       bgColor: "bg-gradient-to-br from-rose-500 to-pink-600",
     },
     {
-      title: "Attractions",
-      description: "Tourist spots & landmarks",
+      title: t("attractions"),
+      description: t("touristSpotsLandmarks"),
       icon: Camera,
       href: "/travel",
       color: "from-blue-500 to-indigo-500",
@@ -2347,19 +2542,19 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
               Dashboard
             </p>
-            <h1 className="text-3xl font-bold animate-fade-in-up">Welcome back, {mockUserProfile.name.split(' ')[0]}!</h1>
+            <h1 className="text-3xl font-bold animate-fade-in-up">{t("welcomeBack")}, {mockUserProfile.name.split(' ')[0]}!</h1>
             <p className="text-muted-foreground animate-fade-in-up">
-              Here's an overview of your travel activity and exclusive savings.
+              {t("overviewActivity")}
             </p>
           </div>
           {!isLoggedIn ? (
             <Button asChild className="hidden sm:inline-flex hover-lift">
-              <Link href="/login">Go to login</Link>
+              <Link href="/login">{t("goToLogin")}</Link>
             </Button>
           ) : (
             <div className="hidden sm:flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary">
               <CreditCard className="h-4 w-4" />
-              Discounts unlocked
+              {t("discountsUnlocked")}
             </div>
           )}
         </div>
@@ -2368,16 +2563,15 @@ function DashboardContent() {
       {!isLoggedIn ? (
         <Card className="border-dashed animate-scale-in hover-lift">
           <CardHeader>
-            <CardTitle>Sign in to unlock discounts</CardTitle>
+            <CardTitle>{t("signInUnlockDiscounts")}</CardTitle>
             <CardDescription>
-              Connect your account to see loyalty pricing for places you have
-              visited and exclusive transport savings.
+              {t("connectAccountDiscounts")}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">
-                We&apos;ll show your personalized discounts once you sign in.
+                {t("showPersonalizedDiscounts")}
               </p>
               <p className="text-xs text-muted-foreground">
                 Hook this gate to your auth provider when backend is ready.
@@ -2385,10 +2579,10 @@ function DashboardContent() {
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild className="hover-lift">
-                <Link href="/login">Login to view discounts</Link>
+                <Link href="/login">{t("loginViewDiscounts")}</Link>
               </Button>
               <Button variant="outline" onClick={() => setIsLoggedIn(true)} className="hover-lift">
-                Preview as logged in
+                {t("previewAsLoggedIn")}
               </Button>
             </div>
           </CardContent>
@@ -2397,7 +2591,7 @@ function DashboardContent() {
         <div className="space-y-6 animate-fade-in-up">
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
-            <Card className="hover-lift border-l-4 border-l-gray-700" style={{ animationDelay: '0s' }}>
+            <Card className="hover-lift" style={{ animationDelay: '0s' }}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -2410,7 +2604,7 @@ function DashboardContent() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="hover-lift border-l-4 border-l-gray-600" style={{ animationDelay: '0.1s' }}>
+            <Card className="hover-lift" style={{ animationDelay: '0.1s' }}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -2423,7 +2617,7 @@ function DashboardContent() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="hover-lift border-l-4 border-l-gray-500" style={{ animationDelay: '0.2s' }}>
+            <Card className="hover-lift" style={{ animationDelay: '0.2s' }}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -2436,7 +2630,7 @@ function DashboardContent() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="hover-lift border-l-4 border-l-gray-400" style={{ animationDelay: '0.3s' }}>
+            <Card className="hover-lift" style={{ animationDelay: '0.3s' }}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -2456,9 +2650,9 @@ function DashboardContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Plane className="h-5 w-5 text-blue-500" />
-                Quick Bookings
+                {t("quickBookings")}
               </CardTitle>
-              <CardDescription>Book hotels, flights, trains, buses, cabs & packages instantly</CardDescription>
+              <CardDescription>{t("quickBookingsDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
@@ -2474,8 +2668,8 @@ function DashboardContent() {
                       <Card className="hover-lift h-full transition-all duration-300 border-2 hover:border-primary">
                         <CardContent className="p-6">
                           <div className="flex items-start gap-4">
-                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${option.color} text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                              <Icon className="h-6 w-6" />
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${option.bgColor || `bg-gradient-to-br ${option.color}`} flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                              <Icon className={`h-6 w-6 ${option.iconColor || 'text-white'}`} />
                             </div>
                             <div className="flex-1 space-y-1">
                               <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
@@ -2498,9 +2692,9 @@ function DashboardContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Compass className="h-5 w-5 text-blue-500" />
-                Plan Your Trip
+                {t("planYourTrip")}
               </CardTitle>
-              <CardDescription>Explore destinations, plan itineraries, and discover experiences</CardDescription>
+              <CardDescription>{t("planYourTripDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
@@ -2544,7 +2738,7 @@ function DashboardContent() {
               }`}
               onClick={() => setActiveTab("discounts")}
             >
-              Discounts
+              {t("discounts")}
             </button>
             <button
               className={`rounded-full px-4 py-2 transition-all duration-300 hover-scale ${
@@ -2554,7 +2748,7 @@ function DashboardContent() {
               }`}
               onClick={() => setActiveTab("history")}
             >
-              Travel history
+              {t("travelHistory")}
             </button>
           </div>
 
@@ -2562,9 +2756,9 @@ function DashboardContent() {
             <div className="grid gap-6 lg:grid-cols-2 animate-stagger">
               <Card className="shadow-sm hover-lift animate-fade-in-left">
                 <CardHeader className="space-y-1">
-                  <CardTitle>Discounts on places you visited</CardTitle>
+                  <CardTitle>{t("discountsOnPlacesVisited")}</CardTitle>
                   <CardDescription>
-                    Loyalty pricing and perks applied to your recent stays.
+                    {t("loyaltyPricingPerks")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -2580,7 +2774,7 @@ function DashboardContent() {
                           <p className="font-semibold">{item.place}</p>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          Visited {item.visitedOn} • {item.description}
+                          {t("visited")} {item.visitedOn} • {item.description}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {item.savings}
@@ -2591,7 +2785,7 @@ function DashboardContent() {
                           {item.discount}% off
                         </span>
                         <Button variant="outline" size="sm" className="hover-lift">
-                          Apply deal
+                          {t("applyDeal")}
                         </Button>
                       </div>
                     </div>
@@ -2601,9 +2795,9 @@ function DashboardContent() {
 
               <Card className="shadow-sm hover-lift animate-fade-in-right">
                 <CardHeader className="space-y-1">
-                  <CardTitle>Transport discounts</CardTitle>
+                  <CardTitle>{t("transportDiscounts")}</CardTitle>
                   <CardDescription>
-                    Savings on your preferred ways to get around.
+                    {t("savingsPreferredWays")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4">
@@ -2635,8 +2829,8 @@ function DashboardContent() {
           ) : (
             <Card className="shadow-sm hover-lift animate-scale-in">
               <CardHeader className="space-y-1">
-                <CardTitle>Your travel history</CardTitle>
-                <CardDescription>Previously completed trips.</CardDescription>
+                <CardTitle>{t("yourTravelHistory")}</CardTitle>
+                <CardDescription>{t("previouslyCompletedTrips")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 animate-stagger">
                 {mockBookings.filter((b) => b.status === "completed").map((trip, index) => (

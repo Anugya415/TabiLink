@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useTranslation } from "@/contexts/TranslationContext"
 import { 
   Search, 
   MapPin, 
@@ -134,14 +135,7 @@ const hotels = [
   },
 ]
 
-const categories = [
-  { id: "all", label: "All Hotels", icon: Hotel },
-  { id: "luxury", label: "Luxury", icon: Sparkles },
-  { id: "beach", label: "Beach", icon: Waves },
-  { id: "business", label: "Business", icon: Building2 },
-  { id: "boutique", label: "Boutique", icon: Bed },
-  { id: "mountain", label: "Mountain", icon: Mountain },
-]
+// Categories will be defined inside component to use translations
 
 const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   WiFi: Wifi,
@@ -161,6 +155,7 @@ const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> 
 }
 
 export default function HotelsPage() {
+  const { t } = useTranslation()
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("rating")
   const [priceRange, setPriceRange] = useState("all")
@@ -169,6 +164,15 @@ export default function HotelsPage() {
   const [checkOutDate, setCheckOutDate] = useState<Date>()
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
+
+  const categories = [
+    { id: "all", label: t("allCategories"), icon: Hotel },
+    { id: "luxury", label: t("luxury"), icon: Sparkles },
+    { id: "beach", label: t("beach"), icon: Waves },
+    { id: "business", label: t("business"), icon: Building2 },
+    { id: "boutique", label: "Boutique", icon: Bed },
+    { id: "mountain", label: t("mountain"), icon: Mountain },
+  ]
 
   const toggleFavorite = (id: number) => {
     setFavorites(prev => 
@@ -218,22 +222,22 @@ export default function HotelsPage() {
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium border border-gray-200">
               <Hotel className="h-4 w-4 text-gray-700" />
-              <span className="text-gray-700">Premium Hotel Collection</span>
+              <span className="text-gray-700">{t("premiumHotelCollection")}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight text-gray-900">
-              Discover Your Perfect Stay
+              {t("discoverPerfectStay")}
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Explore thousands of handpicked hotels worldwide. Best prices, instant confirmation, and flexible cancellation policies.
+              {t("exploreHotelsDesc")}
             </p>
             
             {/* Trust Badges */}
             <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
               {[
-                { icon: ShieldCheck, text: "Secure Bookings", color: "text-green-600" },
-                { icon: BadgeCheck, text: "Best Price Guarantee", color: "text-yellow-600" },
-                { icon: Sparkles, text: "Free Cancellation", color: "text-pink-600" },
-                { icon: Users, text: "10M+ Happy Guests", color: "text-purple-600" },
+                { icon: ShieldCheck, text: t("secureBookings"), color: "text-green-600" },
+                { icon: BadgeCheck, text: t("bestPriceGuarantee"), color: "text-yellow-600" },
+                { icon: Sparkles, text: t("freeCancellation"), color: "text-pink-600" },
+                { icon: Users, text: t("happyGuests"), color: "text-purple-600" },
               ].map((badge, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <badge.icon className={`h-4 w-4 ${badge.color}`} />
@@ -255,7 +259,7 @@ export default function HotelsPage() {
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
-                    placeholder="Search hotels, locations, or destinations..."
+                    placeholder={t("searchHotelsPlaceholder")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-12 h-14 text-base border-2 focus:border-primary"
@@ -267,24 +271,24 @@ export default function HotelsPage() {
                   <div className="flex flex-col space-y-2">
                     <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4 text-primary" />
-                      Check In
+                      {t("checkIn")}
                     </label>
                     <DatePicker
                       date={checkInDate}
                       onSelect={setCheckInDate}
-                      placeholder="Select date"
+                      placeholder={t("chooseDate")}
                       className="w-full h-12"
                     />
                   </div>
                   <div className="flex flex-col space-y-2">
                     <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4 text-primary" />
-                      Check Out
+                      {t("checkOut")}
                     </label>
                     <DatePicker
                       date={checkOutDate}
                       onSelect={setCheckOutDate}
-                      placeholder="Select date"
+                      placeholder={t("chooseDate")}
                       className="w-full h-12"
                     />
                   </div>
@@ -295,7 +299,7 @@ export default function HotelsPage() {
                       className="w-full h-12 gap-2"
                     >
                       <SlidersHorizontal className="h-4 w-4" />
-                      Filters
+                      {t("filter")}
                       {activeFiltersCount > 0 && (
                         <span className="ml-1 px-2 py-0.5 bg-primary/20 rounded-full text-xs font-semibold">
                           {activeFiltersCount}
@@ -311,31 +315,31 @@ export default function HotelsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-semibold mb-2 block text-muted-foreground">
-                          Sort By
+                          {t("sortBy")}
                         </label>
                         <Select 
                           value={sortBy} 
                           onChange={(e) => setSortBy(e.target.value)}
                           className="h-12"
                         >
-                          <option value="rating">Highest Rating</option>
-                          <option value="price">Lowest Price</option>
-                          <option value="popular">Most Popular</option>
+                          <option value="rating">{t("highestRating")}</option>
+                          <option value="price">{t("lowestPrice")}</option>
+                          <option value="popular">{t("mostPopular")}</option>
                         </Select>
                       </div>
                       <div>
                         <label className="text-sm font-semibold mb-2 block text-muted-foreground">
-                          Price Range
+                          {t("priceRange")}
                         </label>
                         <Select 
                           value={priceRange} 
                           onChange={(e) => setPriceRange(e.target.value)}
                           className="h-12"
                         >
-                          <option value="all">All Prices</option>
-                          <option value="low">Under $200</option>
+                          <option value="all">{t("allPrices")}</option>
+                          <option value="low">{t("under")} $200</option>
                           <option value="mid">$200 - $300</option>
-                          <option value="high">Over $300</option>
+                          <option value="high">{t("over")} $300</option>
                         </Select>
                       </div>
                     </div>
@@ -353,7 +357,7 @@ export default function HotelsPage() {
                         className="flex-1"
                       >
                         <X className="h-4 w-4 mr-2" />
-                        Clear All
+                        {t("clearFilters")}
                       </Button>
                     </div>
                   </div>
@@ -394,10 +398,10 @@ export default function HotelsPage() {
         <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-3xl font-bold mb-2">
-              {filteredHotels.length} Hotel{filteredHotels.length !== 1 ? "s" : ""} Available
+              {filteredHotels.length} {t("hotelsAvailable")}
             </h2>
             <p className="text-muted-foreground">
-              {searchTerm ? `Search results for "${searchTerm}"` : "Handpicked hotels for your perfect stay"}
+              {searchTerm ? `${t("searchResultsFor")} "${searchTerm}"` : t("handpickedHotels")}
             </p>
           </div>
         </div>
@@ -409,9 +413,9 @@ export default function HotelsPage() {
                 <Search className="h-10 w-10 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="text-2xl font-semibold mb-2">No hotels found</h3>
+                <h3 className="text-2xl font-semibold mb-2">{t("noHotelsFound")}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Try adjusting your search or filter criteria to find more options
+                  {t("tryAdjustingSearch")}
                 </p>
                 <Button
                   variant="outline"
@@ -426,7 +430,7 @@ export default function HotelsPage() {
                   className="gap-2"
                 >
                   <X className="h-4 w-4" />
-                  Clear All Filters
+                  {t("clearAllFilters")}
                 </Button>
               </div>
             </div>
@@ -457,12 +461,12 @@ export default function HotelsPage() {
                       {hotel.popular && (
                         <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg">
                           <TrendingUp className="h-3.5 w-3.5" />
-                          Popular
+                          {t("popular")}
                         </div>
                       )}
                       {hotel.originalPrice > hotel.price && (
                         <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-                          Save ${hotel.originalPrice - hotel.price}
+                          {t("save")} ${hotel.originalPrice - hotel.price}
                         </div>
                       )}
                     </div>
@@ -493,7 +497,16 @@ export default function HotelsPage() {
                     {/* Category Badge */}
                     <div className="absolute bottom-4 left-4">
                       <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold capitalize shadow-lg">
-                        {hotel.category}
+                        {(() => {
+                          const categoryMap: Record<string, string> = {
+                            luxury: t("luxuryCategory"),
+                            beach: t("beachCategory"),
+                            business: t("businessCategory"),
+                            boutique: t("boutiqueCategory"),
+                            mountain: t("mountainCategory"),
+                          }
+                          return categoryMap[hotel.category] || hotel.category
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -511,7 +524,16 @@ export default function HotelsPage() {
                       {hotel.distance && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
                           <MapPin className="h-3 w-3" />
-                          {hotel.distance}
+                          {hotel.distance.includes("km from city center") 
+                            ? hotel.distance.replace("km from city center", t("kmFromCenter"))
+                            : hotel.distance === "Beachfront"
+                            ? t("beachfront")
+                            : hotel.distance === "Desert location"
+                            ? t("desertLocation")
+                            : hotel.distance === "Mountain location"
+                            ? t("mountainLocation")
+                            : hotel.distance
+                          }
                         </p>
                       )}
                     </div>
@@ -540,7 +562,7 @@ export default function HotelsPage() {
                       {hotel.amenities.length > 4 && (
                         <div className="flex items-center gap-1.5 text-xs bg-slate-100 px-2.5 py-1.5 rounded-lg">
                           <span className="text-muted-foreground font-medium">
-                            +{hotel.amenities.length - 4} more
+                            +{hotel.amenities.length - 4} {t("more")}
                           </span>
                         </div>
                       )}
@@ -549,7 +571,7 @@ export default function HotelsPage() {
                     {/* Reviews */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
                       <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="font-medium">{hotel.reviews.toLocaleString()} verified reviews</span>
+                      <span className="font-medium">{hotel.reviews.toLocaleString()} {t("reviews")}</span>
                     </div>
 
                     {/* Price Section */}
@@ -560,14 +582,14 @@ export default function HotelsPage() {
                             <span className="text-3xl font-bold text-primary">
                               ${hotel.price}
                             </span>
-                            <span className="text-sm text-muted-foreground font-medium">/ night</span>
+                            <span className="text-sm text-muted-foreground font-medium">/ {t("perNight")}</span>
                             {hotel.originalPrice > hotel.price && (
                               <>
                                 <span className="text-sm text-muted-foreground line-through">
                                   ${hotel.originalPrice}
                                 </span>
                                 <span className="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
-                                  {hotel.discount}% OFF
+                                  {hotel.discount}% {t("off")}
                                 </span>
                               </>
                             )}
@@ -583,7 +605,7 @@ export default function HotelsPage() {
                       {/* CTA Button */}
                       <Button className="w-full h-12 text-base font-semibold gap-2 group/btn" asChild>
                         <Link href={`/hotels/${hotel.id}/book`}>
-                          Book Now
+                          {t("bookNow")}
                           <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                         </Link>
                       </Button>
@@ -600,29 +622,29 @@ export default function HotelsPage() {
       <section className="border-t bg-white py-16 lg:py-20">
         <div className="container px-4 sm:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-3">Why Choose TabiLink Hotels?</h2>
+            <h2 className="text-3xl font-bold mb-3">{t("whyChooseTabiLinkHotels")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              We're committed to providing you with the best hotel booking experience
+              {t("whyChooseHotelsDesc")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {[
               {
                 icon: ShieldCheck,
-                title: "Secure Payments",
-                description: "Your payment information is encrypted and secure with industry-leading protection",
+                title: t("securePaymentsTitle"),
+                description: t("securePaymentsDesc"),
                 color: "bg-blue-100 text-blue-600",
               },
               {
                 icon: CheckCircle2,
-                title: "Instant Confirmation",
-                description: "Get immediate booking confirmation via email with all the details you need",
+                title: t("instantConfirmation"),
+                description: t("instantConfirmationDesc"),
                 color: "bg-green-100 text-green-600",
               },
               {
                 icon: Clock,
-                title: "24/7 Support",
-                description: "Round-the-clock assistance for all your travel needs, whenever you need us",
+                title: t("support247Title"),
+                description: t("support247Desc"),
                 color: "bg-purple-100 text-purple-600",
               },
             ].map((feature, idx) => (

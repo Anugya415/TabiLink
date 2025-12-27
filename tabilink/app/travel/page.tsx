@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useTranslation } from "@/contexts/TranslationContext"
 import { 
   MapPin, 
   Star, 
@@ -127,21 +128,24 @@ const travelPackages = [
   },
 ]
 
-const categories = [
-  { id: "all", label: "All Packages", icon: Globe2 },
-  { id: "adventure", label: "Adventure", icon: TrendingUp },
-  { id: "beach", label: "Beach", icon: Sparkles },
-  { id: "cultural", label: "Cultural", icon: MapPin },
-  { id: "mountain", label: "Mountain", icon: Globe2 },
-]
+// Categories moved inside component to use translations
 
 export default function TravelPage() {
+  const { t } = useTranslation()
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("rating")
   const [priceRange, setPriceRange] = useState("all")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
+
+  const categories = [
+    { id: "all", label: t("allTypes"), icon: Globe2 },
+    { id: "adventure", label: t("adventure"), icon: TrendingUp },
+    { id: "beach", label: t("beach"), icon: Sparkles },
+    { id: "cultural", label: t("cultural"), icon: MapPin },
+    { id: "mountain", label: t("mountain"), icon: Globe2 },
+  ]
 
   const toggleFavorite = (id: number) => {
     setFavorites(prev => 
@@ -189,13 +193,13 @@ export default function TravelPage() {
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium border border-gray-200">
               <Package className="h-4 w-4 text-gray-700" />
-              <span className="text-gray-700">Travel Packages</span>
+              <span className="text-gray-700">{t("premiumPackages")}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight text-gray-900">
-              Discover Your Perfect Adventure
+              {t("discoverPackages")}
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              All-inclusive packages with flights, hotels, and experiences. Book with confidence and save more.
+              {t("explorePackagesDesc")}
             </p>
             
             {/* Trust Badges */}
@@ -242,7 +246,7 @@ export default function TravelPage() {
                       className="w-full h-12 gap-2"
                     >
                       <SlidersHorizontal className="h-4 w-4" />
-                      Filters
+                      {t("filter")}
                       {activeFiltersCount > 0 && (
                         <span className="ml-1 px-2 py-0.5 bg-primary/20 rounded-full text-xs font-semibold">
                           {activeFiltersCount}
@@ -400,12 +404,12 @@ export default function TravelPage() {
                       {pkg.popular && (
                         <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg">
                           <TrendingUp className="h-3.5 w-3.5" />
-                          Popular
+                          {t("popular")}
                         </div>
                       )}
                       {pkg.originalPrice > pkg.price && (
                         <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-                          Save ${pkg.originalPrice - pkg.price}
+                          {t("save")} ${pkg.originalPrice - pkg.price}
                         </div>
                       )}
                     </div>
@@ -436,7 +440,15 @@ export default function TravelPage() {
                     {/* Category Badge */}
                     <div className="absolute bottom-4 left-4">
                       <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold capitalize shadow-lg">
-                        {pkg.category}
+                        {(() => {
+                          const categoryMap: Record<string, string> = {
+                            adventure: t("adventureCategory"),
+                            beach: t("beachCategory"),
+                            cultural: t("culturalCategory"),
+                            mountain: t("mountainCategory"),
+                          }
+                          return categoryMap[pkg.category] || pkg.category
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -464,15 +476,36 @@ export default function TravelPage() {
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                        <span className="font-medium">{pkg.duration}</span>
+                        <span className="font-medium">
+                          {pkg.duration.replace(/Days/g, t("days")).replace(/Nights/g, t("nights"))}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Plane className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                        <span className="line-clamp-1 font-medium">{pkg.includes.join(" • ")}</span>
+                        <span className="line-clamp-1 font-medium">
+                          {pkg.includes.map(item => {
+                            const translationMap: Record<string, string> = {
+                              "Flights": t("flights"),
+                              "Hotels": t("hotels"),
+                              "Resorts": t("resorts"),
+                              "All Meals": t("allMeals"),
+                              "Breakfast": t("breakfast"),
+                              "Water Activities": t("waterActivities"),
+                              "City Tours": t("cityTours"),
+                              "Cultural Tours": t("culturalTours"),
+                              "Desert Safari": t("desertSafari"),
+                              "Ski Passes": t("skiPasses"),
+                              "City Passes": t("cityPasses"),
+                              "Mountain Hotels": t("mountainHotels"),
+                              "Luxury Hotels": t("luxuryHotels"),
+                            }
+                            return translationMap[item] || item
+                          }).join(" • ")}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
                         <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="font-medium">{pkg.reviews.toLocaleString()} verified reviews</span>
+                        <span className="font-medium">{pkg.reviews.toLocaleString()} {t("reviews")}</span>
                       </div>
                     </div>
 
@@ -490,13 +523,13 @@ export default function TravelPage() {
                                   ${pkg.originalPrice.toLocaleString()}
                                 </span>
                                 <span className="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
-                                  {pkg.discount}% OFF
+                                  {pkg.discount}% {t("off")}
                                 </span>
                               </>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 font-medium">
-                            per person
+                            {t("perPerson")}
                           </p>
                         </div>
                       </div>
@@ -504,7 +537,7 @@ export default function TravelPage() {
                       {/* CTA Button */}
                       <Button className="w-full h-12 text-base font-semibold gap-2 group/btn" asChild>
                         <Link href={`/travel/${pkg.id}/book`}>
-                          Book Now
+                          {t("bookNow")}
                           <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                         </Link>
                       </Button>
@@ -521,29 +554,29 @@ export default function TravelPage() {
       <section className="border-t bg-white py-16 lg:py-20">
         <div className="container px-4 sm:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-3">Why Choose TabiLink Travel?</h2>
+            <h2 className="text-3xl font-bold mb-3">{t("whyChooseTabiLinkTravel")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              We're committed to providing you with the best travel booking experience
+              {t("whyChooseTravelDesc")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {[
               {
                 icon: ShieldCheck,
-                title: "Secure Payments",
-                description: "Your payment information is encrypted and secure with industry-leading protection",
+                title: t("securePaymentsTitle"),
+                description: t("securePaymentsDesc"),
                 color: "bg-blue-100 text-blue-600",
               },
               {
                 icon: CheckCircle2,
-                title: "Instant Confirmation",
-                description: "Get immediate booking confirmation via email with all the details you need",
+                title: t("instantConfirmation"),
+                description: t("instantConfirmationDesc"),
                 color: "bg-green-100 text-green-600",
               },
               {
                 icon: Clock,
-                title: "24/7 Support",
-                description: "Round-the-clock assistance for all your travel needs, whenever you need us",
+                title: t("support247Title"),
+                description: t("support247Desc"),
                 color: "bg-purple-100 text-purple-600",
               },
             ].map((feature, idx) => (

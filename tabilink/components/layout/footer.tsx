@@ -1,7 +1,11 @@
+"use client"
+
 import Link from "next/link"
 import { Plane, Facebook, Twitter, Instagram, Mail, Phone } from "lucide-react"
+import { useTranslation } from "@/contexts/TranslationContext"
 
 export function Footer() {
+  const { t } = useTranslation()
   return (
     <footer className="border-t bg-muted/50">
       <div className="container py-8 sm:py-12 px-4">
@@ -12,8 +16,7 @@ export function Footer() {
               <span className="text-xl font-bold">TabiLink</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Your trusted partner for unforgettable travel experiences. Book
-              hotels and travel packages with ease.
+              {t("footerDescription")}
             </p>
             <div className="flex space-x-4">
               <Link
@@ -38,14 +41,14 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
+            <h3 className="font-semibold mb-4">{t("quickLinks")}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/hotels"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Hotels
+                  {t("hotels")}
                 </Link>
               </li>
               <li>
@@ -53,7 +56,7 @@ export function Footer() {
                   href="/travel"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Travel Packages
+                  {t("travelPackages")}
                 </Link>
               </li>
               <li>
@@ -61,7 +64,7 @@ export function Footer() {
                   href="/about"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  About Us
+                  {t("aboutUs")}
                 </Link>
               </li>
               <li>
@@ -69,21 +72,21 @@ export function Footer() {
                   href="/contact"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Contact
+                  {t("contact")}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Support</h3>
+            <h3 className="font-semibold mb-4">{t("support")}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/faq"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  FAQ
+                  {t("faq")}
                 </Link>
               </li>
               <li>
@@ -91,7 +94,7 @@ export function Footer() {
                   href="/terms"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Terms & Conditions
+                  {t("termsConditions")}
                 </Link>
               </li>
               <li>
@@ -99,7 +102,7 @@ export function Footer() {
                   href="/privacy"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Privacy Policy
+                  {t("privacyPolicy")}
                 </Link>
               </li>
               <li>
@@ -107,14 +110,14 @@ export function Footer() {
                   href="/cancellation"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Cancellation Policy
+                  {t("cancellationPolicy")}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Contact Us</h3>
+            <h3 className="font-semibold mb-4">{t("contactUs")}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
@@ -129,7 +132,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} TabiLink. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} TabiLink. {t("allRightsReserved")}.</p>
         </div>
       </div>
     </footer>
