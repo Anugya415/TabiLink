@@ -231,6 +231,224 @@ function DashboardContent() {
   // Hooks for plan your trip section
   const [selectedPlanOption, setSelectedPlanOption] = useState<string | null>(null)
 
+  // Mock Data for each subsection
+  const mockTripItineraries = [
+    {
+      id: 1,
+      title: "European Adventure",
+      duration: "7 Days",
+      cities: ["Paris", "Rome", "Barcelona"],
+      budget: "$2,500",
+      travelers: 2,
+      status: "Draft",
+    },
+    {
+      id: 2,
+      title: "Tokyo Discovery",
+      duration: "5 Days",
+      cities: ["Tokyo"],
+      budget: "$1,800",
+      travelers: 1,
+      status: "Active",
+    },
+    {
+      id: 3,
+      title: "Bali Paradise",
+      duration: "10 Days",
+      cities: ["Bali"],
+      budget: "$1,200",
+      travelers: 2,
+      status: "Completed",
+    },
+  ]
+
+  const mockDestinations = [
+    {
+      id: 1,
+      name: "Paris, France",
+      rating: 4.8,
+      reviews: 12500,
+      bestTime: "April - June",
+      priceRange: "$$$",
+      highlights: ["Eiffel Tower", "Louvre Museum", "Notre-Dame"],
+    },
+    {
+      id: 2,
+      name: "Tokyo, Japan",
+      rating: 4.9,
+      reviews: 9800,
+      bestTime: "March - May",
+      priceRange: "$$$$",
+      highlights: ["Shibuya", "Tokyo Skytree", "Senso-ji Temple"],
+    },
+    {
+      id: 3,
+      name: "Bali, Indonesia",
+      rating: 4.7,
+      reviews: 15200,
+      bestTime: "April - October",
+      priceRange: "$$",
+      highlights: ["Ubud", "Tanah Lot", "Rice Terraces"],
+    },
+    {
+      id: 4,
+      name: "New York, USA",
+      rating: 4.6,
+      reviews: 18900,
+      bestTime: "May - September",
+      priceRange: "$$$$",
+      highlights: ["Times Square", "Central Park", "Statue of Liberty"],
+    },
+  ]
+
+  const mockRestaurants = [
+    {
+      id: 1,
+      name: "Le Comptoir du Relais",
+      cuisine: "French",
+      rating: 4.8,
+      priceRange: "$$$$",
+      location: "Paris, France",
+      specialty: "Traditional French cuisine",
+    },
+    {
+      id: 2,
+      name: "Sukiyabashi Jiro",
+      cuisine: "Japanese",
+      rating: 4.9,
+      priceRange: "$$$$$",
+      location: "Tokyo, Japan",
+      specialty: "Sushi omakase",
+    },
+    {
+      id: 3,
+      name: "Locavore",
+      cuisine: "Indonesian",
+      rating: 4.7,
+      priceRange: "$$$",
+      location: "Ubud, Bali",
+      specialty: "Modern Indonesian",
+    },
+    {
+      id: 4,
+      name: "Eleven Madison Park",
+      cuisine: "American",
+      rating: 4.9,
+      priceRange: "$$$$$",
+      location: "New York, USA",
+      specialty: "Fine dining",
+    },
+  ]
+
+  const mockActivities = [
+    {
+      id: 1,
+      name: "Eiffel Tower Skip-the-Line",
+      category: "Attractions",
+      duration: "2 hours",
+      price: "$45",
+      rating: 4.8,
+      location: "Paris, France",
+    },
+    {
+      id: 2,
+      name: "Tokyo Food Tour",
+      category: "Food & Drink",
+      duration: "3 hours",
+      price: "$85",
+      rating: 4.9,
+      location: "Tokyo, Japan",
+    },
+    {
+      id: 3,
+      name: "Bali Waterfall Hiking",
+      category: "Adventure",
+      duration: "4 hours",
+      price: "$65",
+      rating: 4.7,
+      location: "Bali, Indonesia",
+    },
+    {
+      id: 4,
+      name: "Central Park Bike Tour",
+      category: "Outdoor",
+      duration: "2.5 hours",
+      price: "$55",
+      rating: 4.6,
+      location: "New York, USA",
+    },
+  ]
+
+  const mockShopping = [
+    {
+      id: 1,
+      name: "Champs-Élysées",
+      type: "Shopping District",
+      location: "Paris, France",
+      highlights: ["Luxury brands", "Department stores", "Boutiques"],
+    },
+    {
+      id: 2,
+      name: "Ginza District",
+      type: "Shopping District",
+      location: "Tokyo, Japan",
+      highlights: ["Electronics", "Luxury goods", "Traditional crafts"],
+    },
+    {
+      id: 3,
+      name: "Ubud Art Market",
+      type: "Local Market",
+      location: "Ubud, Bali",
+      highlights: ["Handicrafts", "Artwork", "Local souvenirs"],
+    },
+    {
+      id: 4,
+      name: "Fifth Avenue",
+      type: "Shopping District",
+      location: "New York, USA",
+      highlights: ["Designer stores", "Flagship stores", "Luxury brands"],
+    },
+  ]
+
+  const mockAttractions = [
+    {
+      id: 1,
+      name: "Eiffel Tower",
+      type: "Landmark",
+      location: "Paris, France",
+      rating: 4.8,
+      price: "From $28",
+      skipLine: true,
+    },
+    {
+      id: 2,
+      name: "Tokyo Skytree",
+      type: "Observation Deck",
+      location: "Tokyo, Japan",
+      rating: 4.7,
+      price: "From $18",
+      skipLine: true,
+    },
+    {
+      id: 3,
+      name: "Tanah Lot Temple",
+      type: "Temple",
+      location: "Bali, Indonesia",
+      rating: 4.6,
+      price: "From $12",
+      skipLine: false,
+    },
+    {
+      id: 4,
+      name: "Statue of Liberty",
+      type: "Monument",
+      location: "New York, USA",
+      rating: 4.9,
+      price: "From $24",
+      skipLine: true,
+    },
+  ]
+
   // Render content based on sidebar tab
   if (sidebarTab === "plan-trip") {
     const planOptions = [
@@ -240,22 +458,7 @@ function DashboardContent() {
         description: "Create your complete itinerary with day-by-day plans",
         icon: Navigation,
         color: "from-violet-500 to-purple-600",
-        details: {
-          features: [
-            "Multi-city trip planning",
-            "Day-by-day itinerary builder",
-            "Budget calculator and tracker",
-            "Timeline view with drag & drop",
-            "Share itinerary with travel companions",
-            "Export to PDF or calendar",
-          ],
-          tips: [
-            "Start by selecting your destination and travel dates",
-            "Add activities and attractions to each day",
-            "Set your budget to get cost estimates",
-            "Use the timeline view to optimize your schedule",
-          ],
-        },
+        data: mockTripItineraries,
       },
       {
         id: "explore-destinations",
@@ -263,22 +466,7 @@ function DashboardContent() {
         description: "Discover amazing places around the world",
         icon: Compass,
         color: "from-cyan-500 to-blue-600",
-        details: {
-          features: [
-            "Popular destinations with ratings",
-            "Detailed travel guides and tips",
-            "Best time to visit information",
-            "Weather forecasts and seasonal advice",
-            "Local culture and customs",
-            "Visa requirements and travel documents",
-          ],
-          tips: [
-            "Filter destinations by budget, climate, or interests",
-            "Read traveler reviews and recommendations",
-            "Check visa requirements before booking",
-            "Consider off-season travel for better deals",
-          ],
-        },
+        data: mockDestinations,
       },
       {
         id: "restaurants",
@@ -286,22 +474,7 @@ function DashboardContent() {
         description: "Find the best dining options and local cuisine",
         icon: UtensilsCrossed,
         color: "from-amber-500 to-orange-600",
-        details: {
-          features: [
-            "Restaurant ratings and reviews",
-            "Cuisine type filters (Italian, Asian, etc.)",
-            "Price range indicators",
-            "Reservation booking system",
-            "Dietary restrictions filters",
-            "Local food recommendations",
-          ],
-          tips: [
-            "Book popular restaurants in advance",
-            "Try local street food for authentic flavors",
-            "Check for happy hour deals and specials",
-            "Read reviews for hidden gems",
-          ],
-        },
+        data: mockRestaurants,
       },
       {
         id: "activities",
@@ -309,22 +482,7 @@ function DashboardContent() {
         description: "Things to do, experiences, and adventure tours",
         icon: Activity,
         color: "from-emerald-500 to-teal-600",
-        details: {
-          features: [
-            "Adventure sports and outdoor activities",
-            "Cultural tours and heritage walks",
-            "Family-friendly activities",
-            "Water sports and beach activities",
-            "Nightlife and entertainment",
-            "Workshop and class bookings",
-          ],
-          tips: [
-            "Book adventure activities in advance during peak season",
-            "Check age and fitness requirements",
-            "Read cancellation policies before booking",
-            "Look for combo deals on multiple activities",
-          ],
-        },
+        data: mockActivities,
       },
       {
         id: "shopping",
@@ -332,22 +490,7 @@ function DashboardContent() {
         description: "Best shopping destinations and local markets",
         icon: ShoppingBag,
         color: "from-rose-500 to-pink-600",
-        details: {
-          features: [
-            "Local markets and bazaars",
-            "Shopping malls and outlets",
-            "Souvenir shops and gift stores",
-            "Duty-free shopping information",
-            "Local handicrafts and specialties",
-            "Shopping district guides",
-          ],
-          tips: [
-            "Visit local markets for authentic products",
-            "Bargain at street markets and bazaars",
-            "Check duty-free allowances for international travel",
-            "Buy souvenirs early to avoid last-minute rush",
-          ],
-        },
+        data: mockShopping,
       },
       {
         id: "attractions",
@@ -355,69 +498,71 @@ function DashboardContent() {
         description: "Tourist spots, landmarks, and must-visit places",
         icon: Camera,
         color: "from-blue-500 to-indigo-600",
-        details: {
-          features: [
-            "Historical sites and monuments",
-            "Natural wonders and scenic spots",
-            "Museums and art galleries",
-            "Photo spots and Instagram-worthy locations",
-            "Skip-the-line ticket booking",
-            "Audio guide and tour options",
-          ],
-          tips: [
-            "Book skip-the-line tickets for popular attractions",
-            "Visit early morning or late evening to avoid crowds",
-            "Check opening hours and special events",
-            "Download audio guides for self-paced tours",
-          ],
-        },
+        data: mockAttractions,
       },
     ]
 
   return (
-      <div className="container space-y-8 py-12 page-content relative">
-        <div className="flex flex-col gap-3 animate-fade-in-down">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Plan Your Trip
-            </p>
-            <h1 className="text-3xl font-bold">Plan Your Perfect Trip</h1>
-            <p className="text-muted-foreground">
-              Explore destinations, plan itineraries, and discover amazing experiences for your next adventure
+      <div className="min-h-screen bg-white">
+        <div className="container space-y-12 py-16 page-content relative">
+          {/* Hero Header */}
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-semibold text-gray-700 mb-4 border border-gray-200">
+              <Compass className="h-4 w-4 text-gray-700" />
+              <span>Plan Your Trip</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900">
+              Plan Your Perfect Trip
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Everything you need to plan, organize, and experience your dream vacation in one place
             </p>
           </div>
-        </div>
 
         {!selectedPlanOption ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {planOptions.map((option, index) => {
               const Icon = option.icon
               return (
                 <Card
                   key={option.id}
-                  className="hover-lift h-full transition-all duration-300 border-2 hover:border-primary cursor-pointer"
+                  className="group relative overflow-hidden border-2 border-gray-200 hover:border-gray-900 transition-all duration-300 cursor-pointer bg-white h-full shadow-sm hover:shadow-xl"
                   onClick={() => setSelectedPlanOption(option.id)}
-                  style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-4">
-                        <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${option.color} text-white flex-shrink-0 transition-transform hover:scale-110 shadow-md`}>
-                          <Icon className="h-7 w-7" />
+                  <CardContent className="p-8">
+                    <div className="space-y-6">
+                      {/* Icon Section */}
+                      <div className="flex items-center justify-between">
+                        <div className={`flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br ${option.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="h-10 w-10" />
                         </div>
-                        <div className="flex-1 space-y-1">
-                          <h3 className="font-bold text-lg hover:text-primary transition-colors">
-                            {option.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {option.description}
-                          </p>
+                        <div className="h-12 w-12 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors"></div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-3">
+                        <h3 className="font-bold text-2xl text-gray-900 group-hover:text-black transition-colors">
+                          {option.title}
+                        </h3>
+                        <p className="text-gray-600 leading-relaxed text-base">
+                          {option.description}
+                        </p>
+                      </div>
+
+                      {/* Data Count */}
+                      <div className="pt-4 border-t border-gray-200">
+                        <p className="text-sm font-semibold text-gray-700">
+                          {option.data.length} {option.data.length === 1 ? 'item' : 'items'} available
+                        </p>
+                      </div>
+
+                      {/* CTA */}
+                      <div className="pt-4">
+                        <div className="flex items-center gap-2 text-gray-900 font-semibold group-hover:gap-3 transition-all">
+                          <span>Explore Now</span>
+                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
-                      <Button variant="outline" className="w-full">
-                        Explore Details
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -425,98 +570,346 @@ function DashboardContent() {
             })}
           </div>
         ) : (
-          <Card className="border-2 border-primary/30 bg-primary/5 animate-fade-in-up">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSelectedPlanOption(null)}
-                    className="hover-lift"
-                  >
-                    <ArrowRight className="h-4 w-4 rotate-180" />
-                  </Button>
-                  {(() => {
-                    const option = planOptions.find(o => o.id === selectedPlanOption)
-                    if (!option) return null
-                    const Icon = option.icon
-                    return (
-                      <>
-                        <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${option.color} text-white`}>
-                          <Icon className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-2xl">{option.title}</CardTitle>
-                          <CardDescription className="text-base">{option.description}</CardDescription>
-                        </div>
-                      </>
-                    )
-                  })()}
+          <div className="max-w-6xl mx-auto">
+            {(() => {
+              const option = planOptions.find(o => o.id === selectedPlanOption)
+              if (!option) return null
+              const Icon = option.icon
+              
+              // Render different content based on option type
+              const renderContent = () => {
+                if (option.id === "trip-planner") {
+                  return (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Your Itineraries</h2>
+                        <Button className="bg-gray-900 text-white hover:bg-gray-800">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create New
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {mockTripItineraries.map((item) => (
+                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <CardTitle className="text-lg text-gray-900">{item.title}</CardTitle>
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  item.status === 'Active' ? 'bg-gray-900 text-white' : 
+                                  item.status === 'Completed' ? 'bg-gray-200 text-gray-700' : 
+                                  'bg-gray-100 text-gray-600'
+                                }`}>
+                                  {item.status}
+                                </span>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <Calendar className="h-4 w-4" />
+                                <span>{item.duration}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <MapPin className="h-4 w-4" />
+                                <span>{item.cities.join(", ")}</span>
+                              </div>
+                              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                                <span className="text-sm text-gray-600">Budget</span>
+                                <span className="font-bold text-gray-900">{item.budget}</span>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                
+                if (option.id === "explore-destinations") {
+                  return (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Popular Destinations</h2>
+                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                          <Search className="h-4 w-4 mr-2" />
+                          Search
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {mockDestinations.map((item) => (
+                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
+                                  <div className="flex items-center gap-2">
+                                    <Star className="h-4 w-4 fill-gray-900 text-gray-900" />
+                                    <span className="text-sm font-semibold text-gray-700">{item.rating}</span>
+                                    <span className="text-sm text-gray-500">({item.reviews.toLocaleString()} reviews)</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="flex items-center gap-4 text-sm">
+                                <span className="text-gray-600">Best Time:</span>
+                                <span className="font-medium text-gray-900">{item.bestTime}</span>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm">
+                                <span className="text-gray-600">Price Range:</span>
+                                <span className="font-medium text-gray-900">{item.priceRange}</span>
+                              </div>
+                              <div className="pt-2 border-t border-gray-200">
+                                <p className="text-xs text-gray-600 mb-2">Highlights:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {item.highlights.map((highlight, idx) => (
+                                    <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                                      {highlight}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                
+                if (option.id === "restaurants") {
+                  return (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Top Restaurants</h2>
+                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                          <Search className="h-4 w-4 mr-2" />
+                          Filter
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {mockRestaurants.map((item) => (
+                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
+                                  <div className="flex items-center gap-3 text-sm">
+                                    <span className="text-gray-600">{item.cuisine}</span>
+                                    <span className="text-gray-400">•</span>
+                                    <span className="text-gray-600">{item.location}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Star className="h-4 w-4 fill-gray-900 text-gray-900" />
+                                  <span className="text-sm font-semibold text-gray-700">{item.rating}</span>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="flex items-center gap-4 text-sm">
+                                <span className="text-gray-600">Price:</span>
+                                <span className="font-medium text-gray-900">{item.priceRange}</span>
+                              </div>
+                              <div className="pt-2 border-t border-gray-200">
+                                <p className="text-sm text-gray-700">
+                                  <span className="font-medium">Specialty:</span> {item.specialty}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                
+                if (option.id === "activities") {
+                  return (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Popular Activities</h2>
+                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                          <Search className="h-4 w-4 mr-2" />
+                          Browse All
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {mockActivities.map((item) => (
+                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <span>{item.category}</span>
+                                    <span>•</span>
+                                    <span>{item.duration}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Star className="h-4 w-4 fill-gray-900 text-gray-900" />
+                                  <span className="text-sm font-semibold text-gray-700">{item.rating}</span>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <MapPin className="h-4 w-4" />
+                                <span>{item.location}</span>
+                              </div>
+                              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                                <span className="text-sm text-gray-600">Price</span>
+                                <span className="font-bold text-gray-900">{item.price}</span>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                
+                if (option.id === "shopping") {
+                  return (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Shopping Destinations</h2>
+                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                          <Search className="h-4 w-4 mr-2" />
+                          Explore
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {mockShopping.map((item) => (
+                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <span>{item.type}</span>
+                                    <span>•</span>
+                                    <MapPin className="h-4 w-4" />
+                                    <span>{item.location}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="pt-2">
+                                <p className="text-xs text-gray-600 mb-2">Highlights:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {item.highlights.map((highlight, idx) => (
+                                    <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                                      {highlight}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                
+                if (option.id === "attractions") {
+                  return (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Must-Visit Attractions</h2>
+                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                          <Search className="h-4 w-4 mr-2" />
+                          View All
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {mockAttractions.map((item) => (
+                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <span>{item.type}</span>
+                                    <span>•</span>
+                                    <MapPin className="h-4 w-4" />
+                                    <span>{item.location}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Star className="h-4 w-4 fill-gray-900 text-gray-900" />
+                                  <span className="text-sm font-semibold text-gray-700">{item.rating}</span>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                                <div>
+                                  <span className="text-sm text-gray-600">Price</span>
+                                  <p className="font-bold text-gray-900">{item.price}</p>
+                                </div>
+                                {item.skipLine && (
+                                  <span className="px-3 py-1 bg-gray-900 text-white text-xs font-semibold rounded-full">
+                                    Skip-the-Line
+                                  </span>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                
+                return null
+              }
+
+              return (
+                <div className="space-y-8">
+                  {/* Header Section */}
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSelectedPlanOption(null)}
+                      className="hover-lift h-12 w-12 rounded-full border-2 border-gray-200"
+                    >
+                      <ArrowRight className="h-5 w-5 rotate-180 text-gray-700" />
+                    </Button>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${option.color} text-white shadow-lg`}>
+                      <Icon className="h-8 w-8" />
+                    </div>
+                    <div className="flex-1">
+                      <h1 className="text-4xl font-bold mb-2 text-gray-900">{option.title}</h1>
+                      <p className="text-lg text-gray-600">{option.description}</p>
+                    </div>
+                  </div>
+
+                  {/* Content Section */}
+                  {renderContent()}
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                    <Button className="hover-lift flex-1 h-14 text-lg bg-gray-900 text-white hover:bg-gray-800" size="lg">
+                      <Plus className="h-5 w-5 mr-2" />
+                      Start Planning
+                    </Button>
+                    <Button variant="outline" className="hover-lift h-14 text-lg border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white" size="lg" asChild>
+                      <Link href="/travel">
+                        <Search className="h-5 w-5 mr-2" />
+                        Browse More
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {(() => {
-                const option = planOptions.find(o => o.id === selectedPlanOption)
-                if (!option) return null
-                return (
-                  <>
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <Card className="hover-lift">
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Check className="h-5 w-5 text-green-500" />
-                            Features
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-3">
-                            {option.details.features.map((feature, idx) => (
-                              <li key={idx} className="flex items-start gap-3">
-                                <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-sm">{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="hover-lift">
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Star className="h-5 w-5 text-yellow-500" />
-                            Tips & Recommendations
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-3">
-                            {option.details.tips.map((tip, idx) => (
-                              <li key={idx} className="flex items-start gap-3">
-                                <Star className="h-4 w-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-sm">{tip}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="flex gap-3 pt-4 border-t">
-                      <Button className="hover-lift flex-1" size="lg">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Start Planning
-                      </Button>
-                      <Button variant="outline" className="hover-lift" size="lg">
-                        <Link href="/travel">Browse Options</Link>
-                      </Button>
-                    </div>
-                  </>
-                )
-              })()}
-            </CardContent>
-          </Card>
+              )
+            })()}
+          </div>
         )}
+        </div>
       </div>
     )
   }
