@@ -65,6 +65,24 @@ const featuredDestinations = [
     image:
       "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1000&q=80",
   },
+  {
+    title: "Swiss Alps",
+    location: "Zermatt, Switzerland",
+    priceFrom: "$1,650",
+    rating: 4.8,
+    tag: "Mountain view",
+    image:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1000&q=80",
+  },
+  {
+    title: "Dubai Skyline",
+    location: "Dubai, UAE",
+    priceFrom: "$1,899",
+    rating: 4.9,
+    tag: "Luxury stay",
+    image:
+      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&q=80",
+  },
 ]
 
 export default function Home() {
@@ -196,8 +214,8 @@ export default function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-white">
         <div className="container relative py-16 md:py-24 lg:py-28 z-10">
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
-            <div className="space-y-6 animate-fade-in-left">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-stretch">
+            <div className="space-y-6 animate-fade-in-left flex flex-col">
               <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
                 {t("travelWithConfidence")}
               </p>
@@ -208,10 +226,10 @@ export default function Home() {
                 {t("searchOnceDesc")}
               </p>
 
-              <Card className="shadow-lg animate-scale-in hover-lift">
-                <CardContent className="p-4 sm:p-6 space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-start">
-                    <div className="sm:col-span-2 flex flex-col space-y-2">
+              <Card className="shadow-lg animate-scale-in hover-lift flex flex-col h-full">
+                <CardContent className="p-4 sm:p-6 space-y-5 flex-1 flex flex-col">
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 items-start">
+                    <div className="sm:col-span-2 flex flex-col space-y-2.5">
                       <label className="text-sm font-medium">
                         {t("destination")}
                       </label>
@@ -221,11 +239,11 @@ export default function Home() {
                           placeholder={t("cityCountryLandmark")}
                           value={destination}
                           onChange={(e) => setDestination(e.target.value)}
-                          className="pl-10 h-9"
+                          className="pl-10 h-10"
                         />
                       </div>
                     </div>
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-2.5">
                       <label className="text-sm font-medium">
                         {t("checkIn")}
                       </label>
@@ -236,7 +254,7 @@ export default function Home() {
                         className="w-full"
                       />
                     </div>
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-2.5">
                       <label className="text-sm font-medium">
                         {t("checkOut")}
                       </label>
@@ -248,7 +266,7 @@ export default function Home() {
                       />
                     </div>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2 items-start">
+                  <div className="grid gap-4 sm:grid-cols-2 items-start">
                     <div className="flex flex-col">
                       <label className="text-sm font-medium mb-2 block">
                         {t("travelers")}
@@ -257,14 +275,14 @@ export default function Home() {
                         value={travelers}
                         onChange={(e) => setTravelers(e.target.value)}
                         placeholder="2 adults"
-                        className="h-9"
+                        className="h-10"
                       />
                     </div>
                     <div className="flex flex-col">
                       <label className="text-sm font-medium mb-2 block opacity-0 pointer-events-none select-none">
                         {t("search")}
                       </label>
-                      <Button className="w-full h-10 text-base font-semibold" asChild>
+                      <Button className="w-full h-11 text-base font-semibold" asChild>
                         <Link href="/hotels">
                           <Search className="mr-2 h-5 w-5" />
                           {t("searchHotels").toUpperCase()}
@@ -272,80 +290,72 @@ export default function Home() {
                       </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-auto">
+                    <div className="flex items-center gap-1.5">
+                      <ShieldCheck className="h-4 w-4 text-green-500" />
                       <span>Secure Payments</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <BadgeCheck className="h-3.5 w-3.5 text-blue-500" />
+                    <div className="flex items-center gap-1.5">
+                      <BadgeCheck className="h-4 w-4 text-blue-500" />
                       <span>Best Price Guaranteed</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-3.5 w-3.5 text-purple-500" />
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-4 w-4 text-purple-500" />
                       <span>15M+ Happy Users</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-green-500" />
-                  {t("protectedPayments")}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-blue-500" />
-                  {t("flexibleItineraries")}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-purple-500" />
-                  {t("humanSupport")}
-                </div>
-              </div>
             </div>
 
-            <Card className="shadow-xl border-0 bg-background/90 backdrop-blur animate-fade-in-right hover-lift">
-              <CardHeader>
-                <CardTitle>{t("featuredDestinations")}</CardTitle>
-                <CardDescription>{t("curatedStays")}</CardDescription>
+            <Card className="shadow-lg animate-fade-in-right hover-lift flex flex-col h-full">
+              <CardHeader className="px-1.5 pt-1.5 pb-1">
+                <CardTitle className="text-base">{t("featuredDestinations")}</CardTitle>
+                <CardDescription className="text-xs">{t("curatedStays")}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {featuredDestinations.map((trip, index) => (
-                  <div
-                    key={trip.title}
-                    className="flex items-center gap-4 rounded-lg border bg-muted/50 p-3 hover-lift transition-all duration-300"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className="relative h-20 w-24 overflow-hidden rounded-md hover-scale transition-transform">
-                      <Image
-                        src={trip.image}
-                        alt={trip.title}
-                        fill
-                        sizes="120px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-semibold">{trip.title}</p>
-                      <p className="text-xs text-muted-foreground">{trip.location}</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold">{trip.rating}</span>
-                        <span className="text-muted-foreground">({trip.priceFrom})</span>
+              <CardContent className="space-y-4 flex-1 flex flex-col min-h-0 px-1.5 pb-1.5">
+                <div className="space-y-3 flex-1 overflow-y-auto">
+                  {featuredDestinations.map((trip, index) => (
+                    <div
+                      key={trip.title}
+                      className="flex items-center gap-3 rounded-lg border bg-muted/50 p-3 hover-lift transition-all duration-300 cursor-pointer group"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="relative h-20 w-28 overflow-hidden rounded-md hover-scale transition-transform flex-shrink-0">
+                        <Image
+                          src={trip.image}
+                          alt={trip.title}
+                          fill
+                          sizes="112px"
+                          className="object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
                       </div>
+                      <div className="flex-1 space-y-1 min-w-0">
+                        <p className="text-sm font-semibold line-clamp-1">{trip.title}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-3 w-3 flex-shrink-0" />
+                          <span className="line-clamp-1">{trip.location}</span>
+                        </p>
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                          <span className="font-semibold text-xs">{trip.rating}</span>
+                          <span className="text-muted-foreground text-xs">({trip.priceFrom})</span>
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary flex-shrink-0">
+                        {trip.tag}
+                      </span>
                     </div>
-                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                      {trip.tag}
-                    </span>
-                  </div>
-                ))}
-                <Button variant="outline" className="w-full hover-lift" asChild>
-                  <Link href="/travel">
-                    {t("browseMore")}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                  ))}
+                </div>
+                <div className="pt-2 flex-shrink-0">
+                  <Button variant="outline" className="w-full hover-lift text-xs h-8" asChild>
+                    <Link href="/travel">
+                      {t("browseMore")}
+                      <ArrowRight className="ml-2 h-3 w-3" />
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
