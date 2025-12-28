@@ -216,41 +216,8 @@ export default function HotelsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white">
-        <div className="relative container py-16 md:py-24 lg:py-32">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium border border-gray-200">
-              <Hotel className="h-4 w-4 text-gray-700" />
-              <span className="text-gray-700">{t("premiumHotelCollection")}</span>
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight text-gray-900">
-              {t("discoverPerfectStay")}
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              {t("exploreHotelsDesc")}
-            </p>
-
-            {/* Trust Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
-              {[
-                { icon: ShieldCheck, text: t("secureBookings"), color: "text-green-600" },
-                { icon: BadgeCheck, text: t("bestPriceGuarantee"), color: "text-yellow-600" },
-                { icon: Sparkles, text: t("freeCancellation"), color: "text-pink-600" },
-                { icon: Users, text: t("happyGuests"), color: "text-purple-600" },
-              ].map((badge, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <badge.icon className={`h-4 w-4 ${badge.color}`} />
-                  <span>{badge.text}</span>
-              </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Search Bar Section */}
-      <section className="relative -mt-12 md:-mt-16 lg:-mt-20 z-10">
+      <section className="relative pt-8 pb-4 z-10">
         <div className="container px-4 sm:px-6">
           <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
             <CardContent className="p-6 md:p-8">

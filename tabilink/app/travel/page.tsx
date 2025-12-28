@@ -187,125 +187,154 @@ export default function TravelPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white">
-        <div className="relative container py-16 md:py-24 lg:py-32">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium border border-gray-200">
-              <Package className="h-4 w-4 text-gray-700" />
-              <span className="text-gray-700">{t("premiumPackages")}</span>
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight text-gray-900">
-              {t("discoverPackages")}
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              {t("explorePackagesDesc")}
-            </p>
-
-            {/* Trust Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
-              {[
-                { icon: ShieldCheck, text: "Secure Bookings", color: "text-green-600" },
-                { icon: BadgeCheck, text: "Best Price Guarantee", color: "text-yellow-600" },
-                { icon: Sparkles, text: "24/7 Support", color: "text-pink-600" },
-                { icon: Users, text: "15M+ Happy Travelers", color: "text-purple-600" },
-              ].map((badge, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <badge.icon className={`h-4 w-4 ${badge.color}`} />
-                  <span>{badge.text}</span>
-              </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Search Bar Section */}
-      <section className="relative -mt-12 md:-mt-16 lg:-mt-20 z-10">
+      <section className="relative pt-8 pb-6 z-10">
         <div className="container px-4 sm:px-6">
-          <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+          <Card className="shadow-xl border-2 border-gray-100 bg-gradient-to-br from-white to-gray-50/50 hover:shadow-2xl transition-all duration-300">
             <CardContent className="p-6 md:p-8">
               <div className="space-y-6">
                 {/* Main Search */}
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                    <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <Search className="h-5 w-5 text-primary" />
+                    </div>
+                  </div>
                   <Input
                     placeholder="Search destinations, packages, or experiences..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-12 h-14 text-base border-2 focus:border-primary"
+                    className="pl-16 h-16 text-base border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl shadow-sm hover:border-gray-300 transition-all"
                   />
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-lg hover:bg-gray-100"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
 
-                {/* Filters Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-end">
-                      <Button
-                      onClick={() => setShowFilters(!showFilters)}
-                      variant={showFilters ? "default" : "outline"}
-                      className="w-full h-12 gap-2"
-                    >
-                      <SlidersHorizontal className="h-4 w-4" />
-                      {t("filter")}
-                      {activeFiltersCount > 0 && (
-                        <span className="ml-1 px-2 py-0.5 bg-primary/20 rounded-full text-xs font-semibold">
-                          {activeFiltersCount}
-                        </span>
-                      )}
-                      </Button>
+                {/* Quick Filters & Filter Button */}
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                  {/* Quick Category Filters */}
+                  <div className="flex flex-wrap gap-2 flex-1">
+                    {categories.filter(cat => cat.id !== "all").map((category) => {
+                      const Icon = category.icon
+                      const isActive = selectedCategory === category.id
+                      return (
+                        <Button
+                          key={category.id}
+                          variant={isActive ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setSelectedCategory(isActive ? "all" : category.id)}
+                          className={`gap-2 h-9 rounded-lg transition-all ${
+                            isActive 
+                              ? "bg-primary text-primary-foreground shadow-md" 
+                              : "hover:bg-gray-100 border-gray-200"
+                          }`}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                          {category.label}
+                        </Button>
+                      )
+                    })}
                   </div>
+                  
+                  {/* Filter Button */}
+                  <Button
+                    onClick={() => setShowFilters(!showFilters)}
+                    variant={showFilters ? "default" : "outline"}
+                    className="h-12 gap-2 px-6 rounded-xl border-2 hover:shadow-md transition-all"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    {t("filter")}
+                    {activeFiltersCount > 0 && (
+                      <span className="ml-1 px-2.5 py-1 bg-primary/20 rounded-full text-xs font-bold">
+                        {activeFiltersCount}
+                      </span>
+                    )}
+                  </Button>
                 </div>
 
                 {/* Expandable Filters */}
                 {showFilters && (
-                  <div className="pt-4 border-t space-y-4 animate-in slide-in-from-top-2 duration-300">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                        <label className="text-sm font-semibold mb-2 block text-muted-foreground">
-                      Sort By
-                    </label>
+                  <div className="pt-6 border-t border-gray-200 space-y-5 animate-in slide-in-from-top-2 duration-300">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-gray-700">
+                          <TrendingUp className="h-4 w-4 text-primary" />
+                          Sort By
+                        </label>
                         <Select 
                           value={sortBy} 
                           onChange={(e) => setSortBy(e.target.value)}
-                          className="h-12"
+                          className="h-12 border-2 rounded-lg"
                         >
-                      <option value="rating">Highest Rating</option>
-                      <option value="price">Lowest Price</option>
-                      <option value="popular">Most Popular</option>
-                    </Select>
-                  </div>
-                  <div>
-                        <label className="text-sm font-semibold mb-2 block text-muted-foreground">
-                      Price Range
-                    </label>
+                          <option value="rating">Highest Rating</option>
+                          <option value="price">Lowest Price</option>
+                          <option value="popular">Most Popular</option>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-gray-700">
+                          <Clock className="h-4 w-4 text-primary" />
+                          Price Range
+                        </label>
                         <Select 
                           value={priceRange} 
                           onChange={(e) => setPriceRange(e.target.value)}
-                          className="h-12"
+                          className="h-12 border-2 rounded-lg"
                         >
-                      <option value="all">All Prices</option>
-                      <option value="low">Under $2,000</option>
-                      <option value="mid">$2,000 - $3,000</option>
-                      <option value="high">Over $3,000</option>
-                    </Select>
-                  </div>
+                          <option value="all">All Prices</option>
+                          <option value="low">Under $2,000</option>
+                          <option value="mid">$2,000 - $3,000</option>
+                          <option value="high">Over $3,000</option>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-gray-700">
+                          <Package className="h-4 w-4 text-primary" />
+                          Category
+                        </label>
+                        <Select 
+                          value={selectedCategory} 
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className="h-12 border-2 rounded-lg"
+                        >
+                          <option value="all">{t("allTypes")}</option>
+                          <option value="adventure">{t("adventure")}</option>
+                          <option value="beach">{t("beach")}</option>
+                          <option value="cultural">{t("cultural")}</option>
+                          <option value="mountain">{t("mountain")}</option>
+                        </Select>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchTerm("")
-                        setSortBy("rating")
-                        setPriceRange("all")
-                        setSelectedCategory("all")
-                      }}
-                        className="flex-1"
-                    >
+                    <div className="flex items-center gap-3 pt-3 border-t border-gray-200">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setSearchTerm("")
+                          setSortBy("rating")
+                          setPriceRange("all")
+                          setSelectedCategory("all")
+                        }}
+                        className="flex-1 h-11 rounded-lg border-2 hover:bg-gray-50"
+                      >
                         <X className="h-4 w-4 mr-2" />
-                        Clear All
-                    </Button>
+                        Clear All Filters
+                      </Button>
+                      <Button
+                        onClick={() => setShowFilters(false)}
+                        className="flex-1 h-11 rounded-lg bg-primary hover:bg-primary/90"
+                      >
+                        Apply Filters
+                      </Button>
+                    </div>
                   </div>
-                </div>
                 )}
               </div>
             </CardContent>
