@@ -1192,10 +1192,224 @@ function DashboardContent() {
     )
   }
 
+  // Transportation booking handlers
+  const handleBookFlight = () => {
+    if (!flightFrom || !flightTo || !flightDate) {
+      toast.error("Please fill all required fields", {
+        description: "From, To, and Departure Date are required",
+      })
+      return
+    }
+
+    const newBookingId = `BK-${new Date().getFullYear()}-${String(bookings.length + 1).padStart(3, '0')}`
+    const baseAmount = flightType === "round-trip" ? 450 : 250
+    const totalAmount = baseAmount * parseInt(passengers || "1")
+
+    const newBooking: Booking = {
+      id: newBookingId,
+      type: "flight",
+      title: `Flight: ${flightFrom} to ${flightTo}`,
+      destination: `${flightFrom} → ${flightTo}`,
+      checkIn: flightDate.toISOString().split('T')[0],
+      checkOut: flightReturnDate?.toISOString().split('T')[0],
+      travelers: parseInt(passengers || "1"),
+      status: "pending",
+      amount: totalAmount,
+      bookingDate: new Date().toISOString().split('T')[0],
+      image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80",
+      details: {
+        flightNumber: `FL-${Math.floor(Math.random() * 10000)}`,
+      },
+    }
+
+    setBookings(prev => [newBooking, ...prev])
+    toast.success("Flight booking created", {
+      description: `${flightFrom} to ${flightTo} - ${flightType === "round-trip" ? "Round Trip" : "One Way"}`,
+    })
+    
+    // Clear form
+    setFlightFrom("")
+    setFlightTo("")
+    setFlightDate(undefined)
+    setFlightReturnDate(undefined)
+    setSelectedTransport(null)
+    setSidebarTab("bookings")
+  }
+
+  const handleBookTrain = () => {
+    if (!trainFrom || !trainTo || !trainDate) {
+      toast.error("Please fill all required fields", {
+        description: "From Station, To Station, and Journey Date are required",
+      })
+      return
+    }
+
+    const newBookingId = `BK-${new Date().getFullYear()}-${String(bookings.length + 1).padStart(3, '0')}`
+    const totalAmount = 120 * parseInt(passengers || "1")
+
+    const newBooking: Booking = {
+      id: newBookingId,
+      type: "flight",
+      title: `Train: ${trainFrom} to ${trainTo}`,
+      destination: `${trainFrom} → ${trainTo}`,
+      checkIn: trainDate.toISOString().split('T')[0],
+      travelers: parseInt(passengers || "1"),
+      status: "pending",
+      amount: totalAmount,
+      bookingDate: new Date().toISOString().split('T')[0],
+      image: "https://images.unsplash.com/photo-1556438064-2d7646166914?w=800&q=80",
+      details: {
+        flightNumber: `TR-${Math.floor(Math.random() * 10000)}`,
+      },
+    }
+
+    setBookings(prev => [newBooking, ...prev])
+    toast.success("Train booking created", {
+      description: `${trainFrom} to ${trainTo}`,
+    })
+    
+    // Clear form
+    setTrainFrom("")
+    setTrainTo("")
+    setTrainDate(undefined)
+    setSelectedTransport(null)
+    setSidebarTab("bookings")
+  }
+
+  const handleBookBus = () => {
+    if (!busFrom || !busTo || !busDate) {
+      toast.error("Please fill all required fields", {
+        description: "From City, To City, and Travel Date are required",
+      })
+      return
+    }
+
+    const newBookingId = `BK-${new Date().getFullYear()}-${String(bookings.length + 1).padStart(3, '0')}`
+    const totalAmount = 80 * parseInt(passengers || "1")
+
+    const newBooking: Booking = {
+      id: newBookingId,
+      type: "flight",
+      title: `Bus: ${busFrom} to ${busTo}`,
+      destination: `${busFrom} → ${busTo}`,
+      checkIn: busDate.toISOString().split('T')[0],
+      travelers: parseInt(passengers || "1"),
+      status: "pending",
+      amount: totalAmount,
+      bookingDate: new Date().toISOString().split('T')[0],
+      image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80",
+      details: {
+        flightNumber: `BS-${Math.floor(Math.random() * 10000)}`,
+      },
+    }
+
+    setBookings(prev => [newBooking, ...prev])
+    toast.success("Bus booking created", {
+      description: `${busFrom} to ${busTo}`,
+    })
+    
+    // Clear form
+    setBusFrom("")
+    setBusTo("")
+    setBusDate(undefined)
+    setSelectedTransport(null)
+    setSidebarTab("bookings")
+  }
+
+  const handleBookCab = () => {
+    if (!cabFrom || !cabTo || !cabDate || !cabTime) {
+      toast.error("Please fill all required fields", {
+        description: "Pickup Location, Drop Location, Date, and Time are required",
+      })
+      return
+    }
+
+    const newBookingId = `BK-${new Date().getFullYear()}-${String(bookings.length + 1).padStart(3, '0')}`
+    const baseAmount = 50
+    const distance = Math.floor(Math.random() * 30) + 10 // Mock distance
+    const totalAmount = baseAmount + (distance * 2)
+
+    const newBooking: Booking = {
+      id: newBookingId,
+      type: "flight",
+      title: `Cab: ${cabFrom} to ${cabTo}`,
+      destination: `${cabFrom} → ${cabTo}`,
+      checkIn: cabDate.toISOString().split('T')[0],
+      travelers: 1,
+      status: "pending",
+      amount: totalAmount,
+      bookingDate: new Date().toISOString().split('T')[0],
+      image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80",
+      details: {
+        flightNumber: `CB-${Math.floor(Math.random() * 10000)}`,
+      },
+    }
+
+    setBookings(prev => [newBooking, ...prev])
+    toast.success("Cab booking created", {
+      description: `${cabFrom} to ${cabTo} at ${cabTime}`,
+    })
+    
+    // Clear form
+    setCabFrom("")
+    setCabTo("")
+    setCabDate(undefined)
+    setCabTime("")
+    setSelectedTransport(null)
+    setSidebarTab("bookings")
+  }
+
   // Render content based on sidebar tab
   if (sidebarTab === "transportation") {
+    const transportOptions = [
+      {
+        id: "flights",
+        title: t("flights"),
+        description: t("bookDomesticInternational"),
+        icon: Plane,
+        iconColor: "text-blue-600",
+        iconColorSelected: "text-blue-600",
+        bgColor: "bg-blue-100",
+        bgColorSelected: "bg-blue-200",
+        borderColor: "border-blue-500",
+      },
+      {
+        id: "trains",
+        title: t("trains"),
+        description: t("railwayTicketBooking"),
+        icon: Train,
+        iconColor: "text-green-600",
+        iconColorSelected: "text-green-600",
+        bgColor: "bg-green-100",
+        bgColorSelected: "bg-green-200",
+        borderColor: "border-green-500",
+      },
+      {
+        id: "buses",
+        title: t("buses"),
+        description: t("intercityInterstateBuses"),
+        icon: Bus,
+        iconColor: "text-orange-600",
+        iconColorSelected: "text-orange-600",
+        bgColor: "bg-orange-100",
+        bgColorSelected: "bg-orange-200",
+        borderColor: "border-orange-500",
+      },
+      {
+        id: "cabs",
+        title: t("cabs"),
+        description: t("taxiCarRentalsAirport"),
+        icon: Car,
+        iconColor: "text-purple-600",
+        iconColorSelected: "text-purple-600",
+        bgColor: "bg-purple-100",
+        bgColorSelected: "bg-purple-200",
+        borderColor: "border-purple-500",
+      },
+    ]
+
     return (
-      <div className="container space-y-8 py-12 page-content relative">
+      <div className="container space-y-8 py-12 page-content relative max-w-5xl">
         <div className="flex flex-col gap-3 animate-fade-in-down">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
@@ -1208,86 +1422,92 @@ function DashboardContent() {
           </div>
         </div>
 
-        <Card className="hover-lift border-2 border-primary/20">
-          <CardContent className="p-6 space-y-6">
-            {/* Transport Type Selection */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-stagger">
-              {[
-                {
-                  id: "flights",
-                  title: t("flights"),
-                  description: t("bookDomesticInternational"),
-                  icon: Plane,
-                  color: "from-blue-500 to-cyan-500",
-                  features: [t("bestPrices"), t("support247Title"), t("easyCancellation")],
-                },
-                {
-                  id: "trains",
-                  title: t("trains"),
-                  description: t("railwayTicketBooking"),
-                  icon: Train,
-                  color: "from-green-500 to-emerald-500",
-                  features: [t("instantBooking"), t("pnrStatus"), t("seatSelection")],
-                },
-                {
-                  id: "buses",
-                  title: t("buses"),
-                  description: t("intercityInterstateBuses"),
-                  icon: Bus,
-                  color: "from-orange-500 to-red-500",
-                  features: [t("multipleOperators"), t("liveTracking"), t("flexibleDates")],
-                },
-                {
-                  id: "cabs",
-                  title: t("cabs"),
-                  description: t("taxiCarRentalsAirport"),
-                  icon: Car,
-                  color: "from-indigo-500 to-purple-500",
-                  features: [t("doorstepPickup"), t("multipleOptions"), t("safeRides")],
-                },
-              ].map((transport, index) => {
-                const Icon = transport.icon
-                const isSelected = selectedTransport === transport.id
-                return (
-                  <Card
-                    key={transport.id}
-                    className={`hover-lift h-full transition-all duration-300 border-2 cursor-pointer ${
-                      isSelected ? "border-primary shadow-lg bg-primary/5" : "hover:border-primary hover:shadow-lg"
-                    }`}
-                    onClick={() => setSelectedTransport(transport.id)}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex flex-col items-center text-center space-y-4">
-                        <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${transport.color} text-white transition-transform shadow-lg ${isSelected ? "scale-110" : ""}`}>
-                          <Icon className="h-8 w-8" />
-                        </div>
-                        <div className="space-y-2">
-                          <h3 className={`font-bold text-xl transition-colors ${isSelected ? "text-primary" : ""}`}>
+        <div className="space-y-4">
+          {transportOptions.map((transport, index) => {
+            const Icon = transport.icon
+            const isSelected = selectedTransport === transport.id
+            return (
+              <Card
+                key={transport.id}
+                className={`hover-lift animate-fade-in-up transition-all cursor-pointer ${
+                  isSelected
+                    ? `border-l-4 ${transport.borderColor} bg-primary/5 shadow-md`
+                    : "border-l-4 border-l-transparent"
+                }`}
+                onClick={() => setSelectedTransport(transport.id)}
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className={`h-12 w-12 rounded-full flex items-center justify-center transition-all ${
+                        isSelected ? transport.bgColorSelected : transport.bgColor
+                      }`}>
+                        <Icon className={`h-6 w-6 ${transport.iconColor}`} />
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className={`font-semibold ${isSelected ? "text-primary" : ""}`}>
                             {transport.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {transport.description}
-                          </p>
+                          {isSelected && (
+                            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                          )}
                         </div>
-                        <div className="w-full space-y-1.5 pt-2 border-t">
-                          {transport.features.map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
-                              <span>{feature}</span>
-                            </div>
-                          ))}
-                        </div>
+                        <p className="text-sm text-muted-foreground">{transport.description}</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {isSelected ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedTransport(null)
+                            setFlightFrom("")
+                            setFlightTo("")
+                            setFlightDate(undefined)
+                            setFlightReturnDate(undefined)
+                            setTrainFrom("")
+                            setTrainTo("")
+                            setTrainDate(undefined)
+                            setBusFrom("")
+                            setBusTo("")
+                            setBusDate(undefined)
+                            setCabFrom("")
+                            setCabTo("")
+                            setCabDate(undefined)
+                            setCabTime("")
+                          }}
+                          className="hover-lift"
+                        >
+                          Cancel
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedTransport(transport.id)
+                          }}
+                          className="hover-lift"
+                        >
+                          Book Now
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
 
-            {/* Booking Forms */}
-            {selectedTransport && (
-              <Card className="border-2 border-primary/30 bg-primary/5 animate-fade-in-up">
+        {/* Booking Forms */}
+        {selectedTransport && (
+          <Card className="border-l-4 border-l-primary bg-primary/5 shadow-md animate-fade-in-up">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
@@ -1413,7 +1633,7 @@ function DashboardContent() {
                           />
                         </div>
                       )}
-                      <Button className="w-full hover-lift" size="lg">
+                      <Button className="w-full hover-lift" size="lg" onClick={handleBookFlight}>
                         <Search className="h-4 w-4 mr-2" />
                         Search Flights
                       </Button>
@@ -1467,7 +1687,7 @@ function DashboardContent() {
                           />
                         </div>
                       </div>
-                      <Button className="w-full hover-lift" size="lg">
+                      <Button className="w-full hover-lift" size="lg" onClick={handleBookTrain}>
                         <Search className="h-4 w-4 mr-2" />
                         Search Trains
                       </Button>
@@ -1521,7 +1741,7 @@ function DashboardContent() {
                           />
                         </div>
                       </div>
-                      <Button className="w-full hover-lift" size="lg">
+                      <Button className="w-full hover-lift" size="lg" onClick={handleBookBus}>
                         <Search className="h-4 w-4 mr-2" />
                         Search Buses
                       </Button>
@@ -1573,7 +1793,7 @@ function DashboardContent() {
                           />
                         </div>
                       </div>
-                      <Button className="w-full hover-lift" size="lg">
+                      <Button className="w-full hover-lift" size="lg" onClick={handleBookCab}>
                         <Search className="h-4 w-4 mr-2" />
                         Search Cabs
                       </Button>
@@ -1582,13 +1802,10 @@ function DashboardContent() {
                 </CardContent>
               </Card>
             )}
-          </CardContent>
-        </Card>
       </div>
     )
   }
 
-  // Render content based on sidebar tab
   // Booking handlers
   const handleNewBooking = () => {
     router.push("/hotels")
@@ -2115,10 +2332,10 @@ function DashboardContent() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3 items-start">
-          <Card className="lg:col-span-1 hover-lift border-2">
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center space-y-6">
+        <div className="grid gap-6 lg:grid-cols-3 items-stretch">
+          <Card className="lg:col-span-1 hover-lift border-2 h-full flex flex-col">
+            <CardContent className="p-4 flex-1 flex flex-col">
+              <div className="flex flex-col items-center space-y-5 flex-1">
                 <div className="relative group">
                   <div className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg">
                     <Image
@@ -2142,34 +2359,55 @@ function DashboardContent() {
                     {mockUserProfile.membershipTier} {t("member")}
                   </span>
                 </div>
-                <div className="w-full space-y-4 pt-4 border-t">
-                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                <div className="w-full space-y-3 pt-4 border-t">
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-blue-500" />
                       <span className="text-sm text-muted-foreground">Total Trips</span>
                     </div>
                     <span className="font-bold text-lg">{mockUserProfile.totalTrips}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
                       <Star className="h-4 w-4 text-yellow-500" />
                       <span className="text-sm text-muted-foreground">Loyalty Points</span>
                     </div>
                     <span className="font-bold text-lg">{mockUserProfile.loyaltyPoints.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-blue-500" />
                       <span className="text-sm text-muted-foreground">Member Since</span>
                     </div>
                     <span className="font-semibold text-sm text-right">{mockUserProfile.memberSince}</span>
                   </div>
+                  <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-green-500" />
+                      <span className="text-sm text-muted-foreground">Total Spent</span>
+                    </div>
+                    <span className="font-bold text-lg">${mockUserProfile.totalSpent.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="w-full pt-4 border-t space-y-2.5">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="h-4 w-4 text-green-500" />
+                    <span className="text-muted-foreground">Email Verified</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <ShieldCheck className="h-4 w-4 text-green-500" />
+                    <span className="text-muted-foreground">Account Secured</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span className="text-muted-foreground">Premium Member</span>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 flex flex-col">
             <Card className="hover-lift">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
