@@ -230,7 +230,7 @@ export default function HotelsPage() {
             <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               {t("exploreHotelsDesc")}
             </p>
-            
+
             {/* Trust Badges */}
             <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
               {[
@@ -242,7 +242,7 @@ export default function HotelsPage() {
                 <div key={idx} className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <badge.icon className={`h-4 w-4 ${badge.color}`} />
                   <span>{badge.text}</span>
-                </div>
+              </div>
               ))}
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function HotelsPage() {
         <div className="container px-4 sm:px-6">
           <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
             <CardContent className="p-6 md:p-8">
-              <div className="space-y-6">
+          <div className="space-y-6">
                 {/* Main Search */}
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -293,7 +293,7 @@ export default function HotelsPage() {
                     />
                   </div>
                   <div className="flex items-end">
-                    <Button
+                      <Button
                       onClick={() => setShowFilters(!showFilters)}
                       variant={showFilters ? "default" : "outline"}
                       className="w-full h-12 gap-2"
@@ -305,7 +305,7 @@ export default function HotelsPage() {
                           {activeFiltersCount}
                         </span>
                       )}
-                    </Button>
+                      </Button>
                   </div>
                 </div>
 
@@ -313,10 +313,10 @@ export default function HotelsPage() {
                 {showFilters && (
                   <div className="pt-4 border-t space-y-4 animate-in slide-in-from-top-2 duration-300">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
+                  <div>
                         <label className="text-sm font-semibold mb-2 block text-muted-foreground">
                           {t("sortBy")}
-                        </label>
+                    </label>
                         <Select 
                           value={sortBy} 
                           onChange={(e) => setSortBy(e.target.value)}
@@ -325,12 +325,12 @@ export default function HotelsPage() {
                           <option value="rating">{t("highestRating")}</option>
                           <option value="price">{t("lowestPrice")}</option>
                           <option value="popular">{t("mostPopular")}</option>
-                        </Select>
-                      </div>
-                      <div>
+                    </Select>
+                  </div>
+                  <div>
                         <label className="text-sm font-semibold mb-2 block text-muted-foreground">
                           {t("priceRange")}
-                        </label>
+                    </label>
                         <Select 
                           value={priceRange} 
                           onChange={(e) => setPriceRange(e.target.value)}
@@ -338,34 +338,34 @@ export default function HotelsPage() {
                         >
                           <option value="all">{t("allPrices")}</option>
                           <option value="low">{t("under")} $200</option>
-                          <option value="mid">$200 - $300</option>
+                      <option value="mid">$200 - $300</option>
                           <option value="high">{t("over")} $300</option>
-                        </Select>
-                      </div>
+                    </Select>
+                  </div>
                     </div>
                     <div className="flex items-center gap-2 pt-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setSearchTerm("")
-                          setSortBy("rating")
-                          setPriceRange("all")
-                          setSelectedCategory("all")
-                          setCheckInDate(undefined)
-                          setCheckOutDate(undefined)
-                        }}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSearchTerm("")
+                        setSortBy("rating")
+                        setPriceRange("all")
+                        setSelectedCategory("all")
+                        setCheckInDate(undefined)
+                        setCheckOutDate(undefined)
+                      }}
                         className="flex-1"
-                      >
+                    >
                         <X className="h-4 w-4 mr-2" />
                         {t("clearFilters")}
-                      </Button>
+                    </Button>
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
             </CardContent>
           </Card>
-        </div>
+          </div>
       </section>
 
       {/* Category Tabs */}
@@ -440,36 +440,36 @@ export default function HotelsPage() {
             {filteredHotels.map((hotel, index) => {
               const isFavorite = favorites.includes(hotel.id)
               return (
-                <Card
-                  key={hotel.id}
+              <Card
+                key={hotel.id}
                   className="group overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white"
-                >
-                  {/* Image Section */}
+              >
+                {/* Image Section */}
                   <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
-                    <Image
-                      src={hotel.image}
-                      alt={hotel.name}
-                      fill
+                  <Image
+                    src={hotel.image}
+                    alt={hotel.name}
+                    fill
                       sizes="(max-width: 1024px) 100vw, (max-width: 1536px) 50vw, 33vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      loading="lazy"
-                    />
+                    loading="lazy"
+                  />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    
-                    {/* Badges */}
+                  
+                  {/* Badges */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                      {hotel.popular && (
+                    {hotel.popular && (
                         <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg">
                           <TrendingUp className="h-3.5 w-3.5" />
                           {t("popular")}
-                        </div>
-                      )}
-                      {hotel.originalPrice > hotel.price && (
+                      </div>
+                    )}
+                    {hotel.originalPrice > hotel.price && (
                         <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                           {t("save")} ${hotel.originalPrice - hotel.price}
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                  </div>
 
                     {/* Favorite Button */}
                     <button
@@ -518,12 +518,12 @@ export default function HotelsPage() {
                         {hotel.name}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2 text-sm mt-1.5">
-                        <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                        <span className="line-clamp-1">{hotel.location}</span>
-                      </CardDescription>
-                      {hotel.distance && (
+                    <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <span className="line-clamp-1">{hotel.location}</span>
+                  </CardDescription>
+                  {hotel.distance && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
-                          <MapPin className="h-3 w-3" />
+                      <MapPin className="h-3 w-3" />
                           {hotel.distance.includes("km from city center") 
                             ? hotel.distance.replace("km from city center", t("kmFromCenter"))
                             : hotel.distance === "Beachfront"
@@ -534,84 +534,84 @@ export default function HotelsPage() {
                             ? t("mountainLocation")
                             : hotel.distance
                           }
-                        </p>
-                      )}
+                    </p>
+                  )}
                     </div>
-                  </CardHeader>
+                </CardHeader>
 
                   <CardContent className="space-y-4 pt-0">
-                    {/* Description */}
+                  {/* Description */}
                     <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                      {hotel.description}
-                    </p>
+                    {hotel.description}
+                  </p>
 
-                    {/* Amenities */}
-                    <div className="flex flex-wrap gap-2">
-                      {hotel.amenities.slice(0, 4).map((amenity) => {
-                        const Icon = amenityIcons[amenity]
-                        return (
-                          <div
-                            key={amenity}
+                  {/* Amenities */}
+                  <div className="flex flex-wrap gap-2">
+                    {hotel.amenities.slice(0, 4).map((amenity) => {
+                      const Icon = amenityIcons[amenity]
+                      return (
+                        <div
+                          key={amenity}
                             className="flex items-center gap-1.5 text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-colors"
-                          >
+                        >
                             {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
                             <span className="text-muted-foreground font-medium">{amenity}</span>
-                          </div>
-                        )
-                      })}
-                      {hotel.amenities.length > 4 && (
+                        </div>
+                      )
+                    })}
+                    {hotel.amenities.length > 4 && (
                         <div className="flex items-center gap-1.5 text-xs bg-slate-100 px-2.5 py-1.5 rounded-lg">
                           <span className="text-muted-foreground font-medium">
                             +{hotel.amenities.length - 4} {t("more")}
                           </span>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Reviews */}
+                  {/* Reviews */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
-                      <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                    <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
                       <span className="font-medium">{hotel.reviews.toLocaleString()} {t("reviews")}</span>
-                    </div>
+                  </div>
 
-                    {/* Price Section */}
+                  {/* Price Section */}
                     <div className="pt-4 border-t space-y-4">
-                      <div className="flex items-baseline justify-between gap-2">
+                    <div className="flex items-baseline justify-between gap-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-3xl font-bold text-primary">
-                              ${hotel.price}
-                            </span>
+                            ${hotel.price}
+                          </span>
                             <span className="text-sm text-muted-foreground font-medium">/ {t("perNight")}</span>
-                            {hotel.originalPrice > hotel.price && (
-                              <>
-                                <span className="text-sm text-muted-foreground line-through">
-                                  ${hotel.originalPrice}
-                                </span>
+                          {hotel.originalPrice > hotel.price && (
+                            <>
+                              <span className="text-sm text-muted-foreground line-through">
+                                ${hotel.originalPrice}
+                              </span>
                                 <span className="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
                                   {hotel.discount}% {t("off")}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          {checkInDate && checkOutDate && (
-                            <p className="text-xs text-muted-foreground mt-2 font-medium">
-                              Total: ${hotel.price * Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))}
-                            </p>
+                              </span>
+                            </>
                           )}
                         </div>
+                        {checkInDate && checkOutDate && (
+                            <p className="text-xs text-muted-foreground mt-2 font-medium">
+                            Total: ${hotel.price * Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))}
+                          </p>
+                        )}
                       </div>
+                    </div>
 
-                      {/* CTA Button */}
+                    {/* CTA Button */}
                       <Button className="w-full h-12 text-base font-semibold gap-2 group/btn" asChild>
-                        <Link href={`/hotels/${hotel.id}/book`}>
+                      <Link href={`/hotels/${hotel.id}/book`}>
                           {t("bookNow")}
                           <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
               )
             })}
           </div>
@@ -626,7 +626,7 @@ export default function HotelsPage() {
             <p className="text-muted-foreground max-w-2xl mx-auto">
               {t("whyChooseHotelsDesc")}
             </p>
-          </div>
+                  </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {[
               {
@@ -650,17 +650,17 @@ export default function HotelsPage() {
             ].map((feature, idx) => (
               <Card key={idx} className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
                 <CardContent className="p-8 text-center space-y-4">
-                  <div className="flex justify-center">
+                <div className="flex justify-center">
                     <div className={`h-16 w-16 rounded-2xl ${feature.color} flex items-center justify-center`}>
                       <feature.icon className="h-8 w-8" />
-                    </div>
+                </div>
                   </div>
                   <h3 className="font-bold text-xl">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
+                </p>
+              </CardContent>
+            </Card>
             ))}
           </div>
         </div>

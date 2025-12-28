@@ -3,7 +3,8 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+import { toast } from "sonner"
 import {
   Bus,
   CreditCard,
@@ -51,6 +52,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
@@ -152,6 +160,81 @@ const getStatusIcon = (status: Booking["status"]) => {
   }
 }
 
+interface ModifyBookingFormProps {
+  booking: Booking
+  onSave: (changes: { checkIn?: string; checkOut?: string; travelers?: number }) => void
+  onCancel: () => void
+  t: ReturnType<typeof useTranslation>['t']
+}
+
+function ModifyBookingForm({ booking, onSave, onCancel, t }: ModifyBookingFormProps) {
+  const [checkIn, setCheckIn] = useState<Date | undefined>(
+    booking.checkIn ? new Date(booking.checkIn) : undefined
+  )
+  const [checkOut, setCheckOut] = useState<Date | undefined>(
+    booking.checkOut ? new Date(booking.checkOut) : undefined
+  )
+  const [travelers, setTravelers] = useState<string>(
+    booking.travelers?.toString() || "1"
+  )
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSave({
+      checkIn: checkIn?.toISOString().split('T')[0],
+      checkOut: checkOut?.toISOString().split('T')[0],
+      travelers: parseInt(travelers) || 1,
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {booking.checkIn && booking.checkOut && (
+        <>
+          <div className="space-y-2">
+            <Label>{t("checkIn")}</Label>
+            <DatePicker
+              date={checkIn}
+              onSelect={setCheckIn}
+              placeholder={t("chooseDate")}
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>{t("checkOut")}</Label>
+            <DatePicker
+              date={checkOut}
+              onSelect={setCheckOut}
+              placeholder={t("chooseDate")}
+              className="w-full"
+            />
+          </div>
+        </>
+      )}
+      {booking.travelers !== undefined && (
+        <div className="space-y-2">
+          <Label>{t("travelers")}</Label>
+          <Input
+            type="number"
+            min="1"
+            value={travelers}
+            onChange={(e) => setTravelers(e.target.value)}
+            className="w-full"
+          />
+        </div>
+      )}
+      <div className="flex gap-2 justify-end">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          {t("cancel")}
+        </Button>
+        <Button type="submit">
+          {t("saveChanges")}
+        </Button>
+      </div>
+    </form>
+  )
+}
+
 function DashboardContent() {
   const searchParams = useSearchParams()
   const { t } = useTranslation()
@@ -160,13 +243,19 @@ function DashboardContent() {
   const [sidebarTab, setSidebarTab] = useState<string | null>(null)
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(mockPaymentMethods)
+  const router = useRouter()
   
   // Hooks for bookings section
+  const [bookings, setBookings] = useState<Booking[]>(mockBookings)
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("date")
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
+  const [isModifyDialogOpen, setIsModifyDialogOpen] = useState(false)
   
   // Hooks for saved trips section
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>(mockSavedTrips)
   
   // Hooks for settings section
   const [currency, setCurrency] = useState(mockUserProfile.preferences.currency)
@@ -1500,8 +1589,90 @@ function DashboardContent() {
   }
 
   // Render content based on sidebar tab
+  // Booking handlers
+  const handleNewBooking = () => {
+    router.push("/hotels")
+    toast.success("Redirecting to hotels", {
+      description: "You can now search and book your next trip",
+    })
+  }
+
+  const handleViewDetails = (booking: Booking) => {
+    setSelectedBooking(booking)
+    setIsDetailsDialogOpen(true)
+  }
+
+  const handleCancelBooking = (booking: Booking) => {
+    setBookings(prev => prev.map(b => 
+      b.id === booking.id ? { ...b, status: "cancelled" as const } : b
+    ))
+    toast.success("Booking cancelled", {
+      description: `${booking.title} has been cancelled successfully`,
+    })
+  }
+
+  const handleModifyBooking = (booking: Booking) => {
+    setSelectedBooking(booking)
+    setIsModifyDialogOpen(true)
+  }
+
+  const handleSaveModification = (booking: Booking, changes: { checkIn?: string; checkOut?: string; travelers?: number }) => {
+    setBookings(prev => prev.map(b => 
+      b.id === booking.id 
+        ? { 
+            ...b, 
+            checkIn: changes.checkIn || b.checkIn,
+            checkOut: changes.checkOut || b.checkOut,
+            travelers: changes.travelers || b.travelers,
+          } 
+        : b
+    ))
+    setIsModifyDialogOpen(false)
+    setSelectedBooking(null)
+    toast.success("Booking modified", {
+      description: "Your booking has been updated successfully",
+    })
+  }
+
+  const handleBookNow = (trip: SavedTrip) => {
+    // Generate a new booking ID
+    const newBookingId = `BK-${new Date().getFullYear()}-${String(bookings.length + 1).padStart(3, '0')}`
+    
+    // Create a new booking from the saved trip
+    const newBooking: Booking = {
+      id: newBookingId,
+      type: trip.type === "hotel" ? "hotel" : "travel",
+      title: trip.destination,
+      destination: trip.location,
+      checkIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+      checkOut: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 14 days from now
+      travelers: 2,
+      status: "pending",
+      amount: trip.price,
+      bookingDate: new Date().toISOString().split('T')[0],
+      image: trip.image,
+      details: trip.type === "hotel" 
+        ? { hotelName: trip.destination }
+        : { packageName: trip.destination },
+    }
+
+    // Add the booking to bookings
+    setBookings(prev => [newBooking, ...prev])
+    
+    // Remove from saved trips
+    setSavedTrips(prev => prev.filter(t => t.id !== trip.id))
+    
+    // Show success toast
+    toast.success("Booking created", {
+      description: `${trip.destination} has been booked successfully`,
+    })
+
+    // Switch to bookings tab
+    setSidebarTab("bookings")
+  }
+
   if (sidebarTab === "bookings") {
-    const filteredBookings = mockBookings.filter(booking => {
+    const filteredBookings = bookings.filter(booking => {
       if (filterStatus === "all") return true
       return booking.status === filterStatus
     })
@@ -1529,7 +1700,7 @@ function DashboardContent() {
                 {t("manageViewBookings")}
               </p>
             </div>
-            <Button className="hover-lift">
+            <Button className="hover-lift" onClick={handleNewBooking}>
               <Plus className="h-4 w-4 mr-2" />
               {t("newBooking")}
             </Button>
@@ -1566,7 +1737,7 @@ function DashboardContent() {
                 </select>
               </div>
               <div className="ml-auto text-sm text-muted-foreground">
-                {t("showing")} {sortedBookings.length} {t("of")} {mockBookings.length} {t("bookings")}
+                {t("showing")} {sortedBookings.length} {t("of")} {bookings.length} {t("bookings")}
               </div>
             </div>
           </CardContent>
@@ -1634,16 +1805,31 @@ function DashboardContent() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="hover-lift">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="hover-lift"
+                        onClick={() => handleViewDetails(booking)}
+                      >
                         {t("viewDetails")}
                       </Button>
                       {booking.status === "confirmed" && (
-                        <Button variant="outline" size="sm" className="hover-lift">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="hover-lift"
+                          onClick={() => handleModifyBooking(booking)}
+                        >
                           {t("modifyBooking")}
                         </Button>
                       )}
                       {booking.status === "pending" && (
-                        <Button variant="outline" size="sm" className="hover-lift">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="hover-lift"
+                          onClick={() => handleCancelBooking(booking)}
+                        >
                           {t("cancel")}
                         </Button>
                       )}
@@ -1655,6 +1841,103 @@ function DashboardContent() {
             ))
           )}
         </div>
+
+        {/* Booking Details Dialog */}
+        <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{selectedBooking?.title}</DialogTitle>
+              <DialogDescription>
+                {t("viewDetails")} - {selectedBooking?.id}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedBooking && (
+              <div className="space-y-4">
+                <div className="relative h-64 w-full rounded-lg overflow-hidden">
+                  <Image
+                    src={selectedBooking.image}
+                    alt={selectedBooking.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-blue-500" />
+                      <span className="font-medium">{t("destination")}:</span>
+                      <span>{selectedBooking.destination}</span>
+                    </div>
+                    {selectedBooking.checkIn && selectedBooking.checkOut && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-blue-500" />
+                          <span className="font-medium">{t("checkIn")}:</span>
+                          <span>{new Date(selectedBooking.checkIn).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-blue-500" />
+                          <span className="font-medium">{t("checkOut")}:</span>
+                          <span>{new Date(selectedBooking.checkOut).toLocaleDateString()}</span>
+                        </div>
+                      </>
+                    )}
+                    {selectedBooking.travelers && (
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-blue-500" />
+                        <span className="font-medium">{t("travelers")}:</span>
+                        <span>{selectedBooking.travelers}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium">Status:</span>
+                      <span className={`ml-2 rounded-full px-2 py-1 text-xs font-semibold ${getStatusColor(selectedBooking.status)}`}>
+                        {selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium">{t("amount")}:</span>
+                      <span className="ml-2 text-xl font-bold">${selectedBooking.amount.toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium">{t("booked")}:</span>
+                      <span className="ml-2">{new Date(selectedBooking.bookingDate).toLocaleDateString()}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium">Type:</span>
+                      <span className="ml-2 capitalize">{selectedBooking.type}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Modify Booking Dialog */}
+        <Dialog open={isModifyDialogOpen} onOpenChange={setIsModifyDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{t("modifyBooking")}</DialogTitle>
+              <DialogDescription>
+                {selectedBooking?.title}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedBooking && (
+              <ModifyBookingForm
+                booking={selectedBooking}
+                onSave={(changes) => handleSaveModification(selectedBooking, changes)}
+                onCancel={() => {
+                  setIsModifyDialogOpen(false)
+                  setSelectedBooking(null)
+                }}
+                t={t}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     )
   }
@@ -1670,7 +1953,7 @@ function DashboardContent() {
               </p>
               <h1 className="text-3xl font-bold">{t("yourWishlist")}</h1>
               <p className="text-muted-foreground">
-                {mockSavedTrips.length} {t("tripsSavedForLater")}
+                {savedTrips.length} {t("tripsSavedForLater")}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -1696,7 +1979,7 @@ function DashboardContent() {
 
         {viewMode === "grid" ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
-          {mockSavedTrips.map((trip, index) => (
+          {savedTrips.map((trip, index) => (
             <Card key={trip.id} className="hover-lift overflow-hidden" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="relative h-48 w-full">
                 <Image
@@ -1739,10 +2022,11 @@ function DashboardContent() {
                     )}
                     <p className="text-xl font-bold">${trip.price}</p>
                   </div>
-                  <Button className="hover-lift">
-                    <Link href={trip.type === "hotel" ? `/hotels/${trip.id}` : `/travel/${trip.id}`}>
-                      Book Now
-                    </Link>
+                  <Button 
+                    className="hover-lift"
+                    onClick={() => handleBookNow(trip)}
+                  >
+                    {t("bookNow")}
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -1754,7 +2038,7 @@ function DashboardContent() {
         </div>
         ) : (
           <div className="space-y-4 animate-stagger">
-            {mockSavedTrips.map((trip, index) => (
+            {savedTrips.map((trip, index) => (
               <Card key={trip.id} className="hover-lift" style={{ animationDelay: `${index * 0.05}s` }}>
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row gap-6">
@@ -1795,10 +2079,11 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button className="hover-lift flex-1">
-                          <Link href={trip.type === "hotel" ? `/hotels/${trip.id}` : `/travel/${trip.id}`}>
-                            Book Now
-                          </Link>
+                        <Button 
+                          className="hover-lift flex-1"
+                          onClick={() => handleBookNow(trip)}
+                        >
+                          {t("bookNow")}
                         </Button>
                         <Button variant="outline" size="icon" className="hover-lift">
                           <Heart className="h-5 w-5 fill-red-500 text-red-500" />
@@ -2225,13 +2510,13 @@ function DashboardContent() {
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
                           <h3 className={`font-semibold ${!notification.read ? "text-primary" : ""}`}>
-                            {notification.title}
+                            {t(notification.title as any)}
                           </h3>
                           {!notification.read && (
                             <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{notification.message}</p>
+                        <p className="text-sm text-muted-foreground">{t(notification.message as any)}</p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(notification.date).toLocaleString()}
                         </p>

@@ -201,7 +201,7 @@ export default function TravelPage() {
             <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               {t("explorePackagesDesc")}
             </p>
-            
+
             {/* Trust Badges */}
             <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
               {[
@@ -213,7 +213,7 @@ export default function TravelPage() {
                 <div key={idx} className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <badge.icon className={`h-4 w-4 ${badge.color}`} />
                   <span>{badge.text}</span>
-                </div>
+              </div>
               ))}
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function TravelPage() {
                 {/* Filters Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-end">
-                    <Button
+                      <Button
                       onClick={() => setShowFilters(!showFilters)}
                       variant={showFilters ? "default" : "outline"}
                       className="w-full h-12 gap-2"
@@ -252,7 +252,7 @@ export default function TravelPage() {
                           {activeFiltersCount}
                         </span>
                       )}
-                    </Button>
+                      </Button>
                   </div>
                 </div>
 
@@ -260,52 +260,52 @@ export default function TravelPage() {
                 {showFilters && (
                   <div className="pt-4 border-t space-y-4 animate-in slide-in-from-top-2 duration-300">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
+                  <div>
                         <label className="text-sm font-semibold mb-2 block text-muted-foreground">
-                          Sort By
-                        </label>
+                      Sort By
+                    </label>
                         <Select 
                           value={sortBy} 
                           onChange={(e) => setSortBy(e.target.value)}
                           className="h-12"
                         >
-                          <option value="rating">Highest Rating</option>
-                          <option value="price">Lowest Price</option>
-                          <option value="popular">Most Popular</option>
-                        </Select>
-                      </div>
-                      <div>
+                      <option value="rating">Highest Rating</option>
+                      <option value="price">Lowest Price</option>
+                      <option value="popular">Most Popular</option>
+                    </Select>
+                  </div>
+                  <div>
                         <label className="text-sm font-semibold mb-2 block text-muted-foreground">
-                          Price Range
-                        </label>
+                      Price Range
+                    </label>
                         <Select 
                           value={priceRange} 
                           onChange={(e) => setPriceRange(e.target.value)}
                           className="h-12"
                         >
-                          <option value="all">All Prices</option>
-                          <option value="low">Under $2,000</option>
-                          <option value="mid">$2,000 - $3,000</option>
-                          <option value="high">Over $3,000</option>
-                        </Select>
-                      </div>
+                      <option value="all">All Prices</option>
+                      <option value="low">Under $2,000</option>
+                      <option value="mid">$2,000 - $3,000</option>
+                      <option value="high">Over $3,000</option>
+                    </Select>
+                  </div>
                     </div>
                     <div className="flex items-center gap-2 pt-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setSearchTerm("")
-                          setSortBy("rating")
-                          setPriceRange("all")
-                          setSelectedCategory("all")
-                        }}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSearchTerm("")
+                        setSortBy("rating")
+                        setPriceRange("all")
+                        setSelectedCategory("all")
+                      }}
                         className="flex-1"
-                      >
+                    >
                         <X className="h-4 w-4 mr-2" />
                         Clear All
-                      </Button>
-                    </div>
+                    </Button>
                   </div>
+                </div>
                 )}
               </div>
             </CardContent>
@@ -383,36 +383,36 @@ export default function TravelPage() {
             {filteredPackages.map((pkg, index) => {
               const isFavorite = favorites.includes(pkg.id)
               return (
-                <Card
-                  key={pkg.id}
+              <Card
+                key={pkg.id}
                   className="group overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white"
-                >
-                  {/* Image Section */}
+              >
+                {/* Image Section */}
                   <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
-                    <Image
-                      src={pkg.image}
-                      alt={pkg.title}
-                      fill
+                  <Image
+                    src={pkg.image}
+                    alt={pkg.title}
+                    fill
                       sizes="(max-width: 1024px) 100vw, (max-width: 1536px) 50vw, 33vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      loading="lazy"
-                    />
+                    loading="lazy"
+                  />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    
-                    {/* Badges */}
+                  
+                  {/* Badges */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                      {pkg.popular && (
+                    {pkg.popular && (
                         <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg">
                           <TrendingUp className="h-3.5 w-3.5" />
                           {t("popular")}
-                        </div>
-                      )}
-                      {pkg.originalPrice > pkg.price && (
+                      </div>
+                    )}
+                    {pkg.originalPrice > pkg.price && (
                         <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                           {t("save")} ${pkg.originalPrice - pkg.price}
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                  </div>
 
                     {/* Favorite Button */}
                     <button
@@ -460,28 +460,28 @@ export default function TravelPage() {
                         {pkg.title}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2 text-sm mt-1.5">
-                        <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                        <span className="line-clamp-1">{pkg.destination}</span>
-                      </CardDescription>
+                    <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <span className="line-clamp-1">{pkg.destination}</span>
+                  </CardDescription>
                     </div>
-                  </CardHeader>
+                </CardHeader>
 
                   <CardContent className="space-y-4 pt-0">
-                    {/* Description */}
+                  {/* Description */}
                     <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                      {pkg.description}
-                    </p>
+                    {pkg.description}
+                  </p>
 
-                    {/* Details */}
+                  {/* Details */}
                     <div className="space-y-2.5">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4 text-blue-500 flex-shrink-0" />
                         <span className="font-medium">
                           {pkg.duration.replace(/Days/g, t("days")).replace(/Nights/g, t("nights"))}
                         </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Plane className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Plane className="h-4 w-4 text-blue-500 flex-shrink-0" />
                         <span className="line-clamp-1 font-medium">
                           {pkg.includes.map(item => {
                             const translationMap: Record<string, string> = {
@@ -502,48 +502,48 @@ export default function TravelPage() {
                             return translationMap[item] || item
                           }).join(" • ")}
                         </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
-                        <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="font-medium">{pkg.reviews.toLocaleString()} {t("reviews")}</span>
-                      </div>
                     </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
+                      <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="font-medium">{pkg.reviews.toLocaleString()} {t("reviews")}</span>
+                    </div>
+                  </div>
 
-                    {/* Price Section */}
+                  {/* Price Section */}
                     <div className="pt-4 border-t space-y-4">
-                      <div className="flex items-baseline justify-between gap-2">
+                    <div className="flex items-baseline justify-between gap-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-3xl font-bold text-primary">
-                              ${pkg.price.toLocaleString()}
-                            </span>
-                            {pkg.originalPrice > pkg.price && (
-                              <>
-                                <span className="text-sm text-muted-foreground line-through">
-                                  ${pkg.originalPrice.toLocaleString()}
-                                </span>
+                            ${pkg.price.toLocaleString()}
+                          </span>
+                          {pkg.originalPrice > pkg.price && (
+                            <>
+                              <span className="text-sm text-muted-foreground line-through">
+                                ${pkg.originalPrice.toLocaleString()}
+                              </span>
                                 <span className="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
                                   {pkg.discount}% {t("off")}
-                                </span>
-                              </>
-                            )}
-                          </div>
+                              </span>
+                            </>
+                          )}
+                        </div>
                           <p className="text-xs text-muted-foreground mt-2 font-medium">
                             {t("perPerson")}
-                          </p>
-                        </div>
+                        </p>
                       </div>
+                    </div>
 
-                      {/* CTA Button */}
+                    {/* CTA Button */}
                       <Button className="w-full h-12 text-base font-semibold gap-2 group/btn" asChild>
-                        <Link href={`/travel/${pkg.id}/book`}>
+                      <Link href={`/travel/${pkg.id}/book`}>
                           {t("bookNow")}
                           <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
               )
             })}
           </div>
@@ -558,7 +558,7 @@ export default function TravelPage() {
             <p className="text-muted-foreground max-w-2xl mx-auto">
               {t("whyChooseTravelDesc")}
             </p>
-          </div>
+                  </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {[
               {
@@ -582,17 +582,17 @@ export default function TravelPage() {
             ].map((feature, idx) => (
               <Card key={idx} className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
                 <CardContent className="p-8 text-center space-y-4">
-                  <div className="flex justify-center">
+                <div className="flex justify-center">
                     <div className={`h-16 w-16 rounded-2xl ${feature.color} flex items-center justify-center`}>
                       <feature.icon className="h-8 w-8" />
-                    </div>
+                </div>
                   </div>
                   <h3 className="font-bold text-xl">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
+                </p>
+              </CardContent>
+            </Card>
             ))}
           </div>
         </div>

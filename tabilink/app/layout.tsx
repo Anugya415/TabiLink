@@ -36,11 +36,11 @@ export default function RootLayout({
         className={`${poppins.variable} ${jetbrainsMono.variable} antialiased font-sans relative bg-white`}
       >
         <TranslationProvider>
-          <Header />
-          <Sidebar />
-          <main className="min-h-screen transition-all duration-300 relative z-10 lg:pl-0 bg-white">{children}</main>
-          <Footer />
-          <Toaster />
+        <Header />
+        <Sidebar />
+        <main className="min-h-screen transition-all duration-300 relative z-10 lg:pl-0 bg-white">{children}</main>
+        <Footer />
+        <Toaster />
         </TranslationProvider>
       </body>
     </html>
