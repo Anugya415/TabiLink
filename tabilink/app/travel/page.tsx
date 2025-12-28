@@ -186,11 +186,11 @@ export default function TravelPage() {
   ].filter(Boolean).length
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Search Bar Section */}
       <section className="relative pt-8 pb-6 z-10">
         <div className="container px-4 sm:px-6">
-          <Card className="shadow-xl border-2 border-gray-100 bg-gradient-to-br from-white to-gray-50/50 hover:shadow-2xl transition-all duration-300">
+          <Card className="shadow-xl border-2 border-border bg-card hover:shadow-2xl transition-all duration-300">
             <CardContent className="p-6 md:p-8">
               <div className="space-y-6">
                 {/* Main Search */}
@@ -204,7 +204,7 @@ export default function TravelPage() {
                     placeholder="Search destinations, packages, or experiences..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-16 h-16 text-base border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl shadow-sm hover:border-gray-300 transition-all"
+                    className="pl-16 h-16 text-base border-2 border-input focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl shadow-sm hover:border-primary/30 transition-all"
                   />
                   {searchTerm && (
                     <Button
@@ -234,7 +234,7 @@ export default function TravelPage() {
                           className={`gap-2 h-9 rounded-lg transition-all ${
                             isActive 
                               ? "bg-primary text-primary-foreground shadow-md" 
-                              : "hover:bg-gray-100 border-gray-200"
+                              : "hover:bg-muted border-border"
                           }`}
                         >
                           <Icon className="h-3.5 w-3.5" />
@@ -262,10 +262,10 @@ export default function TravelPage() {
 
                 {/* Expandable Filters */}
                 {showFilters && (
-                  <div className="pt-6 border-t border-gray-200 space-y-5 animate-in slide-in-from-top-2 duration-300">
+                  <div className="pt-6 border-t border-border space-y-5 animate-in slide-in-from-top-2 duration-300">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-gray-700">
+                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
                           <TrendingUp className="h-4 w-4 text-primary" />
                           Sort By
                         </label>
@@ -280,7 +280,7 @@ export default function TravelPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-gray-700">
+                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
                           <Clock className="h-4 w-4 text-primary" />
                           Price Range
                         </label>
@@ -296,7 +296,7 @@ export default function TravelPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-gray-700">
+                        <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
                           <Package className="h-4 w-4 text-primary" />
                           Category
                         </label>
@@ -313,7 +313,7 @@ export default function TravelPage() {
                         </Select>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 pt-3 border-t border-gray-200">
+                    <div className="flex items-center gap-3 pt-3 border-t border-border">
                       <Button
                         variant="outline"
                         onClick={() => {
@@ -414,7 +414,7 @@ export default function TravelPage() {
               return (
               <Card
                 key={pkg.id}
-                  className="group overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white"
+                  className="group overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-card"
               >
                 {/* Image Section */}
                   <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
@@ -449,7 +449,7 @@ export default function TravelPage() {
                         e.preventDefault()
                         toggleFavorite(pkg.id)
                       }}
-                      className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-lg"
+                      className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-all duration-200 hover:scale-110 shadow-lg"
                     >
                       <Heart 
                         className={`h-5 w-5 transition-all duration-200 ${
@@ -461,14 +461,14 @@ export default function TravelPage() {
                     </button>
 
                     {/* Rating Badge */}
-                    <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full shadow-lg">
+                    <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-card/95 backdrop-blur-sm px-3 py-2 rounded-full shadow-lg">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="text-sm font-bold">{pkg.rating}</span>
                     </div>
 
                     {/* Category Badge */}
                     <div className="absolute bottom-4 left-4">
-                      <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold capitalize shadow-lg">
+                      <div className="bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold capitalize shadow-lg">
                         {(() => {
                           const categoryMap: Record<string, string> = {
                             adventure: t("adventureCategory"),
@@ -580,7 +580,7 @@ export default function TravelPage() {
       </section>
 
       {/* Features Section */}
-      <section className="border-t bg-white py-16 lg:py-20">
+      <section className="border-t bg-background py-16 lg:py-20">
         <div className="container px-4 sm:px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-3">{t("whyChooseTabiLinkTravel")}</h2>
@@ -594,29 +594,32 @@ export default function TravelPage() {
                 icon: ShieldCheck,
                 title: t("securePaymentsTitle"),
                 description: t("securePaymentsDesc"),
-                color: "bg-blue-100 text-blue-600",
+                color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+                iconBg: "bg-blue-500/20 dark:bg-blue-500/30",
               },
               {
                 icon: CheckCircle2,
                 title: t("instantConfirmation"),
                 description: t("instantConfirmationDesc"),
-                color: "bg-green-100 text-green-600",
+                color: "bg-green-500/10 text-green-600 dark:text-green-400",
+                iconBg: "bg-green-500/20 dark:bg-green-500/30",
               },
               {
                 icon: Clock,
                 title: t("support247Title"),
                 description: t("support247Desc"),
-                color: "bg-purple-100 text-purple-600",
+                color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+                iconBg: "bg-purple-500/20 dark:bg-purple-500/30",
               },
             ].map((feature, idx) => (
-              <Card key={idx} className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
+              <Card key={idx} className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card">
                 <CardContent className="p-8 text-center space-y-4">
                 <div className="flex justify-center">
-                    <div className={`h-16 w-16 rounded-2xl ${feature.color} flex items-center justify-center`}>
+                    <div className={`h-16 w-16 rounded-2xl ${feature.iconBg} ${feature.color} flex items-center justify-center`}>
                       <feature.icon className="h-8 w-8" />
                 </div>
                   </div>
-                  <h3 className="font-bold text-xl">{feature.title}</h3>
+                  <h3 className="font-bold text-xl text-foreground">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {feature.description}
                 </p>

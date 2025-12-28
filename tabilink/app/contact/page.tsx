@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import { toast } from "sonner"
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -29,10 +30,14 @@ export default function ContactPage() {
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 500))
-      alert("Thank you for your message! We'll get back to you soon.")
+      toast.success("Message sent successfully!", {
+        description: "We'll get back to you soon.",
+      })
       form.reset()
     } catch (error) {
-      alert("Something went wrong. Please try again later.")
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
+      })
     }
   }
 

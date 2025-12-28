@@ -215,11 +215,11 @@ export default function HotelsPage() {
   ].filter(Boolean).length
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Search Bar Section */}
       <section className="relative pt-8 pb-4 z-10">
         <div className="container px-4 sm:px-6">
-          <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+          <Card className="shadow-2xl border-0 bg-card/95 backdrop-blur-sm">
             <CardContent className="p-6 md:p-8">
           <div className="space-y-6">
                 {/* Main Search */}
@@ -409,10 +409,10 @@ export default function HotelsPage() {
               return (
               <Card
                 key={hotel.id}
-                  className="group overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white"
+                  className="group overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-card"
               >
                 {/* Image Section */}
-                  <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
+                  <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900">
                   <Image
                     src={hotel.image}
                     alt={hotel.name}
@@ -444,26 +444,26 @@ export default function HotelsPage() {
                         e.preventDefault()
                         toggleFavorite(hotel.id)
                       }}
-                      className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-lg"
+                      className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-all duration-200 hover:scale-110 shadow-lg"
                     >
                       <Heart 
                         className={`h-5 w-5 transition-all duration-200 ${
                           isFavorite 
                             ? "fill-red-500 text-red-500 scale-110" 
-                            : "text-gray-600"
+                            : "text-muted-foreground"
                         }`} 
                       />
                     </button>
 
                     {/* Rating Badge */}
-                    <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full shadow-lg">
+                    <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-card/95 backdrop-blur-sm px-3 py-2 rounded-full shadow-lg">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-bold">{hotel.rating}</span>
+                      <span className="text-sm font-bold text-foreground">{hotel.rating}</span>
                     </div>
 
                     {/* Category Badge */}
                     <div className="absolute bottom-4 left-4">
-                      <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold capitalize shadow-lg">
+                      <div className="bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold capitalize shadow-lg text-foreground">
                         {(() => {
                           const categoryMap: Record<string, string> = {
                             luxury: t("luxuryCategory"),
@@ -485,12 +485,12 @@ export default function HotelsPage() {
                         {hotel.name}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2 text-sm mt-1.5">
-                    <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                    <span className="line-clamp-1">{hotel.location}</span>
+                    <MapPin className="h-4 w-4 text-blue-500 dark:text-blue-400 flex-shrink-0" />
+                    <span className="line-clamp-1 text-muted-foreground">{hotel.location}</span>
                   </CardDescription>
                   {hotel.distance && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
-                      <MapPin className="h-3 w-3" />
+                      <MapPin className="h-3 w-3 text-muted-foreground" />
                           {hotel.distance.includes("km from city center") 
                             ? hotel.distance.replace("km from city center", t("kmFromCenter"))
                             : hotel.distance === "Beachfront"
@@ -519,7 +519,7 @@ export default function HotelsPage() {
                       return (
                         <div
                           key={amenity}
-                            className="flex items-center gap-1.5 text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                            className="flex items-center gap-1.5 text-xs bg-secondary hover:bg-secondary/80 px-2.5 py-1.5 rounded-lg transition-colors"
                         >
                             {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
                             <span className="text-muted-foreground font-medium">{amenity}</span>
@@ -527,7 +527,7 @@ export default function HotelsPage() {
                       )
                     })}
                     {hotel.amenities.length > 4 && (
-                        <div className="flex items-center gap-1.5 text-xs bg-slate-100 px-2.5 py-1.5 rounded-lg">
+                        <div className="flex items-center gap-1.5 text-xs bg-secondary px-2.5 py-1.5 rounded-lg">
                           <span className="text-muted-foreground font-medium">
                             +{hotel.amenities.length - 4} {t("more")}
                           </span>
@@ -536,13 +536,13 @@ export default function HotelsPage() {
                   </div>
 
                   {/* Reviews */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
-                    <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t border-border">
+                    <Users className="h-4 w-4 text-purple-500 dark:text-purple-400 flex-shrink-0" />
                       <span className="font-medium">{hotel.reviews.toLocaleString()} {t("reviews")}</span>
                   </div>
 
                   {/* Price Section */}
-                    <div className="pt-4 border-t space-y-4">
+                    <div className="pt-4 border-t border-border space-y-4">
                     <div className="flex items-baseline justify-between gap-2">
                         <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -555,7 +555,7 @@ export default function HotelsPage() {
                               <span className="text-sm text-muted-foreground line-through">
                                 ${hotel.originalPrice}
                               </span>
-                                <span className="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
+                                <span className="text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-500/20 px-2.5 py-1 rounded-md">
                                   {hotel.discount}% {t("off")}
                               </span>
                             </>
@@ -586,7 +586,7 @@ export default function HotelsPage() {
       </section>
 
       {/* Features Section */}
-      <section className="border-t bg-white py-16 lg:py-20">
+      <section className="border-t bg-background py-16 lg:py-20">
         <div className="container px-4 sm:px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-3">{t("whyChooseTabiLinkHotels")}</h2>
@@ -615,7 +615,7 @@ export default function HotelsPage() {
                 color: "bg-purple-100 text-purple-600",
               },
             ].map((feature, idx) => (
-              <Card key={idx} className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
+              <Card key={idx} className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card">
                 <CardContent className="p-8 text-center space-y-4">
                 <div className="flex justify-center">
                     <div className={`h-16 w-16 rounded-2xl ${feature.color} flex items-center justify-center`}>

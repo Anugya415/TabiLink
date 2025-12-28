@@ -110,22 +110,22 @@ export function Header() {
           <div className="relative hidden md:block currency-language-selector">
             <button
               onClick={() => setSelectorOpen(!selectorOpen)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 transition-colors shadow-md"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors shadow-md"
             >
               <span className="font-semibold text-sm">{language}</span>
               <ChevronDown className="h-4 w-4" />
             </button>
             
             {selectorOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-100 rounded-lg shadow-xl border border-gray-300 overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-popover rounded-lg shadow-xl border border-border overflow-hidden z-50">
                 <div className="p-2">
                   <div>
-                    <p className="text-xs text-gray-600 px-2 py-1 mb-1">Language</p>
+                    <p className="text-xs text-muted-foreground px-2 py-1 mb-1">Language</p>
                     <button
                       onClick={() => { setLanguage("English"); setSelectorOpen(false); }}
                       className={cn(
                         "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
-                        language === "English" ? "bg-gray-300 text-gray-900" : "text-gray-700 hover:bg-gray-200"
+                        language === "English" ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent"
                       )}
                     >
                       English
@@ -134,7 +134,7 @@ export function Header() {
                       onClick={() => { setLanguage("Hindi"); setSelectorOpen(false); }}
                       className={cn(
                         "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
-                        language === "Hindi" ? "bg-gray-300 text-gray-900" : "text-gray-700 hover:bg-gray-200"
+                        language === "Hindi" ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent"
                       )}
                     >
                       Hindi
@@ -196,22 +196,22 @@ export function Header() {
             <div className="relative currency-language-selector" style={{ animationDelay: `${navItems.length * 0.1}s` }}>
               <button
                 onClick={() => setSelectorOpen(!selectorOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 transition-colors shadow-md w-full justify-between"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors shadow-md w-full justify-between"
               >
                 <span className="font-semibold text-sm">{language}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
               
               {selectorOpen && (
-                <div className="mt-2 w-full bg-gray-100 rounded-lg shadow-xl border border-gray-300 overflow-hidden z-50">
+                <div className="mt-2 w-full bg-popover rounded-lg shadow-xl border border-border overflow-hidden z-50">
                   <div className="p-2">
                     <div>
-                      <p className="text-xs text-gray-600 px-2 py-1 mb-1">Language</p>
+                      <p className="text-xs text-muted-foreground px-2 py-1 mb-1">Language</p>
                       <button
                         onClick={() => { setLanguage("English"); setSelectorOpen(false); }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
-                          language === "English" ? "bg-gray-300 text-gray-900" : "text-gray-700 hover:bg-gray-200"
+                          language === "English" ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent"
                         )}
                       >
                         English
@@ -220,7 +220,7 @@ export function Header() {
                         onClick={() => { setLanguage("Hindi"); setSelectorOpen(false); }}
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
-                          language === "Hindi" ? "bg-gray-300 text-gray-900" : "text-gray-700 hover:bg-gray-200"
+                          language === "Hindi" ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent"
                         )}
                       >
                         Hindi

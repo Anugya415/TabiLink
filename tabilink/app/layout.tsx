@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { TranslationProvider } from "@/contexts/TranslationContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -33,15 +34,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${poppins.variable} ${jetbrainsMono.variable} antialiased font-sans relative bg-white`}
+        className={`${poppins.variable} ${jetbrainsMono.variable} antialiased font-sans relative bg-background text-foreground transition-colors duration-300`}
       >
-        <TranslationProvider>
-        <Header />
-        <Sidebar />
-        <main className="min-h-screen transition-all duration-300 relative z-10 lg:pl-0 bg-white">{children}</main>
-        <Footer />
-        <Toaster />
-        </TranslationProvider>
+        <ThemeProvider>
+          <TranslationProvider>
+            <Header />
+            <Sidebar />
+            <main className="min-h-screen transition-all duration-300 relative z-10 lg:pl-0 bg-background">{children}</main>
+            <Footer />
+            <Toaster />
+          </TranslationProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

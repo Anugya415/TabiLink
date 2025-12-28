@@ -204,7 +204,7 @@ const faqs = [
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-white">
+      <section className="relative overflow-hidden bg-background">
         <div className="container relative py-16 md:py-24 lg:py-28 z-10">
           <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-stretch">
             <div className="space-y-6 animate-fade-in-left flex flex-col">
@@ -367,7 +367,7 @@ const faqs = [
       </section>
 
       {/* Offers & Deals Section */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">{t("exclusiveOffersDeals")}</h2>
@@ -379,7 +379,7 @@ const faqs = [
             {offers.map((offer, index) => {
               const Icon = offer.icon
               return (
-                <Card key={offer.code} className="shadow-xl border-2 border-gray-200 hover:border-gray-600 hover:shadow-2xl transition-all duration-300 hover-lift overflow-hidden group h-full flex flex-col bg-white relative" style={{ animationDelay: `${index * 0.1}s` }}>
+                <Card key={offer.code} className="shadow-xl border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-300 hover-lift overflow-hidden group h-full flex flex-col bg-card relative" style={{ animationDelay: `${index * 0.1}s` }}>
                   <CardHeader className="space-y-3 flex-shrink-0 p-6 pb-4">
                     {/* Icon with enhanced styling */}
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-black border-2 border-black shadow-lg group-hover:scale-110 group-hover:shadow-xl group-hover:border-gray-800 transition-all duration-300 relative overflow-hidden">
@@ -394,7 +394,7 @@ const faqs = [
                   
                   <CardContent className="flex-1 flex flex-col justify-end p-6 pt-4">
                     {/* Enhanced code section */}
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-gray-50 via-gray-100/80 to-gray-50 border-2 border-gray-200 group-hover:border-gray-400 group-hover:bg-gradient-to-r group-hover:from-gray-100 group-hover:via-gray-200/80 group-hover:to-gray-100 transition-all duration-300">
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border-2 border-border group-hover:border-primary/30 transition-all duration-300">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("code")}</span>
                       </div>
@@ -416,7 +416,7 @@ const faqs = [
       </section>
 
       {/* Collections */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">{t("pickYourVibe")}</h2>
@@ -451,7 +451,7 @@ const faqs = [
       </section>
 
       {/* Journey support */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
         <div className="container space-y-10 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">
@@ -488,7 +488,7 @@ const faqs = [
       </section>
 
       {/* Map + assurance */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
         <div className="container px-4 md:px-6 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center relative z-10">
           <div className="space-y-6 animate-fade-in-left">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
@@ -530,7 +530,7 @@ const faqs = [
             </div>
           </div>
           <Card className="shadow-lg overflow-hidden animate-fade-in-right hover-lift">
-            <div className="relative h-[260px] w-full bg-white">
+            <div className="relative h-[260px] w-full bg-card">
               <div className="absolute inset-6 rounded-lg border border-dashed border-primary/40 bg-background/70 backdrop-blur" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <Map className="h-32 w-32 text-blue-500/40" />
@@ -585,7 +585,7 @@ const faqs = [
       </section>
 
       {/* FAQ */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
         <div className="container px-4 md:px-6 space-y-8 relative z-10">
           <div className="flex flex-col gap-3 text-center animate-fade-in-down">
             <h2 className="text-3xl sm:text-4xl font-bold">{t("questionsAnswered")}</h2>
@@ -607,10 +607,10 @@ const faqs = [
       </section>
 
       {/* CTA */}
-      <section className="py-14 sm:py-16 lg:py-20 bg-primary text-primary-foreground relative overflow-hidden">
+      <section className="py-14 sm:py-16 lg:py-20 bg-primary text-primary-foreground dark:bg-gray-900 dark:text-white relative overflow-hidden">
         <div className="container px-4 md:px-6 text-center space-y-6 animate-fade-in-up relative z-10">
           <div className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide animate-fade-in">
-            <Globe2 className="h-4 w-4 text-primary-foreground" />
+            <Globe2 className="h-4 w-4 text-primary-foreground dark:text-white" />
             {t("travelMadeSimple")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight animate-fade-in-up">
@@ -620,14 +620,19 @@ const faqs = [
             {t("planOnceManage")}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild size="lg" variant="secondary" className="hover-lift">
+            <Button 
+              asChild 
+              size="lg" 
+              variant="secondary" 
+              className="hover-lift bg-secondary text-secondary-foreground hover:bg-secondary/80 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+            >
               <Link href="/signup">Create free account</Link>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover-lift"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 dark:border-white dark:text-white dark:bg-transparent dark:hover:bg-white/10 hover-lift"
             >
               <Link href="/travel">{t("browsePackages")}</Link>
             </Button>

@@ -63,6 +63,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
 import { useTranslation } from "@/contexts/TranslationContext"
+import { useTheme } from "@/contexts/ThemeContext"
 import {
   mockUserProfile,
   mockBookings,
@@ -260,29 +261,10 @@ function DashboardContent() {
   // Hooks for settings section
   const [currency, setCurrency] = useState(mockUserProfile.preferences.currency)
   const [language, setLanguage] = useState(mockUserProfile.preferences.language)
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("tabilinkTheme") as "light" | "dark" | null
-      return stored || "light"
-    }
-    return "light"
-  })
+  const { theme, setTheme } = useTheme()
   const [emailNotif, setEmailNotif] = useState(mockUserProfile.preferences.notifications.email)
   const [smsNotif, setSmsNotif] = useState(mockUserProfile.preferences.notifications.sms)
   const [pushNotif, setPushNotif] = useState(mockUserProfile.preferences.notifications.push)
-  
-  // Apply theme to document
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const html = document.documentElement
-      if (theme === "dark") {
-        html.classList.add("dark")
-      } else {
-        html.classList.remove("dark")
-      }
-      localStorage.setItem("tabilinkTheme", theme)
-    }
-  }, [theme])
   
   // Hooks for notifications section
   const [filterType, setFilterType] = useState<"all" | "unread">("all")
@@ -701,18 +683,18 @@ function DashboardContent() {
     ]
 
   return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <div className="container space-y-12 py-16 page-content relative">
           {/* Hero Header */}
           <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-semibold text-gray-700 mb-4 border border-gray-200">
-              <Compass className="h-4 w-4 text-gray-700" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary rounded-full text-sm font-semibold text-secondary-foreground mb-4 border border-border">
+              <Compass className="h-4 w-4 text-secondary-foreground" />
               <span>Plan Your Trip</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900">
+            <h1 className="text-5xl md:text-6xl font-bold text-foreground">
               {t("planYourPerfectTrip")}
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               {t("everythingYouNeed")}
             </p>
         </div>
@@ -724,7 +706,7 @@ function DashboardContent() {
               return (
                 <Card
                   key={option.id}
-                  className="group relative overflow-hidden border-2 border-gray-200 hover:border-gray-900 transition-all duration-300 cursor-pointer bg-white h-full shadow-sm hover:shadow-xl"
+                  className="group relative overflow-hidden border-2 border-border hover:border-primary transition-all duration-300 cursor-pointer bg-card h-full shadow-sm hover:shadow-xl"
                   onClick={() => setSelectedPlanOption(option.id)}
                 >
                   <CardContent className="p-5">
@@ -734,32 +716,41 @@ function DashboardContent() {
                         <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${option.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                           <Icon className="h-7 w-7" />
                         </div>
-                        <div className="h-8 w-8 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors"></div>
+                        <div className="h-8 w-8 rounded-full bg-muted group-hover:bg-muted/80 transition-colors"></div>
                       </div>
 
                       {/* Content */}
                       <div className="space-y-2">
-                        <h3 className="font-bold text-lg text-gray-900 group-hover:text-black transition-colors">
+                        <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
                             {option.title}
                           </h3>
-                        <p className="text-gray-600 leading-relaxed text-sm">
+                        <p className="text-muted-foreground leading-relaxed text-sm">
                             {option.description}
                           </p>
                         </div>
 
                       {/* Data Count */}
-                      <div className="pt-3 border-t border-gray-200">
-                        <p className="text-xs font-semibold text-gray-700">
+                      <div className="pt-3 border-t border-border">
+                        <p className="text-xs font-semibold text-muted-foreground">
                           {option.data.length} {option.data.length === 1 ? t("item") : t("items")} {t("itemsAvailable")}
                         </p>
                       </div>
 
                       {/* CTA */}
                       <div className="pt-3">
-                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-sm group-hover:gap-3 transition-all">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start p-0 h-auto hover:bg-transparent text-foreground font-semibold text-sm group-hover:gap-3 transition-all"
+                          onClick={() => {
+                            toast.success(`Exploring ${option.title}`, {
+                              description: `Discover ${option.data.length} ${option.data.length === 1 ? "item" : "items"} available`,
+                            })
+                            setSelectedPlanOption(option.id)
+                          }}
+                        >
                           <span>Explore Now</span>
                           <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </div>
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -780,39 +771,39 @@ function DashboardContent() {
                     return (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Your Itineraries</h2>
-                        <Button className="bg-gray-900 text-white hover:bg-gray-800">
+                        <h2 className="text-2xl font-bold text-foreground">Your Itineraries</h2>
+                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                           <Plus className="h-4 w-4 mr-2" />
                           Create New
                         </Button>
                         </div>
                       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {mockTripItineraries.map((item) => (
-                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                          <Card key={item.id} className="border-2 border-border hover:border-primary transition-all">
                             <CardHeader>
                               <div className="flex items-start justify-between">
-                                <CardTitle className="text-lg text-gray-900">{item.title}</CardTitle>
+                                <CardTitle className="text-lg text-foreground">{item.title}</CardTitle>
                                 <span className={`text-xs px-2 py-1 rounded-full ${
-                                  item.status === 'Active' ? 'bg-gray-900 text-white' : 
-                                  item.status === 'Completed' ? 'bg-gray-200 text-gray-700' : 
-                                  'bg-gray-100 text-gray-600'
+                                  item.status === 'Active' ? 'bg-primary text-primary-foreground' : 
+                                  item.status === 'Completed' ? 'bg-secondary text-secondary-foreground' : 
+                                  'bg-muted text-muted-foreground'
                                 }`}>
                                   {item.status}
                                 </span>
                         </div>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Calendar className="h-4 w-4" />
                                 <span>{item.duration}</span>
                               </div>
-                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <MapPin className="h-4 w-4" />
                                 <span>{item.cities.join(", ")}</span>
                               </div>
-                              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                                <span className="text-sm text-gray-600">Budget</span>
-                                <span className="font-bold text-gray-900">{item.budget}</span>
+                              <div className="flex items-center justify-between pt-2 border-t border-border">
+                                <span className="text-sm text-muted-foreground">Budget</span>
+                                <span className="font-bold text-foreground">{item.budget}</span>
                               </div>
                             </CardContent>
                           </Card>
@@ -828,7 +819,7 @@ function DashboardContent() {
                       {/* Best Selling Destinations Section */}
                       <div className="space-y-6">
                         <div className="text-center">
-                          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                             Best Selling Destinations
                           </h2>
                         </div>
@@ -839,7 +830,7 @@ function DashboardContent() {
                             return (
                               <Card
                                 key={destination.id}
-                                className="group relative overflow-hidden border-2 border-gray-200 hover:border-gray-900 transition-all duration-300 bg-white shadow-sm hover:shadow-xl h-full flex flex-col"
+                                className="group relative overflow-hidden border-2 border-border hover:border-primary transition-all duration-300 bg-card shadow-sm hover:shadow-xl h-full flex flex-col"
                               >
                                 <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
                                   <Image
@@ -852,25 +843,25 @@ function DashboardContent() {
                                     <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${destination.iconColor} text-white shadow-lg flex-shrink-0`}>
                                       <Icon className="h-5 w-5" />
                                     </div>
-                                    <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex-shrink-0">
-                                      <span className="text-sm font-bold text-gray-900">{destination.discount}% OFF</span>
+                                    <div className="bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex-shrink-0">
+                                      <span className="text-sm font-bold text-foreground">{destination.discount}% OFF</span>
                                     </div>
                                   </div>
                                 </div>
                                 <CardContent className="p-6 flex flex-col flex-1">
                                   <div className="space-y-2 flex-shrink-0">
-                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-black transition-colors line-clamp-1">
+                                    <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                                       {destination.name}
                                     </h3>
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <div className="flex items-center gap-1 flex-shrink-0">
                                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                        <span className="text-sm font-semibold text-gray-900">{destination.rating}</span>
+                                        <span className="text-sm font-semibold text-foreground">{destination.rating}</span>
                                       </div>
-                                      <span className="text-gray-400 flex-shrink-0">•</span>
-                                      <span className="text-sm text-gray-600">{destination.reviews.toLocaleString()} reviews</span>
-                                      <span className="text-gray-400 flex-shrink-0">•</span>
-                                      <span className="text-sm text-gray-600">{destination.duration}</span>
+                                      <span className="text-muted-foreground/50 flex-shrink-0">•</span>
+                                      <span className="text-sm text-muted-foreground">{destination.reviews.toLocaleString()} reviews</span>
+                                      <span className="text-muted-foreground/50 flex-shrink-0">•</span>
+                                      <span className="text-sm text-muted-foreground">{destination.duration}</span>
                                     </div>
                                   </div>
 
@@ -878,22 +869,22 @@ function DashboardContent() {
                                     {destination.highlights.map((highlight, idx) => (
                                       <span
                                         key={idx}
-                                        className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full border border-gray-200"
+                                        className="px-3 py-1 bg-secondary text-secondary-foreground text-xs font-medium rounded-full border border-border"
                                       >
                                         {highlight}
                                       </span>
                                     ))}
                                   </div>
 
-                                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-gray-200 mt-auto">
+                                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-border mt-auto">
                                     <div className="space-y-1">
                                       <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-2xl font-bold text-gray-900">{destination.price}</span>
-                                        <span className="text-sm text-gray-500 line-through">{destination.originalPrice}</span>
+                                        <span className="text-2xl font-bold text-foreground">{destination.price}</span>
+                                        <span className="text-sm text-muted-foreground line-through">{destination.originalPrice}</span>
                                       </div>
-                                      <p className="text-xs text-gray-600">per person</p>
+                                      <p className="text-xs text-muted-foreground">per person</p>
                                     </div>
-                                    <Button className="bg-gray-900 text-white hover:bg-gray-800 w-full sm:w-auto whitespace-nowrap">
+                                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto whitespace-nowrap">
                                       <ArrowRight className="h-4 w-4 mr-2" />
                                       Book Now
                                     </Button>
@@ -906,15 +897,15 @@ function DashboardContent() {
                       </div>
 
                       <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Popular Destinations</h2>
-                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                        <h2 className="text-2xl font-bold text-foreground">Popular Destinations</h2>
+                        <Button variant="outline" className="border-2 border-primary text-foreground hover:bg-primary hover:text-primary-foreground">
                           <Search className="h-4 w-4 mr-2" />
                           Search
                         </Button>
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         {mockDestinations.map((item) => (
-                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                          <Card key={item.id} className="border-2 border-border hover:border-primary transition-all">
                             <CardHeader>
                               <div className="flex items-start justify-between">
                                 <div>
@@ -966,7 +957,7 @@ function DashboardContent() {
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         {mockRestaurants.map((item) => (
-                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                          <Card key={item.id} className="border-2 border-border hover:border-primary transition-all">
                         <CardHeader>
                               <div className="flex items-start justify-between">
                                 <div>
@@ -1006,19 +997,28 @@ function DashboardContent() {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">{t("popularActivities")}</h2>
-                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                        <Button 
+                          variant="outline" 
+                          className="border-2 border-gray-900 text-gray-900 hover-lift"
+                          onClick={() => {
+                            toast.success("Browsing all activities", {
+                              description: "Explore our complete activity list",
+                            })
+                            router.push("/dashboard?tab=activities")
+                          }}
+                        >
                           <Search className="h-4 w-4 mr-2" />
                           {t("browseAll")}
                         </Button>
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         {mockActivities.map((item) => (
-                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                          <Card key={item.id} className="border-2 border-border hover:border-primary transition-all">
                             <CardHeader>
                               <div className="flex items-start justify-between">
                                 <div>
                                   <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
-                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <span>{item.category}</span>
                                     <span>•</span>
                                     <span>{item.duration}</span>
@@ -1031,13 +1031,13 @@ function DashboardContent() {
                               </div>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <MapPin className="h-4 w-4" />
                                 <span>{item.location}</span>
                               </div>
-                              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                                <span className="text-sm text-gray-600">Price</span>
-                                <span className="font-bold text-gray-900">{item.price}</span>
+                              <div className="flex items-center justify-between pt-2 border-t border-border">
+                                <span className="text-sm text-muted-foreground">Price</span>
+                                <span className="font-bold text-foreground">{item.price}</span>
                               </div>
                         </CardContent>
                       </Card>
@@ -1052,19 +1052,28 @@ function DashboardContent() {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">{t("shoppingDestinations")}</h2>
-                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                        <Button 
+                          variant="outline" 
+                          className="border-2 border-gray-900 text-gray-900 hover-lift"
+                          onClick={() => {
+                            toast.success("Exploring shopping destinations", {
+                              description: "Browse our curated shopping locations",
+                            })
+                            router.push("/dashboard?tab=shopping")
+                          }}
+                        >
                           <Search className="h-4 w-4 mr-2" />
                           Explore
                         </Button>
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         {mockShopping.map((item) => (
-                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                          <Card key={item.id} className="border-2 border-border hover:border-primary transition-all">
                         <CardHeader>
                               <div className="flex items-start justify-between">
                                 <div>
                                   <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
-                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <span>{item.type}</span>
                                     <span>•</span>
                                     <MapPin className="h-4 w-4" />
@@ -1097,19 +1106,28 @@ function DashboardContent() {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">{t("mustVisitAttractions")}</h2>
-                        <Button variant="outline" className="border-2 border-gray-900 text-gray-900">
+                        <Button 
+                          variant="outline" 
+                          className="border-2 border-gray-900 text-gray-900 hover-lift"
+                          onClick={() => {
+                            toast.success("Viewing all attractions", {
+                              description: "Explore our complete list of attractions",
+                            })
+                            router.push("/dashboard?tab=attractions")
+                          }}
+                        >
                           <Search className="h-4 w-4 mr-2" />
                           {t("viewAll")}
                         </Button>
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         {mockAttractions.map((item) => (
-                          <Card key={item.id} className="border-2 border-gray-200 hover:border-gray-900 transition-all">
+                          <Card key={item.id} className="border-2 border-border hover:border-primary transition-all">
                             <CardHeader>
                               <div className="flex items-start justify-between">
                                 <div>
                                   <CardTitle className="text-xl text-gray-900 mb-1">{item.name}</CardTitle>
-                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <span>{item.type}</span>
                                     <span>•</span>
                                     <MapPin className="h-4 w-4" />
@@ -1153,16 +1171,16 @@ function DashboardContent() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setSelectedPlanOption(null)}
-                      className="hover-lift h-12 w-12 rounded-full border-2 border-gray-200"
+                      className="hover-lift h-12 w-12 rounded-full border-2 border-border"
                     >
-                      <ArrowRight className="h-5 w-5 rotate-180 text-gray-700" />
+                      <ArrowRight className="h-5 w-5 rotate-180 text-foreground" />
                     </Button>
                     <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${option.color} text-white shadow-lg`}>
                       <Icon className="h-8 w-8" />
                     </div>
                     <div className="flex-1">
-                      <h1 className="text-4xl font-bold mb-2 text-gray-900">{option.title}</h1>
-                      <p className="text-lg text-gray-600">{option.description}</p>
+                      <h1 className="text-4xl font-bold mb-2 text-foreground">{option.title}</h1>
+                      <p className="text-lg text-muted-foreground">{option.description}</p>
                     </div>
                   </div>
 
@@ -1170,8 +1188,18 @@ function DashboardContent() {
                   {renderContent()}
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                    <Button className="hover-lift flex-1 h-14 text-lg bg-gray-900 text-white hover:bg-gray-800" size="lg">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border">
+                    <Button 
+                      className="hover-lift flex-1 h-14 text-lg bg-primary text-primary-foreground hover:bg-primary/90" 
+                      size="lg"
+                      onClick={() => {
+                        toast.success("Planning started", {
+                          description: "Let's plan your perfect trip!",
+                        })
+                        setSelectedPlanOption(null)
+                        setSidebarTab("planning")
+                      }}
+                    >
                       <Plus className="h-5 w-5 mr-2" />
                         Start Planning
                       </Button>
@@ -2507,8 +2535,8 @@ function DashboardContent() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="hover-lift">
+        <div className="grid gap-6 md:grid-cols-2 items-stretch">
+          <Card className="hover-lift h-full flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Globe className="h-5 w-5 text-blue-500" />
@@ -2516,7 +2544,7 @@ function DashboardContent() {
               </CardTitle>
               <CardDescription>{t("manageLanguageCurrency")}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 flex-1 flex flex-col">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-blue-500" />
@@ -2570,16 +2598,10 @@ function DashboardContent() {
                   </Button>
                 </div>
               </div>
-              <div className="flex justify-end pt-4 border-t">
-                <Button className="hover-lift">
-                  <Settings className="h-4 w-4 mr-2" />
-                  {t("savePreferences")}
-                </Button>
-              </div>
             </CardContent>
           </Card>
 
-          <Card className="hover-lift">
+          <Card className="hover-lift h-full flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-purple-500" />
@@ -2587,7 +2609,7 @@ function DashboardContent() {
               </CardTitle>
               <CardDescription>{t("chooseHowNotified")}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1 flex flex-col">
               <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
                 <div className="flex items-center gap-3">
                   <Mail className="h-5 w-5 text-blue-500" />
