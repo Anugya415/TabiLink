@@ -223,11 +223,11 @@ export default function TravelPage() {
                   {/* Quick Category Filters */}
                   <div className="flex flex-wrap gap-2 flex-1">
                     {categories.filter(cat => cat.id !== "all").map((category) => {
-                      const Icon = category.icon
+                    const Icon = category.icon
                       const isActive = selectedCategory === category.id
-                      return (
-                        <Button
-                          key={category.id}
+                    return (
+                      <Button
+                        key={category.id}
                           variant={isActive ? "default" : "outline"}
                           size="sm"
                           onClick={() => setSelectedCategory(isActive ? "all" : category.id)}
@@ -236,14 +236,14 @@ export default function TravelPage() {
                               ? "bg-primary text-primary-foreground shadow-md" 
                               : "hover:bg-muted border-border"
                           }`}
-                        >
+                      >
                           <Icon className="h-3.5 w-3.5" />
-                          {category.label}
-                        </Button>
-                      )
-                    })}
-                  </div>
-                  
+                        {category.label}
+                      </Button>
+                    )
+                  })}
+                </div>
+
                   {/* Filter Button */}
                   <Button
                     onClick={() => setShowFilters(!showFilters)}
@@ -263,38 +263,38 @@ export default function TravelPage() {
                 {/* Expandable Filters */}
                 {showFilters && (
                   <div className="pt-6 border-t border-border space-y-5 animate-in slide-in-from-top-2 duration-300">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
                           <TrendingUp className="h-4 w-4 text-primary" />
-                          Sort By
-                        </label>
+                      Sort By
+                    </label>
                         <Select 
                           value={sortBy} 
                           onChange={(e) => setSortBy(e.target.value)}
                           className="h-12 border-2 rounded-lg"
                         >
-                          <option value="rating">Highest Rating</option>
-                          <option value="price">Lowest Price</option>
-                          <option value="popular">Most Popular</option>
-                        </Select>
-                      </div>
+                      <option value="rating">Highest Rating</option>
+                      <option value="price">Lowest Price</option>
+                      <option value="popular">Most Popular</option>
+                    </Select>
+                  </div>
                       <div className="space-y-2">
                         <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
                           <Clock className="h-4 w-4 text-primary" />
-                          Price Range
-                        </label>
+                      Price Range
+                    </label>
                         <Select 
                           value={priceRange} 
                           onChange={(e) => setPriceRange(e.target.value)}
                           className="h-12 border-2 rounded-lg"
                         >
-                          <option value="all">All Prices</option>
-                          <option value="low">Under $2,000</option>
-                          <option value="mid">$2,000 - $3,000</option>
-                          <option value="high">Over $3,000</option>
-                        </Select>
-                      </div>
+                      <option value="all">All Prices</option>
+                      <option value="low">Under $2,000</option>
+                      <option value="mid">$2,000 - $3,000</option>
+                      <option value="high">Over $3,000</option>
+                    </Select>
+                  </div>
                       <div className="space-y-2">
                         <label className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
                           <Package className="h-4 w-4 text-primary" />
@@ -314,16 +314,16 @@ export default function TravelPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 pt-3 border-t border-border">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setSearchTerm("")
-                          setSortBy("rating")
-                          setPriceRange("all")
-                          setSelectedCategory("all")
-                        }}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSearchTerm("")
+                        setSortBy("rating")
+                        setPriceRange("all")
+                        setSelectedCategory("all")
+                      }}
                         className="flex-1 h-11 rounded-lg border-2 hover:bg-gray-50"
-                      >
+                    >
                         <X className="h-4 w-4 mr-2" />
                         Clear All Filters
                       </Button>
@@ -332,9 +332,9 @@ export default function TravelPage() {
                         className="flex-1 h-11 rounded-lg bg-primary hover:bg-primary/90"
                       >
                         Apply Filters
-                      </Button>
-                    </div>
+                    </Button>
                   </div>
+                </div>
                 )}
               </div>
             </CardContent>

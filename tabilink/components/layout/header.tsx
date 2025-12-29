@@ -7,13 +7,16 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/contexts/TranslationContext"
+import { useRole } from "@/contexts/RoleContext"
 import { toast } from "sonner"
+import { Shield, Crown } from "lucide-react"
 
 export function Header() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const { language, setLanguage, t } = useTranslation()
+  const { user, logout: roleLogout } = useRole()
   const [selectorOpen, setSelectorOpen] = useState(false)
 
   useEffect(() => {
@@ -54,6 +57,7 @@ export function Header() {
 
   const handleSignOut = () => {
     if (typeof window !== "undefined") {
+      roleLogout()
       localStorage.removeItem("tabilinkDemoLoggedIn")
     }
     setIsLoggedIn(false)
@@ -72,7 +76,7 @@ export function Header() {
   ]
 
   // Hide header on dashboard and related pages when logged in
-  const dashboardPages = ["/dashboard", "/hotels", "/travel"]
+  const dashboardPages = ["/dashboard", "/hotels", "/travel", "/admin", "/super-admin"]
   const isDashboardPage = dashboardPages.some(page => pathname.startsWith(page))
   
   if (isDashboardPage && isLoggedIn) {
@@ -150,13 +154,28 @@ export function Header() {
               <Link href="/login">{t("login")}</Link>
             </Button>
           ) : (
-            <Button
-              variant="outline"
-              className="hidden md:inline-flex hover-lift"
-              onClick={handleSignOut}
-            >
-              {t("signOut")}
-            </Button>
+            <div className="hidden md:flex items-center gap-2">
+              {user && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted border">
+                  {user.role === "super_admin" && (
+                    <Crown className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  )}
+                  {user.role === "admin" && (
+                    <Shield className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  )}
+                  <span className="text-xs font-semibold capitalize">
+                    {user.role.replace("_", " ")}
+                  </span>
+                </div>
+              )}
+              <Button
+                variant="outline"
+                className="hover-lift"
+                onClick={handleSignOut}
+              >
+                {t("signOut")}
+              </Button>
+            </div>
           )}
           <Button
             variant="ghost"

@@ -64,6 +64,7 @@ import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
 import { useTranslation } from "@/contexts/TranslationContext"
 import { useTheme } from "@/contexts/ThemeContext"
+import { useRole } from "@/contexts/RoleContext"
 import {
   mockUserProfile,
   mockBookings,
@@ -239,12 +240,26 @@ function ModifyBookingForm({ booking, onSave, onCancel, t }: ModifyBookingFormPr
 function DashboardContent() {
   const searchParams = useSearchParams()
   const { t } = useTranslation()
+  const { user, hasRole } = useRole()
+  const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // Redirect admin/super admin to their own dashboards
+  useEffect(() => {
+    if (user) {
+      if (hasRole(["super_admin"])) {
+        router.push("/super-admin/dashboard")
+        return
+      } else if (hasRole(["admin"])) {
+        router.push("/admin/dashboard")
+        return
+      }
+    }
+  }, [user, hasRole, router])
   const [activeTab, setActiveTab] = useState<"discounts" | "history">("discounts")
   const [sidebarTab, setSidebarTab] = useState<string | null>(null)
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(mockPaymentMethods)
-  const router = useRouter()
   
   // Hooks for bookings section
   const [bookings, setBookings] = useState<Booking[]>(mockBookings)
@@ -859,7 +874,7 @@ function DashboardContent() {
                                         <span className="text-sm font-semibold text-foreground">{destination.rating}</span>
                                       </div>
                                       <span className="text-muted-foreground/50 flex-shrink-0">•</span>
-                                      <span className="text-sm text-muted-foreground">{destination.reviews.toLocaleString()} reviews</span>
+                                      <span className="text-sm text-muted-foreground">{destination.reviews ? destination.reviews.toLocaleString() : "0"} reviews</span>
                                       <span className="text-muted-foreground/50 flex-shrink-0">•</span>
                                       <span className="text-sm text-muted-foreground">{destination.duration}</span>
                                     </div>
@@ -913,7 +928,7 @@ function DashboardContent() {
                                   <div className="flex items-center gap-2">
                                     <Star className="h-4 w-4 fill-gray-900 text-gray-900" />
                                     <span className="text-sm font-semibold text-gray-700">{item.rating}</span>
-                                    <span className="text-sm text-gray-500">({item.reviews.toLocaleString()} reviews)</span>
+                                    <span className="text-sm text-gray-500">({item.reviews ? item.reviews.toLocaleString() : "0"} reviews)</span>
                                   </div>
                 </div>
               </div>
@@ -2043,7 +2058,7 @@ function DashboardContent() {
                           {getStatusIcon(booking.status)}
                           {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                         </span>
-                        <p className="text-2xl font-bold">${booking.amount.toLocaleString()}</p>
+                        <p className="text-2xl font-bold">${booking.amount ? booking.amount.toLocaleString() : "0"}</p>
                         <p className="text-xs text-muted-foreground">
                           {t("booked")} {new Date(booking.bookingDate).toLocaleDateString()}
                         </p>
@@ -2144,7 +2159,7 @@ function DashboardContent() {
                     </div>
                     <div>
                       <span className="font-medium">{t("amount")}:</span>
-                      <span className="ml-2 text-xl font-bold">${selectedBooking.amount.toLocaleString()}</span>
+                      <span className="ml-2 text-xl font-bold">${selectedBooking?.amount ? selectedBooking.amount.toLocaleString() : "0"}</span>
                     </div>
                     <div>
                       <span className="font-medium">{t("booked")}:</span>
@@ -2400,7 +2415,7 @@ function DashboardContent() {
                       <Star className="h-4 w-4 text-yellow-500" />
                       <span className="text-sm text-muted-foreground">Loyalty Points</span>
                     </div>
-                    <span className="font-bold text-lg">{mockUserProfile.loyaltyPoints.toLocaleString()}</span>
+                    <span className="font-bold text-lg">{mockUserProfile?.loyaltyPoints ? mockUserProfile.loyaltyPoints.toLocaleString() : "0"}</span>
                   </div>
                   <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
@@ -2414,7 +2429,7 @@ function DashboardContent() {
                       <CreditCard className="h-4 w-4 text-green-500" />
                       <span className="text-sm text-muted-foreground">Total Spent</span>
                     </div>
-                    <span className="font-bold text-lg">${mockUserProfile.totalSpent.toLocaleString()}</span>
+                    <span className="font-bold text-lg">${mockUserProfile?.totalSpent ? mockUserProfile.totalSpent.toLocaleString() : "0"}</span>
                   </div>
                 </div>
                 <div className="w-full pt-4 border-t space-y-2.5">
@@ -3180,7 +3195,7 @@ function DashboardContent() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Total Spent</p>
-                    <p className="text-2xl font-bold">${totalSpent.toLocaleString()}</p>
+                    <p className="text-2xl font-bold">${totalSpent ? totalSpent.toLocaleString() : "0"}</p>
                   </div>
                   <div className="h-12 w-12 rounded-full bg-orange-500/10 flex items-center justify-center">
                     <CreditCard className="h-6 w-6 text-orange-500" />
@@ -3397,7 +3412,7 @@ function DashboardContent() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary hover-scale">
-                        ${trip.amount.toLocaleString()}
+                        ${trip.amount ? trip.amount.toLocaleString() : "0"}
                       </span>
                       <Button variant="outline" size="sm" className="hover-lift">
                         View details

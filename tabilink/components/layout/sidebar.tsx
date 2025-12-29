@@ -18,17 +18,25 @@ import {
   ChevronLeft,
   Navigation,
   Compass,
+  Shield,
+  Crown,
+  Users,
+  BarChart3,
+  Server,
+  Hotel,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useTranslation } from "@/contexts/TranslationContext"
+import { useRole } from "@/contexts/RoleContext"
 
 function SidebarContent() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t } = useTranslation()
+  const { user, hasRole, logout: roleLogout } = useRole()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isOpen, setIsOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
@@ -42,7 +50,7 @@ function SidebarContent() {
     checkLogin()
 
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === "tabilinkDemoLoggedIn") {
+      if (event.key === "tabilinkDemoLoggedIn" || event.key === "tabilinkUser") {
         checkLogin()
       }
     }
@@ -63,8 +71,19 @@ function SidebarContent() {
     }
   }, [])
 
+  // Also check user from RoleContext
+  useEffect(() => {
+    if (user) {
+      setIsLoggedIn(true)
+    } else {
+      const stored = localStorage.getItem("tabilinkDemoLoggedIn")
+      setIsLoggedIn(stored === "1")
+    }
+  }, [user])
+
   const handleSignOut = () => {
     if (typeof window !== "undefined") {
+      roleLogout()
       localStorage.removeItem("tabilinkDemoLoggedIn")
       setIsLoggedIn(false)
       setIsOpen(false)
@@ -80,89 +99,195 @@ function SidebarContent() {
     return null
   }
 
-  const menuItems = [
-    {
-      title: "Main",
-      items: [
+  // Different menu items based on role
+  const getMenuItems = () => {
+    if (!user) return []
+
+    if (user.role === "super_admin") {
+      return [
         {
-          href: "/dashboard",
-          label: "Dashboard",
-          icon: LayoutDashboard,
-          iconColor: "text-blue-600",
+          title: "Super Admin",
+          items: [
+            {
+              href: "/super-admin/dashboard",
+              label: "Overview",
+              icon: Crown,
+              iconColor: "text-yellow-600",
+            },
+            {
+              href: "/super-admin/dashboard?tab=users",
+              label: "User Management",
+              icon: Users,
+              iconColor: "text-blue-600",
+            },
+            {
+              href: "/super-admin/dashboard?tab=admins",
+              label: "Admin Management",
+              icon: Shield,
+              iconColor: "text-purple-600",
+            },
+            {
+              href: "/super-admin/dashboard?tab=system",
+              label: "System",
+              icon: Server,
+              iconColor: "text-orange-600",
+            },
+            {
+              href: "/super-admin/dashboard?tab=analytics",
+              label: "Analytics",
+              icon: BarChart3,
+              iconColor: "text-green-600",
+            },
+            {
+              href: "/super-admin/dashboard?tab=settings",
+              label: "Settings",
+              icon: Settings,
+              iconColor: "text-slate-600",
+            },
+          ],
         },
+      ]
+    }
+
+    if (user.role === "admin") {
+      return [
         {
-          href: "/dashboard?tab=bookings",
-          label: "My Bookings",
-          icon: Calendar,
-          iconColor: "text-green-600",
+          title: "Admin",
+          items: [
+            {
+              href: "/admin/dashboard",
+              label: "Dashboard",
+              icon: Shield,
+              iconColor: "text-purple-600",
+            },
+            {
+              href: "/admin/dashboard?tab=bookings",
+              label: "Bookings",
+              icon: Calendar,
+              iconColor: "text-green-600",
+            },
+            {
+              href: "/admin/dashboard?tab=users",
+              label: "Users",
+              icon: Users,
+              iconColor: "text-blue-600",
+            },
+            {
+              href: "/admin/dashboard?tab=hotels",
+              label: "Hotels",
+              icon: Hotel,
+              iconColor: "text-orange-600",
+            },
+            {
+              href: "/admin/dashboard?tab=packages",
+              label: "Packages",
+              icon: Plane,
+              iconColor: "text-orange-600",
+            },
+            {
+              href: "/admin/dashboard?tab=analytics",
+              label: "Analytics",
+              icon: BarChart3,
+              iconColor: "text-green-600",
+            },
+            {
+              href: "/admin/dashboard?tab=settings",
+              label: "Settings",
+              icon: Settings,
+              iconColor: "text-slate-600",
+            },
+          ],
         },
-        {
-          href: "/dashboard?tab=saved",
-          label: "Saved Trips",
-          icon: Heart,
-          iconColor: "text-red-500",
-        },
-      ],
-    },
-    {
-      title: "Account",
-      items: [
-        {
-          href: "/dashboard?tab=profile",
-          label: "Profile",
-          icon: User,
-          iconColor: "text-indigo-600",
-        },
-        {
-          href: "/dashboard?tab=settings",
-          label: "Settings",
-          icon: Settings,
-          iconColor: "text-slate-600",
-        },
-        {
-          href: "/dashboard?tab=notifications",
-          label: "Notifications",
-          icon: Bell,
-          iconColor: "text-amber-600",
-        },
-      ],
-    },
-    {
-      title: "Travel",
-      items: [
-        {
-          href: "/dashboard?tab=transportation",
-          label: "Book Transportation",
-          icon: Navigation,
-          iconColor: "text-purple-600",
-        },
-        {
-          href: "/dashboard?tab=plan-trip",
-          label: "Plan Your Trip",
-          icon: Compass,
-          iconColor: "text-cyan-600",
-        },
-        {
-          href: "/hotels",
-          label: "Browse Hotels",
-          icon: MapPin,
-          iconColor: "text-blue-500",
-        },
-        {
-          href: "/travel",
-          label: "Travel Packages",
-          icon: Plane,
-          iconColor: "text-orange-600",
-        },
-        {
-          href: "/dashboard?tab=payments",
-          label: "Payment Methods",
-          icon: CreditCard,
-          iconColor: "text-teal-600",
-        },
-      ],
-    },
-  ]
+      ]
+    }
+
+    // Regular user menu
+    return [
+      {
+        title: "Main",
+        items: [
+          {
+            href: "/dashboard",
+            label: "Dashboard",
+            icon: LayoutDashboard,
+            iconColor: "text-blue-600",
+          },
+          {
+            href: "/dashboard?tab=bookings",
+            label: "My Bookings",
+            icon: Calendar,
+            iconColor: "text-green-600",
+          },
+          {
+            href: "/dashboard?tab=saved",
+            label: "Saved Trips",
+            icon: Heart,
+            iconColor: "text-red-500",
+          },
+        ],
+      },
+      {
+        title: "Account",
+        items: [
+          {
+            href: "/dashboard?tab=profile",
+            label: "Profile",
+            icon: User,
+            iconColor: "text-indigo-600",
+          },
+          {
+            href: "/dashboard?tab=settings",
+            label: "Settings",
+            icon: Settings,
+            iconColor: "text-slate-600",
+          },
+          {
+            href: "/dashboard?tab=notifications",
+            label: "Notifications",
+            icon: Bell,
+            iconColor: "text-amber-600",
+          },
+        ],
+      },
+      {
+        title: "Travel",
+        items: [
+          {
+            href: "/dashboard?tab=transportation",
+            label: "Book Transportation",
+            icon: Navigation,
+            iconColor: "text-purple-600",
+          },
+          {
+            href: "/dashboard?tab=plan-trip",
+            label: "Plan Your Trip",
+            icon: Compass,
+            iconColor: "text-cyan-600",
+          },
+          {
+            href: "/hotels",
+            label: "Browse Hotels",
+            icon: MapPin,
+            iconColor: "text-blue-500",
+          },
+          {
+            href: "/travel",
+            label: "Travel Packages",
+            icon: Plane,
+            iconColor: "text-orange-600",
+          },
+          {
+            href: "/dashboard?tab=payments",
+            label: "Payment Methods",
+            icon: CreditCard,
+            iconColor: "text-teal-600",
+          },
+        ],
+      },
+    ]
+  }
+
+  const menuItems = getMenuItems()
 
   // Check if we're on a dashboard-related page (header will be hidden)
   const dashboardPages = ["/dashboard", "/hotels", "/travel"]
@@ -199,8 +324,12 @@ function SidebarContent() {
                   <User className="h-5 w-5" />
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-semibold truncate">My Account</span>
-                  <span className="text-xs text-muted-foreground truncate">Member</span>
+                  <span className="text-sm font-semibold truncate">
+                    {user?.name || "My Account"}
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate capitalize">
+                    {user?.role?.replace("_", " ") || "Member"}
+                  </span>
                 </div>
               </div>
             )}
@@ -245,13 +374,40 @@ function SidebarContent() {
                 )}
                 <div className="space-y-1">
                   {section.items.map((item) => {
-                    const Icon = item.icon
-                    const itemPath = item.href.split("?")[0]
-                    const itemTab = item.href.split("tab=")[1]
-                    const currentTab = searchParams.get("tab")
-                    const isActive = pathname === itemPath && (
-                      !itemTab || (itemTab && currentTab === itemTab) || (itemPath === "/dashboard" && !currentTab && item.label === "Dashboard")
-                    )
+                      const Icon = item.icon
+                      const itemPath = item.href.split("?")[0]
+                      const itemTab = item.href.split("tab=")[1]
+                      const currentTab = searchParams.get("tab")
+                      
+                      // Determine if this item is active
+                      let isActive = false
+                      
+                      // Check if pathname matches the item path
+                      if (pathname === itemPath) {
+                        // Exact path match - check tab if present
+                        if (itemTab) {
+                          isActive = currentTab === itemTab
+                        } else {
+                          // No tab in item href - should be active when no tab is selected
+                          isActive = !currentTab || currentTab === null
+                        }
+                      } else if (itemPath.includes("/dashboard") && pathname.includes("/dashboard")) {
+                        // Both are dashboard paths - check if same dashboard type and tab matches
+                        // Normalize paths by removing leading/trailing slashes
+                        const normalizePath = (p: string) => p.replace(/^\/+|\/+$/g, "")
+                        const pathNormalized = normalizePath(pathname)
+                        const itemNormalized = normalizePath(itemPath)
+                        
+                        // Check if they're the same dashboard (user, admin, or super-admin)
+                        if (pathNormalized === itemNormalized) {
+                          // Same dashboard path - check tab
+                          if (itemTab) {
+                            isActive = currentTab === itemTab
+                          } else {
+                            isActive = !currentTab || currentTab === null
+                          }
+                        }
+                      }
 
                     return (
                       <Link

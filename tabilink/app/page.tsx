@@ -138,8 +138,8 @@ const collections = [
       code: "FIRST50",
       icon: Gift,
       gradient: "from-gray-500 to-gray-300",
-    },
-  ]
+  },
+]
 
 const journeySteps = [
   {
