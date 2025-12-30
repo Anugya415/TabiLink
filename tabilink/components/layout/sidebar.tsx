@@ -109,37 +109,37 @@ function SidebarContent() {
           title: "Super Admin",
           items: [
             {
-              href: "/super-admin/dashboard",
+              href: "/super-admin/overview",
               label: "Overview",
               icon: Crown,
               iconColor: "text-yellow-600",
             },
             {
-              href: "/super-admin/dashboard?tab=users",
+              href: "/super-admin/users",
               label: "User Management",
               icon: Users,
               iconColor: "text-blue-600",
             },
             {
-              href: "/super-admin/dashboard?tab=admins",
+              href: "/super-admin/admins",
               label: "Admin Management",
               icon: Shield,
               iconColor: "text-purple-600",
             },
             {
-              href: "/super-admin/dashboard?tab=system",
+              href: "/super-admin/system",
               label: "System",
               icon: Server,
               iconColor: "text-orange-600",
             },
             {
-              href: "/super-admin/dashboard?tab=analytics",
+              href: "/super-admin/analytics",
               label: "Analytics",
               icon: BarChart3,
               iconColor: "text-green-600",
             },
             {
-              href: "/super-admin/dashboard?tab=settings",
+              href: "/super-admin/settings",
               label: "Settings",
               icon: Settings,
               iconColor: "text-slate-600",
@@ -203,94 +203,94 @@ function SidebarContent() {
 
     // Regular user menu
     return [
-      {
-        title: "Main",
-        items: [
-          {
-            href: "/dashboard",
-            label: "Dashboard",
-            icon: LayoutDashboard,
+    {
+      title: "Main",
+      items: [
+        {
+          href: "/dashboard",
+          label: "Dashboard",
+          icon: LayoutDashboard,
             iconColor: "text-blue-600",
-          },
-          {
-            href: "/dashboard?tab=bookings",
-            label: "My Bookings",
-            icon: Calendar,
+        },
+        {
+          href: "/dashboard?tab=bookings",
+          label: "My Bookings",
+          icon: Calendar,
             iconColor: "text-green-600",
-          },
-          {
-            href: "/dashboard?tab=saved",
-            label: "Saved Trips",
-            icon: Heart,
+        },
+        {
+          href: "/dashboard?tab=saved",
+          label: "Saved Trips",
+          icon: Heart,
             iconColor: "text-red-500",
-          },
-        ],
-      },
-      {
-        title: "Account",
-        items: [
-          {
-            href: "/dashboard?tab=profile",
-            label: "Profile",
-            icon: User,
+        },
+      ],
+    },
+    {
+      title: "Account",
+      items: [
+        {
+          href: "/dashboard?tab=profile",
+          label: "Profile",
+          icon: User,
             iconColor: "text-indigo-600",
-          },
-          {
-            href: "/dashboard?tab=settings",
-            label: "Settings",
-            icon: Settings,
+        },
+        {
+          href: "/dashboard?tab=settings",
+          label: "Settings",
+          icon: Settings,
             iconColor: "text-slate-600",
-          },
-          {
-            href: "/dashboard?tab=notifications",
-            label: "Notifications",
-            icon: Bell,
+        },
+        {
+          href: "/dashboard?tab=notifications",
+          label: "Notifications",
+          icon: Bell,
             iconColor: "text-amber-600",
-          },
-        ],
-      },
-      {
-        title: "Travel",
-        items: [
-          {
-            href: "/dashboard?tab=transportation",
-            label: "Book Transportation",
-            icon: Navigation,
+        },
+      ],
+    },
+    {
+      title: "Travel",
+      items: [
+        {
+          href: "/dashboard?tab=transportation",
+          label: "Book Transportation",
+          icon: Navigation,
             iconColor: "text-purple-600",
-          },
-          {
-            href: "/dashboard?tab=plan-trip",
-            label: "Plan Your Trip",
-            icon: Compass,
+        },
+        {
+          href: "/dashboard?tab=plan-trip",
+          label: "Plan Your Trip",
+          icon: Compass,
             iconColor: "text-cyan-600",
-          },
-          {
-            href: "/hotels",
-            label: "Browse Hotels",
-            icon: MapPin,
+        },
+        {
+          href: "/hotels",
+          label: "Browse Hotels",
+          icon: MapPin,
             iconColor: "text-blue-500",
-          },
-          {
-            href: "/travel",
-            label: "Travel Packages",
-            icon: Plane,
+        },
+        {
+          href: "/travel",
+          label: "Travel Packages",
+          icon: Plane,
             iconColor: "text-orange-600",
-          },
-          {
-            href: "/dashboard?tab=payments",
-            label: "Payment Methods",
-            icon: CreditCard,
+        },
+        {
+          href: "/dashboard?tab=payments",
+          label: "Payment Methods",
+          icon: CreditCard,
             iconColor: "text-teal-600",
-          },
-        ],
-      },
-    ]
+        },
+      ],
+    },
+  ]
   }
 
   const menuItems = getMenuItems()
 
   // Check if we're on a dashboard-related page (header will be hidden)
-  const dashboardPages = ["/dashboard", "/hotels", "/travel"]
+  const dashboardPages = ["/dashboard", "/hotels", "/travel", "/admin/dashboard", "/super-admin/dashboard"]
   const isDashboardPage = dashboardPages.some(page => pathname.startsWith(page))
 
   return (
@@ -306,8 +306,7 @@ function SidebarContent() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 bg-background/95 backdrop-blur border-r z-40 transition-all duration-300 ease-in-out shadow-lg",
-          isDashboardPage ? "top-0 h-screen" : "top-16 h-[calc(100vh-4rem)]",
+          "fixed left-0 top-0 h-screen bg-background/95 backdrop-blur border-r z-40 transition-all duration-300 ease-in-out shadow-lg",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           isOpen && !isMobile ? "w-72" : "w-0 lg:w-20"
         )}
@@ -374,10 +373,10 @@ function SidebarContent() {
                 )}
                 <div className="space-y-1">
                   {section.items.map((item) => {
-                      const Icon = item.icon
-                      const itemPath = item.href.split("?")[0]
-                      const itemTab = item.href.split("tab=")[1]
-                      const currentTab = searchParams.get("tab")
+                    const Icon = item.icon
+                    const itemPath = item.href.split("?")[0]
+                    const itemTab = item.href.split("tab=")[1]
+                    const currentTab = searchParams.get("tab")
                       
                       // Determine if this item is active
                       let isActive = false

@@ -40,11 +40,11 @@ export default function RootLayout({
         <ThemeProvider>
           <TranslationProvider>
             <RoleProvider>
-              <Header />
-              <Sidebar />
+        <Header />
+        <Sidebar />
               <main className="min-h-screen transition-all duration-300 relative z-10 lg:pl-0 bg-background">{children}</main>
-              <Footer />
-              <Toaster />
+        <Footer />
+        <Toaster />
             </RoleProvider>
           </TranslationProvider>
         </ThemeProvider>

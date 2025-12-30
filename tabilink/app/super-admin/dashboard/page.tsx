@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useRole, User, UserRole } from "@/contexts/RoleContext"
 import { useTranslation } from "@/contexts/TranslationContext"
 import {
@@ -131,6 +131,46 @@ function SuperAdminDashboardContent() {
         createdAt: "2023-11-05T00:00:00Z",
         lastLogin: "2024-01-16T09:15:00Z",
       },
+      {
+        id: "user-7",
+        email: "robert@tabilink.com",
+        name: "Robert Wilson",
+        role: "user",
+        createdAt: "2024-01-08T00:00:00Z",
+        lastLogin: "2024-01-17T15:22:00Z",
+      },
+      {
+        id: "user-8",
+        email: "lisa@tabilink.com",
+        name: "Lisa Anderson",
+        role: "user",
+        createdAt: "2024-01-12T00:00:00Z",
+        lastLogin: "2024-01-16T12:10:00Z",
+      },
+      {
+        id: "user-9",
+        email: "james@tabilink.com",
+        name: "James Martinez",
+        role: "user",
+        createdAt: "2023-12-20T00:00:00Z",
+        lastLogin: "2024-01-15T09:45:00Z",
+      },
+      {
+        id: "user-10",
+        email: "maria@tabilink.com",
+        name: "Maria Garcia",
+        role: "user",
+        createdAt: "2024-01-03T00:00:00Z",
+        lastLogin: "2024-01-17T14:30:00Z",
+      },
+      {
+        id: "admin-3",
+        email: "admin3@tabilink.com",
+        name: "Operations Admin",
+        role: "admin",
+        createdAt: "2023-10-15T00:00:00Z",
+        lastLogin: "2024-01-16T10:20:00Z",
+      },
     ])
   }, [])
 
@@ -186,6 +226,41 @@ function SuperAdminDashboardContent() {
       level: "info",
       message: "Scheduled maintenance completed",
       category: "maintenance",
+    },
+    {
+      id: "log-6",
+      timestamp: "2024-01-17T05:45:00Z",
+      level: "info",
+      message: "API rate limit threshold reached: 95%",
+      category: "performance",
+    },
+    {
+      id: "log-7",
+      timestamp: "2024-01-17T04:30:00Z",
+      level: "warning",
+      message: "Disk space usage above 80% on cache server",
+      category: "storage",
+    },
+    {
+      id: "log-8",
+      timestamp: "2024-01-17T03:15:00Z",
+      level: "info",
+      message: "Security audit completed - no issues found",
+      category: "security",
+    },
+    {
+      id: "log-9",
+      timestamp: "2024-01-17T02:00:00Z",
+      level: "info",
+      message: "Email service queue processed: 1,245 messages",
+      category: "email",
+    },
+    {
+      id: "log-10",
+      timestamp: "2024-01-17T01:30:00Z",
+      level: "error",
+      message: "Failed to connect to external API: timeout after 30s",
+      category: "integration",
     },
   ]
 
@@ -304,6 +379,40 @@ function SuperAdminDashboardContent() {
               })}
             </div>
 
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="hover-lift bg-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">${analyticsData?.revenueByMonth?.reduce((sum, m) => sum + (m?.revenue || 0), 0).toLocaleString() || "0"}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Last 6 months</p>
+                </CardContent>
+              </Card>
+              <Card className="hover-lift bg-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Bookings</CardTitle>
+                  <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{analyticsData?.revenueByMonth?.reduce((sum, m) => sum + (m?.bookings || 0), 0).toLocaleString() || "0"}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Last 6 months</p>
+                </CardContent>
+              </Card>
+              <Card className="hover-lift bg-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Active Sessions</CardTitle>
+                  <Activity className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{analyticsData?.systemMetrics?.activeUsers ? analyticsData.systemMetrics.activeUsers.toLocaleString() : "0"}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Currently online</p>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* System Status */}
             <Card className="hover-lift bg-card">
               <CardHeader>
@@ -316,26 +425,125 @@ function SuperAdminDashboardContent() {
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <div>
                       <p className="font-semibold text-foreground">API Server</p>
-                      <p className="text-xs text-muted-foreground">Operational</p>
+                      <p className="text-xs text-muted-foreground">Operational • {analyticsData.systemMetrics.avgResponseTime}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 rounded-lg border bg-muted/50">
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <div>
                       <p className="font-semibold text-foreground">Database</p>
-                      <p className="text-xs text-muted-foreground">Connected</p>
+                      <p className="text-xs text-muted-foreground">Connected • 2.4 GB</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 rounded-lg border bg-muted/50">
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <div>
                       <p className="font-semibold text-foreground">Payment Gateway</p>
-                      <p className="text-xs text-muted-foreground">Active</p>
+                      <p className="text-xs text-muted-foreground">Active • {analyticsData.systemMetrics.uptime}</p>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Recent Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="hover-lift bg-card">
+                <CardHeader>
+                  <CardTitle>Recent System Logs</CardTitle>
+                  <CardDescription>Latest system events and activities</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {systemLogs.slice(0, 3).map((log) => (
+                      <div
+                        key={log.id}
+                        className="flex items-start gap-3 p-3 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
+                      >
+                        <div
+                          className={`h-2 w-2 rounded-full mt-2 flex-shrink-0 ${
+                            log.level === "error"
+                              ? "bg-red-500"
+                              : log.level === "warning"
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
+                          }`}
+                        />
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-muted-foreground uppercase">{log.category}</span>
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded ${
+                                log.level === "error"
+                                  ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
+                                  : log.level === "warning"
+                                  ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400"
+                                  : "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                              }`}
+                            >
+                              {log.level}
+                            </span>
+                          </div>
+                          <p className="text-sm text-foreground">{log.message}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(log.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-lift bg-card">
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                  <CardDescription>Common administrative tasks</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start hover-lift"
+                    onClick={() => {
+                      setActiveTab("users")
+                    }}
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Manage Users
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start hover-lift"
+                    onClick={() => {
+                      setActiveTab("admins")
+                    }}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Manage Admins
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start hover-lift"
+                    onClick={() => {
+                      setActiveTab("analytics")
+                    }}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    View Analytics
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start hover-lift"
+                    onClick={() => {
+                      setActiveTab("settings")
+                    }}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    System Settings
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )
 
@@ -652,6 +860,35 @@ function SuperAdminDashboardContent() {
         )
 
       case "system":
+        // Mock server metrics
+        const serverMetrics = [
+          { name: "Web Server 01", cpu: 45, memory: 62, disk: 78, status: "operational", location: "US-East", uptime: "99.9%" },
+          { name: "Web Server 02", cpu: 52, memory: 58, disk: 65, status: "operational", location: "US-West", uptime: "99.8%" },
+          { name: "Database Server", cpu: 38, memory: 72, disk: 45, status: "operational", location: "US-East", uptime: "99.95%" },
+          { name: "Cache Server", cpu: 28, memory: 35, disk: 82, status: "operational", location: "EU-Central", uptime: "99.7%" },
+          { name: "API Gateway", cpu: 35, memory: 48, disk: 25, status: "operational", location: "US-East", uptime: "99.9%" },
+          { name: "File Storage", cpu: 22, memory: 55, disk: 68, status: "operational", location: "US-West", uptime: "99.85%" },
+        ]
+
+        // Mock database tables info
+        const databaseTables = [
+          { name: "users", rows: 12458, size: "245 MB", lastBackup: "2024-01-17 10:00:00" },
+          { name: "bookings", rows: 6234, size: "189 MB", lastBackup: "2024-01-17 10:00:00" },
+          { name: "hotels", rows: 1245, size: "45 MB", lastBackup: "2024-01-17 10:00:00" },
+          { name: "packages", rows: 856, size: "32 MB", lastBackup: "2024-01-17 10:00:00" },
+          { name: "payments", rows: 5234, size: "156 MB", lastBackup: "2024-01-17 10:00:00" },
+          { name: "logs", rows: 125000, size: "892 MB", lastBackup: "2024-01-17 10:00:00" },
+        ]
+
+        // Mock backup history
+        const backupHistory = [
+          { id: "backup-1", date: "2024-01-17T10:00:00Z", type: "Full", size: "2.4 GB", status: "completed" },
+          { id: "backup-2", date: "2024-01-16T10:00:00Z", type: "Full", size: "2.3 GB", status: "completed" },
+          { id: "backup-3", date: "2024-01-15T10:00:00Z", type: "Incremental", size: "145 MB", status: "completed" },
+          { id: "backup-4", date: "2024-01-14T10:00:00Z", type: "Full", size: "2.2 GB", status: "completed" },
+          { id: "backup-5", date: "2024-01-13T10:00:00Z", type: "Incremental", size: "128 MB", status: "completed" },
+        ]
+
         return (
           <div className="space-y-6">
             {/* System Status */}
@@ -666,7 +903,7 @@ function SuperAdminDashboardContent() {
                       <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground">99.9%</p>
+                      <p className="text-2xl font-bold text-foreground">{analyticsData.systemMetrics.uptime}</p>
                       <p className="text-xs text-muted-foreground">Uptime</p>
                     </div>
                   </div>
@@ -682,7 +919,7 @@ function SuperAdminDashboardContent() {
                       <Activity className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground">120ms</p>
+                      <p className="text-2xl font-bold text-foreground">{analyticsData.systemMetrics.avgResponseTime}</p>
                       <p className="text-xs text-muted-foreground">Average</p>
                     </div>
                   </div>
@@ -698,13 +935,86 @@ function SuperAdminDashboardContent() {
                       <Server className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground">1.25M</p>
+                      <p className="text-2xl font-bold text-foreground">{(analyticsData.systemMetrics.apiCalls / 1000000).toFixed(2)}M</p>
                       <p className="text-xs text-muted-foreground">This month</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Server Metrics */}
+            <Card className="hover-lift bg-card">
+              <CardHeader>
+                <CardTitle>Server Metrics</CardTitle>
+                <CardDescription>Real-time server resource utilization</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {serverMetrics.map((server) => (
+                    <div key={server.name} className="p-4 rounded-lg border bg-muted/50">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Server className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-semibold text-foreground">{server.name}</span>
+                          <span className={`px-2 py-0.5 rounded text-xs ${
+                            server.status === "operational" 
+                              ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                              : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
+                          }`}>
+                            {server.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div>
+                          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                            <span>CPU Usage</span>
+                            <span>{server.cpu}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                server.cpu > 80 ? "bg-red-500" : server.cpu > 60 ? "bg-yellow-500" : "bg-green-500"
+                              }`}
+                              style={{ width: `${server.cpu}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                            <span>Memory Usage</span>
+                            <span>{server.memory}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                server.memory > 80 ? "bg-red-500" : server.memory > 60 ? "bg-yellow-500" : "bg-blue-500"
+                              }`}
+                              style={{ width: `${server.memory}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                            <span>Disk Usage</span>
+                            <span>{server.disk}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                server.disk > 80 ? "bg-red-500" : server.disk > 60 ? "bg-yellow-500" : "bg-orange-500"
+                              }`}
+                              style={{ width: `${server.disk}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* System Actions */}
@@ -789,6 +1099,32 @@ function SuperAdminDashboardContent() {
                 </CardContent>
               </Card>
 
+              {/* Database Information */}
+              <Card className="hover-lift bg-card">
+                <CardHeader>
+                  <CardTitle>Database Information</CardTitle>
+                  <CardDescription>Database tables and statistics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {databaseTables.map((table) => (
+                      <div key={table.name} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground capitalize truncate">{table.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {table.rows.toLocaleString()} rows • {table.size}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-xs text-muted-foreground">Last backup</p>
+                          <p className="text-xs font-medium text-foreground">{table.lastBackup}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* System Logs */}
               <Card className="hover-lift bg-card">
                 <CardHeader>
@@ -796,7 +1132,7 @@ function SuperAdminDashboardContent() {
                   <CardDescription>Latest system events and activities</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
                     {systemLogs.map((log) => (
                       <div
                         key={log.id}
@@ -837,6 +1173,54 @@ function SuperAdminDashboardContent() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Backup History */}
+            <Card className="hover-lift bg-card">
+              <CardHeader>
+                <CardTitle>Backup History</CardTitle>
+                <CardDescription>Recent database backup records</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {backupHistory.map((backup) => (
+                    <div
+                      key={backup.id}
+                      className="flex items-center justify-between p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          backup.status === "completed" 
+                            ? "bg-green-100 dark:bg-green-500/20" 
+                            : "bg-yellow-100 dark:bg-yellow-500/20"
+                        }`}>
+                          <Database className={`h-5 w-5 ${
+                            backup.status === "completed" 
+                              ? "text-green-600 dark:text-green-400" 
+                              : "text-yellow-600 dark:text-yellow-400"
+                          }`} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-foreground truncate">{backup.type} Backup</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(backup.date).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-foreground">{backup.size}</p>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          backup.status === "completed"
+                            ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                            : "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400"
+                        }`}>
+                          {backup.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )
 
@@ -903,13 +1287,13 @@ function SuperAdminDashboardContent() {
                         <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
                           <div className="w-full flex items-end justify-center" style={{ height: "160px" }}>
                             <div
-                              className="w-full bg-primary rounded-t transition-all hover:opacity-80"
+                              className="w-full bg-primary rounded-t transition-all hover:opacity-80 cursor-pointer"
                               style={{ height: `${height}%`, minHeight: "8px" }}
                               title={`${data.month}: $${data.revenue ? data.revenue.toLocaleString() : "0"}`}
                             />
                           </div>
                           <span className="text-xs text-muted-foreground font-medium">{data.month}</span>
-                          <span className="text-xs font-semibold text-foreground">${(data.revenue / 1000).toFixed(0)}k</span>
+                          <span className="text-xs font-semibold text-foreground">${data.revenue ? (data.revenue / 1000).toFixed(0) : "0"}k</span>
                         </div>
                       )
                     })}
@@ -992,13 +1376,13 @@ function SuperAdminDashboardContent() {
                         <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
                           <div className="w-full flex items-end justify-center" style={{ height: "160px" }}>
                             <div
-                              className="w-full bg-blue-500 rounded-t transition-all hover:opacity-80"
+                              className="w-full bg-blue-500 rounded-t transition-all hover:opacity-80 cursor-pointer"
                               style={{ height: `${height}%`, minHeight: "8px" }}
                               title={`${data.month}: ${data.users ? data.users.toLocaleString() : "0"} users`}
                             />
                           </div>
                           <span className="text-xs text-muted-foreground font-medium">{data.month}</span>
-                          <span className="text-xs font-semibold text-foreground">{(data.users / 1000).toFixed(1)}k</span>
+                          <span className="text-xs font-semibold text-foreground">{data.users ? (data.users / 1000).toFixed(1) : "0"}k</span>
                         </div>
                       )
                     })}
@@ -1935,6 +2319,10 @@ function SuperAdminDashboardContent() {
 }
 
 export default function SuperAdminDashboardPage() {
+  // Redirect to overview page
+  if (typeof window !== "undefined") {
+    window.location.href = "/super-admin/overview"
+  }
   return (
     <ProtectedRoute allowedRoles={["super_admin"]}>
       <Suspense fallback={
@@ -1945,7 +2333,9 @@ export default function SuperAdminDashboardPage() {
           </div>
         </div>
       }>
-        <SuperAdminDashboardContent />
+        <div className="container space-y-8 py-12">
+          <p>Redirecting to overview...</p>
+        </div>
       </Suspense>
     </ProtectedRoute>
   )

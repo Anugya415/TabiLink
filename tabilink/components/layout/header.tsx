@@ -168,13 +168,13 @@ export function Header() {
                   </span>
                 </div>
               )}
-              <Button
-                variant="outline"
+            <Button
+              variant="outline"
                 className="hover-lift"
-                onClick={handleSignOut}
-              >
+              onClick={handleSignOut}
+            >
                 {t("signOut")}
-              </Button>
+            </Button>
             </div>
           )}
           <Button

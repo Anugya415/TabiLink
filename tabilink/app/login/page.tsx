@@ -98,13 +98,13 @@ export default function LoginPage() {
 
       toast.success(t("loginSuccessful"), {
         description: t("loginSuccessfulDesc"),
-      })
+    })
 
-      form.reset(values)
+    form.reset(values)
 
       // Redirect based on role
       if (foundUser.role === "super_admin") {
-        router.push("/super-admin/dashboard")
+        router.push("/super-admin/overview")
       } else if (foundUser.role === "admin") {
         router.push("/admin/dashboard")
       } else {

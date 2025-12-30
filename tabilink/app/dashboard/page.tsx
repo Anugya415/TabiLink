@@ -765,7 +765,7 @@ function DashboardContent() {
                         >
                           <span>Explore Now</span>
                           <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
+                      </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -1405,44 +1405,44 @@ function DashboardContent() {
   // Render content based on sidebar tab
   if (sidebarTab === "transportation") {
     const transportOptions = [
-      {
-        id: "flights",
+                {
+                  id: "flights",
         title: t("flights"),
         description: t("bookDomesticInternational"),
-        icon: Plane,
+                  icon: Plane,
         iconColor: "text-blue-600",
         iconColorSelected: "text-blue-600",
         bgColor: "bg-blue-100",
         bgColorSelected: "bg-blue-200",
         borderColor: "border-blue-500",
-      },
-      {
-        id: "trains",
+                },
+                {
+                  id: "trains",
         title: t("trains"),
         description: t("railwayTicketBooking"),
-        icon: Train,
+                  icon: Train,
         iconColor: "text-green-600",
         iconColorSelected: "text-green-600",
         bgColor: "bg-green-100",
         bgColorSelected: "bg-green-200",
         borderColor: "border-green-500",
-      },
-      {
-        id: "buses",
+                },
+                {
+                  id: "buses",
         title: t("buses"),
         description: t("intercityInterstateBuses"),
-        icon: Bus,
+                  icon: Bus,
         iconColor: "text-orange-600",
         iconColorSelected: "text-orange-600",
         bgColor: "bg-orange-100",
         bgColorSelected: "bg-orange-200",
         borderColor: "border-orange-500",
-      },
-      {
-        id: "cabs",
+                },
+                {
+                  id: "cabs",
         title: t("cabs"),
         description: t("taxiCarRentalsAirport"),
-        icon: Car,
+                  icon: Car,
         iconColor: "text-purple-600",
         iconColorSelected: "text-purple-600",
         bgColor: "bg-purple-100",
@@ -1467,27 +1467,27 @@ function DashboardContent() {
 
         <div className="space-y-4">
           {transportOptions.map((transport, index) => {
-            const Icon = transport.icon
-            const isSelected = selectedTransport === transport.id
-            return (
-              <Card
-                key={transport.id}
+                const Icon = transport.icon
+                const isSelected = selectedTransport === transport.id
+                return (
+                  <Card
+                    key={transport.id}
                 className={`hover-lift animate-fade-in-up transition-all cursor-pointer ${
                   isSelected
                     ? `border-l-4 ${transport.borderColor} bg-primary/5 shadow-md`
                     : "border-l-4 border-l-transparent"
-                }`}
-                onClick={() => setSelectedTransport(transport.id)}
+                    }`}
+                    onClick={() => setSelectedTransport(transport.id)}
                 style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                <CardContent className="p-6">
+                  >
+                    <CardContent className="p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4 flex-1">
                       <div className={`h-12 w-12 rounded-full flex items-center justify-center transition-all ${
                         isSelected ? transport.bgColorSelected : transport.bgColor
                       }`}>
                         <Icon className={`h-6 w-6 ${transport.iconColor}`} />
-                      </div>
+                        </div>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
                           <h3 className={`font-semibold ${isSelected ? "text-primary" : ""}`}>
@@ -1498,7 +1498,7 @@ function DashboardContent() {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">{transport.description}</p>
-                      </div>
+                            </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {isSelected ? (
@@ -1540,16 +1540,16 @@ function DashboardContent() {
                           Book Now
                         </Button>
                       )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
 
-        {/* Booking Forms */}
-        {selectedTransport && (
+            {/* Booking Forms */}
+            {selectedTransport && (
           <Card className="border-l-4 border-l-primary bg-primary/5 shadow-md animate-fade-in-up">
                 <CardHeader>
                   <div className="flex items-center justify-between">

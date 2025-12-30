@@ -1205,67 +1205,67 @@ function AdminDashboardContent() {
           <div className="space-y-6 py-4 overflow-x-hidden">
             <div className="space-y-3">
               <Label className="text-sm font-semibold text-foreground">Notification Types</Label>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
+              <div className="grid gap-3">
+                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
                     <input 
                       type="checkbox" 
                       id="email-booking" 
                       defaultChecked 
-                      className="h-4 w-4 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
+                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
                     />
-                    <Label htmlFor="email-booking" className="text-sm font-medium text-foreground cursor-pointer">
+                    <Label htmlFor="email-booking" className="text-base font-medium text-foreground cursor-pointer">
                       New booking confirmations
                     </Label>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
                     <input 
                       type="checkbox" 
                       id="email-cancellation" 
                       defaultChecked 
-                      className="h-4 w-4 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
+                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
                     />
-                    <Label htmlFor="email-cancellation" className="text-sm font-medium text-foreground cursor-pointer">
+                    <Label htmlFor="email-cancellation" className="text-base font-medium text-foreground cursor-pointer">
                       Booking cancellations
                     </Label>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
                     <input 
                       type="checkbox" 
                       id="email-payment" 
                       defaultChecked 
-                      className="h-4 w-4 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
+                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
                     />
-                    <Label htmlFor="email-payment" className="text-sm font-medium text-foreground cursor-pointer">
+                    <Label htmlFor="email-payment" className="text-base font-medium text-foreground cursor-pointer">
                       Payment failures
                     </Label>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
                     <input 
                       type="checkbox" 
                       id="email-user" 
-                      className="h-4 w-4 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
+                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
                     />
-                    <Label htmlFor="email-user" className="text-sm font-medium text-foreground cursor-pointer">
+                    <Label htmlFor="email-user" className="text-base font-medium text-foreground cursor-pointer">
                       New user registrations
                     </Label>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
                     <input 
                       type="checkbox" 
                       id="email-system" 
                       defaultChecked 
-                      className="h-4 w-4 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
+                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
                     />
-                    <Label htmlFor="email-system" className="text-sm font-medium text-foreground cursor-pointer">
+                    <Label htmlFor="email-system" className="text-base font-medium text-foreground cursor-pointer">
                       System alerts
                     </Label>
                   </div>
