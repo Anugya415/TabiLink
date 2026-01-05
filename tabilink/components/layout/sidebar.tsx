@@ -101,7 +101,93 @@ function SidebarContent() {
 
   // Different menu items based on role
   const getMenuItems = () => {
-    if (!user) return []
+    // If user is not available but user is logged in, show default user menu
+    if (!user) {
+      // Return default user menu if logged in but user object not available
+      return [
+        {
+          title: "Main",
+          items: [
+            {
+              href: "/dashboard",
+              label: "Dashboard",
+              icon: LayoutDashboard,
+              iconColor: "text-blue-600",
+            },
+            {
+              href: "/dashboard?tab=bookings",
+              label: "My Bookings",
+              icon: Calendar,
+              iconColor: "text-green-600",
+            },
+            {
+              href: "/dashboard?tab=saved",
+              label: "Saved Trips",
+              icon: Heart,
+              iconColor: "text-red-500",
+            },
+          ],
+        },
+        {
+          title: "Account",
+          items: [
+            {
+              href: "/dashboard?tab=profile",
+              label: "Profile",
+              icon: User,
+              iconColor: "text-indigo-600",
+            },
+            {
+              href: "/dashboard?tab=settings",
+              label: "Settings",
+              icon: Settings,
+              iconColor: "text-slate-600",
+            },
+            {
+              href: "/dashboard?tab=notifications",
+              label: "Notifications",
+              icon: Bell,
+              iconColor: "text-amber-600",
+            },
+          ],
+        },
+        {
+          title: "Travel",
+          items: [
+            {
+              href: "/dashboard?tab=transportation",
+              label: "Book Transportation",
+              icon: Navigation,
+              iconColor: "text-purple-600",
+            },
+            {
+              href: "/dashboard?tab=plan-trip",
+              label: "Plan Your Trip",
+              icon: Compass,
+              iconColor: "text-cyan-600",
+            },
+            {
+              href: "/hotels",
+              label: "Browse Hotels",
+              icon: MapPin,
+              iconColor: "text-blue-500",
+            },
+            {
+              href: "/travel",
+              label: "Travel Packages",
+              icon: Plane,
+              iconColor: "text-orange-600",
+            },
+            {
+              href: "/dashboard?tab=payments",
+              label: "Payment Methods",
+              icon: CreditCard,
+              iconColor: "text-teal-600",
+            },
+          ],
+        },
+      ]
+    }
 
     if (user.role === "super_admin") {
       return [

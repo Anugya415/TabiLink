@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { toast } from "sonner"
+import api from "@/lib/api"
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -25,18 +26,15 @@ export default function ContactPage() {
   })
 
   const onSubmit = async (data: ContactFormData) => {
-    // In a real app, this would send the message to your backend
-    // For now, we'll just show a success message
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await api.submitContact(data)
       toast.success("Message sent successfully!", {
         description: "We'll get back to you soon.",
       })
       form.reset()
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Something went wrong", {
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
       })
     }
   }

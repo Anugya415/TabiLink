@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useTranslation } from "@/contexts/TranslationContext"
+import api from "@/lib/api"
+import { toast } from "sonner"
 import { 
   MapPin, 
   Star, 
@@ -29,115 +31,79 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 
-const travelPackages = [
-  {
-    id: 1,
-    title: "European Adventure",
-    destination: "Paris, Rome, Barcelona",
-    image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",
-    duration: "7 Days / 6 Nights",
-    price: 1899,
-    originalPrice: 2299,
-    rating: 4.8,
-    reviews: 892,
-    includes: ["Flights", "Hotels", "Breakfast", "City Tours"],
-    description: "Explore three of Europe's most iconic cities with guided tours and luxury accommodations",
-    category: "adventure",
-    popular: true,
-    discount: 17,
-  },
-  {
-    id: 2,
-    title: "Tropical Paradise",
-    destination: "Maldives, Bali",
-    image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80",
-    duration: "10 Days / 9 Nights",
-    price: 2499,
-    originalPrice: 2999,
-    rating: 4.9,
-    reviews: 1234,
-    includes: ["Flights", "Resorts", "All Meals", "Water Activities"],
-    description: "Luxury beachfront experience in tropical destinations with all-inclusive resorts",
-    category: "beach",
-    popular: true,
-    discount: 17,
-  },
-  {
-    id: 3,
-    title: "Asian Discovery",
-    destination: "Tokyo, Seoul, Singapore",
-    image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",
-    duration: "12 Days / 11 Nights",
-    price: 2799,
-    originalPrice: 3299,
-    rating: 4.7,
-    reviews: 756,
-    includes: ["Flights", "Hotels", "Breakfast", "Cultural Tours"],
-    description: "Discover the best of Asian culture and cuisine with immersive experiences",
-    category: "cultural",
-    popular: false,
-    discount: 15,
-  },
-  {
-    id: 4,
-    title: "Desert Safari Experience",
-    destination: "Dubai, Abu Dhabi",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80",
-    duration: "5 Days / 4 Nights",
-    price: 1499,
-    originalPrice: 1899,
-    rating: 4.6,
-    reviews: 634,
-    includes: ["Flights", "Luxury Hotels", "Desert Safari", "City Tours"],
-    description: "Experience the opulence and adventure of the UAE with desert safaris",
-    category: "adventure",
-    popular: false,
-    discount: 21,
-  },
-  {
-    id: 5,
-    title: "Alpine Wonderland",
-    destination: "Switzerland, Austria",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-    duration: "8 Days / 7 Nights",
-    price: 2199,
-    originalPrice: 2599,
-    rating: 4.8,
-    reviews: 1023,
-    includes: ["Flights", "Mountain Hotels", "Breakfast", "Ski Passes"],
-    description: "Mountain adventures in the heart of the Alps with stunning views",
-    category: "mountain",
-    popular: true,
-    discount: 15,
-  },
-  {
-    id: 6,
-    title: "Americas Explorer",
-    destination: "New York, Miami, Los Angeles",
-    image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80",
-    duration: "14 Days / 13 Nights",
-    price: 3299,
-    originalPrice: 3899,
-    rating: 4.7,
-    reviews: 1125,
-    includes: ["Flights", "Hotels", "Breakfast", "City Passes"],
-    description: "Coast-to-coast journey through iconic American cities",
-    category: "adventure",
-    popular: false,
-    discount: 15,
-  },
-]
+interface TravelPackage {
+  id: number
+  title: string
+  destination: string
+  image: string
+  duration: string
+  price: number
+  originalPrice?: number
+  rating: number
+  reviews: number
+  includes: string[]
+  description: string
+  category: string
+  popular: boolean
+  discount?: number
+}
 
 // Categories moved inside component to use translations
 
 export default function TravelPage() {
   const { t } = useTranslation()
+  const [travelPackages, setTravelPackages] = useState<TravelPackage[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("rating")
   const [priceRange, setPriceRange] = useState("all")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setLoading(true)
+        const response = await api.getPackages({
+          search: searchTerm || undefined,
+          category: selectedCategory !== "all" ? selectedCategory : undefined,
+          featured: true,
+        })
+        
+        // Transform API response to match frontend format
+        const transformedPackages = response.data?.map((pkg: any) => ({
+          id: pkg.id,
+          title: pkg.title,
+          destination: pkg.destination,
+          image: pkg.images?.[0] || "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",
+          duration: pkg.duration || `${pkg.days} Days / ${pkg.days - 1} Nights`,
+          price: parseFloat(pkg.price || pkg.totalPrice),
+          originalPrice: pkg.originalPrice ? parseFloat(pkg.originalPrice) : undefined,
+          rating: pkg.rating || 0,
+          reviews: pkg.totalReviews || 0,
+          includes: pkg.includes || [],
+          description: pkg.description || "",
+          category: pkg.category || "adventure",
+          popular: pkg.isPopular || false,
+          discount: pkg.originalPrice ? Math.round(((parseFloat(pkg.originalPrice) - parseFloat(pkg.price)) / parseFloat(pkg.originalPrice)) * 100) : undefined,
+        })) || []
+        
+        setTravelPackages(transformedPackages)
+      } catch (error: any) {
+        console.error("Error fetching travel packages:", error)
+        toast.error("Failed to load travel packages", {
+          description: error.message || "Please try again later.",
+        })
+        // Fallback to empty array on error
+        setTravelPackages([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPackages()
+  }, [searchTerm, selectedCategory])
 
   const categories = [
     { id: "all", label: t("allTypes"), icon: Globe2 },

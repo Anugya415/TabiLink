@@ -34,18 +34,40 @@ const bookingSchema = z.object({
 
 type BookingFormData = z.infer<typeof bookingSchema>
 
-// Mock hotel data
-const hotelData = {
-  id: 1,
-  name: "Grand Luxury Hotel",
-  location: "Paris, France",
-  price: 299,
-  image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
-}
-
 export default function HotelBookingPage() {
   const router = useRouter()
+  const params = useParams()
+  const hotelId = params?.id as string
+  const [hotelData, setHotelData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  useEffect(() => {
+    const fetchHotel = async () => {
+      if (!hotelId) return
+      try {
+        setLoading(true)
+        const response = await api.getHotel(hotelId)
+        const hotel = response.data?.hotel || response.data
+        setHotelData({
+          id: hotel.id,
+          name: hotel.name,
+          location: `${hotel.locationCity || hotel.city}, ${hotel.locationCountry || hotel.country}`,
+          price: parseFloat(hotel.price || hotel.pricePerNight || 0),
+          image: hotel.images?.[0] || "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
+        })
+      } catch (error: any) {
+        console.error("Error fetching hotel:", error)
+        toast.error("Failed to load hotel", {
+          description: error.message || "Please try again later.",
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHotel()
+  }, [hotelId])
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -73,17 +95,60 @@ export default function HotelBookingPage() {
   const total = subtotal + tax
 
   const onSubmit = async (data: BookingFormData) => {
+    if (!hotelId) {
+      toast.error("Hotel ID is missing")
+      return
+    }
+
     setIsProcessing(true)
     
-    // Simulate secure payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    
-    // In a real app, you would send this to your payment processor
-    // For now, we'll just simulate a successful transaction
-    const bookingId = `HOTEL-${Date.now()}`
-    
-    setIsProcessing(false)
-    router.push(`/booking/confirmation?bookingId=${bookingId}&type=hotel`)
+    try {
+      const bookingData = {
+        type: "hotel" as const,
+        hotel: hotelId,
+        checkIn: data.checkIn.toISOString().split('T')[0],
+        checkOut: data.checkOut.toISOString().split('T')[0],
+        travelers: parseInt(data.guests),
+        guests: [{
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phone: data.phone,
+        }],
+      }
+
+      const response = await api.createBooking(bookingData)
+      const bookingId = response.data?.bookingId || response.data?.id || `HOTEL-${Date.now()}`
+      
+      router.push(`/booking/confirmation?bookingId=${bookingId}&type=hotel`)
+    } catch (error: any) {
+      console.error("Booking error:", error)
+      toast.error("Booking failed", {
+        description: error.message || "Please try again later.",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container py-6 sm:py-8 px-4 max-w-6xl">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading hotel details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!hotelData) {
+    return (
+      <div className="container py-6 sm:py-8 px-4 max-w-6xl">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Hotel not found</p>
+        </div>
+      </div>
+    )
   }
 
   return (

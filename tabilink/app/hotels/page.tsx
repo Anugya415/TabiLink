@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useTranslation } from "@/contexts/TranslationContext"
+import api from "@/lib/api"
+import { toast } from "sonner"
 import { 
   Search, 
   MapPin, 
@@ -36,104 +38,22 @@ import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { DatePicker } from "@/components/ui/date-picker"
 
-const hotels = [
-  {
-    id: 1,
-    name: "Grand Luxury Hotel",
-    location: "Paris, France",
-    image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
-    price: 299,
-    originalPrice: 399,
-    rating: 4.8,
-    reviews: 1248,
-    amenities: ["WiFi", "Parking", "Gym", "Restaurant", "Spa", "Pool"],
-    description: "Luxury hotel in the heart of Paris with stunning city views and world-class amenities",
-    category: "luxury",
-    popular: true,
-    discount: 25,
-    distance: "0.5 km from city center",
-  },
-  {
-    id: 2,
-    name: "Oceanview Resort",
-    location: "Bali, Indonesia",
-    image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
-    price: 189,
-    originalPrice: 249,
-    rating: 4.7,
-    reviews: 892,
-    amenities: ["WiFi", "Parking", "Gym", "Restaurant", "Beach Access", "Spa"],
-    description: "Beachfront resort with private beach access, infinity pool, and luxury spa facilities",
-    category: "beach",
-    popular: true,
-    discount: 24,
-    distance: "Beachfront",
-  },
-  {
-    id: 3,
-    name: "Modern City Hotel",
-    location: "Tokyo, Japan",
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
-    price: 249,
-    originalPrice: 299,
-    rating: 4.9,
-    reviews: 2156,
-    amenities: ["WiFi", "Parking", "Gym", "Restaurant", "Business Center", "Concierge"],
-    description: "Contemporary hotel with modern amenities, excellent service, and prime location",
-    category: "business",
-    popular: true,
-    discount: 17,
-    distance: "1.2 km from city center",
-  },
-  {
-    id: 4,
-    name: "Mountain View Lodge",
-    location: "Switzerland",
-    image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
-    price: 349,
-    originalPrice: 429,
-    rating: 4.6,
-    reviews: 543,
-    amenities: ["WiFi", "Parking", "Gym", "Restaurant", "Ski Access", "Fireplace"],
-    description: "Scenic mountain lodge with breathtaking alpine views and cozy atmosphere",
-    category: "mountain",
-    popular: false,
-    discount: 19,
-    distance: "Mountain location",
-  },
-  {
-    id: 5,
-    name: "Urban Boutique Hotel",
-    location: "New York, USA",
-    image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
-    price: 279,
-    originalPrice: 329,
-    rating: 4.5,
-    reviews: 1876,
-    amenities: ["WiFi", "Parking", "Gym", "Restaurant", "Rooftop Bar", "Concierge"],
-    description: "Stylish boutique hotel in Manhattan with rooftop bar and modern design",
-    category: "boutique",
-    popular: false,
-    discount: 15,
-    distance: "0.8 km from Times Square",
-  },
-  {
-    id: 6,
-    name: "Desert Oasis Resort",
-    location: "Dubai, UAE",
-    image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
-    price: 399,
-    originalPrice: 499,
-    rating: 4.8,
-    reviews: 1234,
-    amenities: ["WiFi", "Parking", "Gym", "Restaurant", "Private Pool", "Butler Service"],
-    description: "Luxurious desert resort with private pools, butler service, and exclusive amenities",
-    category: "luxury",
-    popular: true,
-    discount: 20,
-    distance: "Desert location",
-  },
-]
+interface Hotel {
+  id: number
+  name: string
+  location: string
+  image: string
+  price: number
+  originalPrice?: number
+  rating: number
+  reviews: number
+  amenities: string[]
+  description: string
+  category: string
+  popular: boolean
+  discount?: number
+  distance?: string
+}
 
 // Categories will be defined inside component to use translations
 
@@ -156,6 +76,8 @@ const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> 
 
 export default function HotelsPage() {
   const { t } = useTranslation()
+  const [hotels, setHotels] = useState<Hotel[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("rating")
   const [priceRange, setPriceRange] = useState("all")
@@ -164,6 +86,51 @@ export default function HotelsPage() {
   const [checkOutDate, setCheckOutDate] = useState<Date>()
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState<number[]>([])
+
+  useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        setLoading(true)
+        const response = await api.getHotels({
+          search: searchTerm || undefined,
+          category: selectedCategory !== "all" ? selectedCategory : undefined,
+          featured: true,
+        })
+        
+        // Transform API response to match frontend format
+        const hotelsData = response.data?.hotels || []
+        const transformedHotels = hotelsData.map((hotel: any) => ({
+          id: hotel.id,
+          name: hotel.name,
+          location: `${hotel.locationCity || hotel.city}, ${hotel.locationCountry || hotel.country}`,
+          image: hotel.images?.[0] || "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
+          price: parseFloat(hotel.price || hotel.pricePerNight || 0),
+          originalPrice: hotel.originalPrice ? parseFloat(hotel.originalPrice) : undefined,
+          rating: hotel.rating || 0,
+          reviews: hotel.totalReviews || 0,
+          amenities: hotel.amenities || [],
+          description: hotel.description || "",
+          category: hotel.category || "luxury",
+          popular: hotel.isPopular || false,
+          discount: hotel.originalPrice ? Math.round(((parseFloat(hotel.originalPrice) - parseFloat(hotel.price || hotel.pricePerNight || 0)) / parseFloat(hotel.originalPrice)) * 100) : undefined,
+          distance: hotel.distanceFromCityCenter ? `${hotel.distanceFromCityCenter} km from city center` : undefined,
+        })) || []
+        
+        setHotels(transformedHotels)
+      } catch (error: any) {
+        console.error("Error fetching hotels:", error)
+        toast.error("Failed to load hotels", {
+          description: error.message || "Please try again later.",
+        })
+        // Fallback to empty array on error
+        setHotels([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHotels()
+  }, [searchTerm, selectedCategory])
 
   const categories = [
     { id: "all", label: t("allCategories"), icon: Hotel },

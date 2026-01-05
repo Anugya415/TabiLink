@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import api from "@/lib/api"
+import { toast } from "sonner"
 import { Calendar, Users, CreditCard, Lock, Plane } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,21 +30,43 @@ const bookingSchema = z.object({
 
 type BookingFormData = z.infer<typeof bookingSchema>
 
-// Mock travel package data
-const packageData = {
-  id: 1,
-  title: "European Adventure",
-  destination: "Paris, Rome, Barcelona",
-  duration: "7 Days / 6 Nights",
-  price: 1899,
-  originalPrice: 2299,
-  image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",
-  includes: ["Flights", "Hotels", "Breakfast", "City Tours"],
-}
-
 export default function TravelBookingPage() {
   const router = useRouter()
+  const params = useParams()
+  const packageId = params?.id as string
+  const [packageData, setPackageData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  useEffect(() => {
+    const fetchPackage = async () => {
+      if (!packageId) return
+      try {
+        setLoading(true)
+        const response = await api.getPackage(packageId)
+        const pkg = response.data?.package || response.data
+        setPackageData({
+          id: pkg.id,
+          title: pkg.title,
+          destination: pkg.destination,
+          duration: pkg.duration || `${pkg.days} Days / ${pkg.days - 1} Nights`,
+          price: parseFloat(pkg.price || pkg.totalPrice || 0),
+          originalPrice: pkg.originalPrice ? parseFloat(pkg.originalPrice) : undefined,
+          image: pkg.images?.[0] || "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",
+          includes: pkg.includes || [],
+        })
+      } catch (error: any) {
+        console.error("Error fetching travel package:", error)
+        toast.error("Failed to load travel package", {
+          description: error.message || "Please try again later.",
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPackage()
+  }, [packageId])
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -58,16 +82,58 @@ export default function TravelBookingPage() {
   const total = subtotal + tax
 
   const onSubmit = async (data: BookingFormData) => {
+    if (!packageId) {
+      toast.error("Package ID is missing")
+      return
+    }
+
     setIsProcessing(true)
     
-    // Simulate secure payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    
-    // In a real app, you would send this to your payment processor
-    const bookingId = `TRAVEL-${Date.now()}`
-    
-    setIsProcessing(false)
-    router.push(`/booking/confirmation?bookingId=${bookingId}&type=travel`)
+    try {
+      const bookingData = {
+        type: "travel" as const,
+        travelPackage: packageId,
+        travelers: parseInt(data.travelers),
+        guests: [{
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phone: data.phone,
+        }],
+      }
+
+      const response = await api.createBooking(bookingData)
+      const bookingId = response.data?.bookingId || response.data?.id || `TRAVEL-${Date.now()}`
+      
+      router.push(`/booking/confirmation?bookingId=${bookingId}&type=travel`)
+    } catch (error: any) {
+      console.error("Booking error:", error)
+      toast.error("Booking failed", {
+        description: error.message || "Please try again later.",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container py-6 sm:py-8 px-4 max-w-6xl">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading package details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!packageData) {
+    return (
+      <div className="container py-6 sm:py-8 px-4 max-w-6xl">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Travel package not found</p>
+        </div>
+      </div>
+    )
   }
 
   return (
