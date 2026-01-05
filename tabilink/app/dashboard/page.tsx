@@ -1458,7 +1458,7 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               Book Transportation
             </p>
-            <h1 className="text-3xl font-bold">{t("bookYourTransportation")}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">{t("bookYourTransportation")}</h1>
             <p className="text-muted-foreground">
               {t("selectPreferredMode")}
             </p>
@@ -1955,7 +1955,7 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
                 {t("myBookings")}
             </p>
-              <h1 className="text-3xl font-bold">{t("yourReservations")}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t("yourReservations")}</h1>
             <p className="text-muted-foreground">
                 {t("manageViewBookings")}
               </p>
@@ -2211,7 +2211,7 @@ function DashboardContent() {
               <p className="text-sm font-semibold uppercase tracking-wide text-primary">
                 {t("savedTrips")}
               </p>
-              <h1 className="text-3xl font-bold">{t("yourWishlist")}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t("yourWishlist")}</h1>
               <p className="text-muted-foreground">
                 {savedTrips.length} {t("tripsSavedForLater")}
               </p>
@@ -2368,7 +2368,7 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               {t("profile")}
             </p>
-            <h1 className="text-3xl font-bold">{t("myProfile")}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">{t("myProfile")}</h1>
             <p className="text-muted-foreground">
               {t("managePersonalInfo")}
             </p>
@@ -2543,7 +2543,7 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               {t("settings")}
             </p>
-            <h1 className="text-3xl font-bold">{t("accountSettings")}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">{t("accountSettings")}</h1>
             <p className="text-muted-foreground">
               {t("customizeAccountPreferences")}
             </p>
@@ -2704,7 +2704,7 @@ function DashboardContent() {
               <p className="text-sm font-semibold uppercase tracking-wide text-primary">
                 {t("notifications")}
               </p>
-              <h1 className="text-3xl font-bold">{t("yourNotifications")}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t("yourNotifications")}</h1>
               <p className="text-muted-foreground">
                 {t("stayUpdatedBookings")}
               </p>
@@ -2836,7 +2836,7 @@ function DashboardContent() {
               <p className="text-sm font-semibold uppercase tracking-wide text-primary">
                 {t("paymentMethods")}
               </p>
-              <h1 className="text-3xl font-bold">{t("yourPaymentMethods")}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t("yourPaymentMethods")}</h1>
               <p className="text-muted-foreground">
                 {t("manageSavedPaymentMethods")}
               </p>

@@ -1304,12 +1304,12 @@ function SuperAdminDashboardContent() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Bookings by Status */}
-              <Card className="hover-lift bg-card">
+              <Card className="hover-lift bg-card h-full flex flex-col">
                 <CardHeader>
                   <CardTitle>Bookings by Status</CardTitle>
                   <CardDescription>Current booking distribution</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1">
                   <div className="space-y-3">
                     {Object.entries(analyticsData.bookingsByStatus).map(([status, count]) => (
                       <div key={status} className="flex items-center justify-between">
@@ -1335,14 +1335,14 @@ function SuperAdminDashboardContent() {
               </Card>
 
               {/* Top Destinations */}
-              <Card className="hover-lift bg-card">
+              <Card className="hover-lift bg-card h-full flex flex-col">
                 <CardHeader>
                   <CardTitle>Top Destinations</CardTitle>
                   <CardDescription>Most popular destinations</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {analyticsData.topDestinations.map((dest, index) => (
+                <CardContent className="flex-1">
+                  <div className="space-y-2">
+                    {analyticsData.topDestinations.slice(0, 4).map((dest, index) => (
                       <div key={dest.destination} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-muted-foreground w-6">#{index + 1}</span>
@@ -2128,7 +2128,7 @@ function SuperAdminDashboardContent() {
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>User ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -2166,7 +2166,7 @@ function SuperAdminDashboardContent() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Name *</Label>
                   <Input defaultValue={selectedItem?.name || ""} id="user-name" />
@@ -2221,18 +2221,18 @@ function SuperAdminDashboardContent() {
 
       {/* Admin Dialog */}
       <Dialog open={dialogType === "admin" && dialogAction !== null} onOpenChange={(open) => !open && (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-xl sm:text-2xl">
               {dialogAction === "view" ? "Admin Details" : "Edit Admin"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               {dialogAction === "view" ? "View admin information" : "Update admin details"}
             </DialogDescription>
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Admin ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -2269,7 +2269,7 @@ function SuperAdminDashboardContent() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Name *</Label>
                   <Input defaultValue={selectedItem?.name || ""} id="admin-name" />

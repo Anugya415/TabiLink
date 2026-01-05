@@ -154,7 +154,7 @@ export default function UsersContent() {
                 Super Admin Dashboard
               </p>
             </div>
-            <h1 className="text-3xl font-bold">User Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">User Management</h1>
             <p className="text-muted-foreground">Manage user roles and permissions</p>
           </div>
         </div>
@@ -312,18 +312,18 @@ export default function UsersContent() {
 
       {/* User Dialog */}
       <Dialog open={dialogType === "user" && dialogAction !== null} onOpenChange={(open) => !open && (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-xl sm:text-2xl">
               {dialogAction === "add" ? "Add New User" : dialogAction === "view" ? "User Details" : "Edit User"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               {dialogAction === "add" ? "Create a new user account" : dialogAction === "view" ? "View user information" : "Update user details"}
             </DialogDescription>
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>User ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -355,13 +355,13 @@ export default function UsersContent() {
                   <p className="text-sm text-foreground">{selectedItem?.lastLogin ? new Date(selectedItem.lastLogin).toLocaleString() : "N/A"}</p>
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Close</Button>
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Close</Button>
               </div>
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Name *</Label>
                   <Input defaultValue={selectedItem?.name || ""} id="user-name" />
@@ -387,9 +387,9 @@ export default function UsersContent() {
                   <Input type="datetime-local" defaultValue={selectedItem?.lastLogin ? new Date(selectedItem.lastLogin).toISOString().slice(0, 16) : ""} id="user-login" />
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button onClick={() => {
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
+                <Button className="w-full sm:w-auto" onClick={() => {
                   const name = (document.getElementById("user-name") as HTMLInputElement)?.value
                   const email = (document.getElementById("user-email") as HTMLInputElement)?.value
                   const role = (document.getElementById("user-role") as HTMLSelectElement)?.value as "user" | "admin" | "super_admin"

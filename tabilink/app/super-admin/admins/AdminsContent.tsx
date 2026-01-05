@@ -33,7 +33,7 @@ export default function AdminsContent() {
   const [users, setUsers] = useState<User[]>([])
   const [adminSearch, setAdminSearch] = useState("")
   const [dialogType, setDialogType] = useState<string | null>(null)
-  const [dialogAction, setDialogAction] = useState<"view" | "edit" | null>(null)
+  const [dialogAction, setDialogAction] = useState<"add" | "view" | "edit" | null>(null)
   const [selectedItem, setSelectedItem] = useState<any>(null)
 
   // Load comprehensive mock users
@@ -105,7 +105,7 @@ export default function AdminsContent() {
                 Super Admin Dashboard
               </p>
             </div>
-            <h1 className="text-3xl font-bold">Admin Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Admin Management</h1>
             <p className="text-muted-foreground">Manage admin accounts and permissions</p>
           </div>
         </div>
@@ -150,27 +150,27 @@ export default function AdminsContent() {
 
           <Card className="hover-lift bg-card">
             <CardHeader>
-              <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle>Admin Management</CardTitle>
-                  <CardDescription>Manage admin accounts and permissions ({filteredAdmins.length} admins)</CardDescription>
+                  <CardTitle className="text-xl sm:text-2xl">Admin Management</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">Manage admin accounts and permissions ({filteredAdmins.length} admins)</CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                  <div className="relative w-full sm:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       placeholder="Search admins..."
-                      className="w-64 pl-10"
+                      className="w-full pl-10"
                       value={adminSearch}
                       onChange={(e) => setAdminSearch(e.target.value)}
                     />
                   </div>
                   <Button
-                    className="hover-lift"
+                    className="hover-lift w-full sm:w-auto"
                     onClick={() => {
-                      toast.success("Create Admin", {
-                        description: "Admin creation form would open here",
-                      })
+                      setSelectedItem(null)
+                      setDialogType("admin")
+                      setDialogAction("add")
                     }}
                   >
                     <Shield className="h-4 w-4 mr-2" />
@@ -190,30 +190,30 @@ export default function AdminsContent() {
                   filteredAdmins.map((admin) => (
                     <div
                       key={admin.id}
-                      className="flex items-center justify-between p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
                     >
-                      <div className="space-y-1 flex-1">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-1 flex-1 w-full sm:w-auto">
+                        <div className="flex flex-wrap items-center gap-2">
                           {admin.role === "super_admin" ? (
                             <Crown className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                           ) : (
                             <Shield className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                           )}
-                          <span className="font-semibold text-foreground">{admin.name}</span>
+                          <span className="font-semibold text-foreground text-sm sm:text-base">{admin.name}</span>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[admin.role]}`}>
                             {admin.role.replace("_", " ").toUpperCase()}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">{admin.email}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground break-words">{admin.email}</p>
                         <p className="text-xs text-muted-foreground">
                           Created: {new Date(admin.createdAt).toLocaleDateString()} • Last login: {admin.lastLogin ? new Date(admin.lastLogin).toLocaleString() : "Never"}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <Select
                           value={admin.role}
                           onChange={(e) => handleRoleChange(admin.id, e.target.value as UserRole)}
-                          className="w-36"
+                          className="w-full sm:w-36"
                           disabled={admin.role === "super_admin" && admin.id === user?.id}
                         >
                           <option value="admin">Admin</option>
@@ -222,7 +222,7 @@ export default function AdminsContent() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="hover-lift"
+                          className="hover-lift flex-1 sm:flex-initial"
                           onClick={() => {
                             setSelectedItem(admin)
                             setDialogType("admin")
@@ -234,7 +234,7 @@ export default function AdminsContent() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="hover-lift"
+                          className="hover-lift flex-1 sm:flex-initial"
                           onClick={() => {
                             setSelectedItem(admin)
                             setDialogType("admin")
@@ -246,6 +246,7 @@ export default function AdminsContent() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="hover-lift"
                           onClick={() => {
                             if (admin.id === user?.id) {
                               toast.error("Cannot delete", {
@@ -275,18 +276,18 @@ export default function AdminsContent() {
 
       {/* Admin Dialog */}
       <Dialog open={dialogType === "admin" && dialogAction !== null} onOpenChange={(open) => !open && (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
           <DialogHeader>
-            <DialogTitle>
-              {dialogAction === "view" ? "Admin Details" : "Edit Admin"}
+            <DialogTitle className="text-xl sm:text-2xl">
+              {dialogAction === "view" ? "Admin Details" : dialogAction === "add" ? "Create New Admin" : "Edit Admin"}
             </DialogTitle>
-            <DialogDescription>
-              {dialogAction === "view" ? "View admin information" : "Update admin details"}
+            <DialogDescription className="text-xs sm:text-sm">
+              {dialogAction === "view" ? "View admin information" : dialogAction === "add" ? "Create a new admin account" : "Update admin details"}
             </DialogDescription>
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Admin ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -317,20 +318,20 @@ export default function AdminsContent() {
                   <p className="text-sm text-foreground">{selectedItem?.lastLogin ? new Date(selectedItem.lastLogin).toLocaleString() : "N/A"}</p>
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Close</Button>
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Close</Button>
               </div>
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Name *</Label>
-                  <Input defaultValue={selectedItem?.name || ""} id="admin-name" />
+                  <Input defaultValue={selectedItem?.name || ""} id="admin-name" placeholder="Enter admin name" />
                 </div>
                 <div className="space-y-2">
                   <Label>Email *</Label>
-                  <Input type="email" defaultValue={selectedItem?.email || ""} id="admin-email" />
+                  <Input type="email" defaultValue={selectedItem?.email || ""} id="admin-email" placeholder="admin@example.com" />
                 </div>
                 <div className="space-y-2">
                   <Label>Role *</Label>
@@ -339,6 +340,8 @@ export default function AdminsContent() {
                     <option value="super_admin">Super Admin</option>
                   </Select>
                 </div>
+                {dialogAction === "edit" && (
+                  <>
                 <div className="space-y-2">
                   <Label>Created At</Label>
                   <Input type="datetime-local" defaultValue={selectedItem?.createdAt ? new Date(selectedItem.createdAt).toISOString().slice(0, 16) : ""} id="admin-created" />
@@ -347,18 +350,50 @@ export default function AdminsContent() {
                   <Label>Last Login</Label>
                   <Input type="datetime-local" defaultValue={selectedItem?.lastLogin ? new Date(selectedItem.lastLogin).toISOString().slice(0, 16) : ""} id="admin-login" />
                 </div>
+                  </>
+                )}
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button onClick={() => {
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
+                <Button className="w-full sm:w-auto" onClick={() => {
                   const name = (document.getElementById("admin-name") as HTMLInputElement)?.value
                   const email = (document.getElementById("admin-email") as HTMLInputElement)?.value
                   const role = (document.getElementById("admin-role") as HTMLSelectElement)?.value as "admin" | "super_admin"
+                  
+                  // Validation
+                  if (!name || !email) {
+                    toast.error("Validation Error", {
+                      description: "Name and email are required fields",
+                    })
+                    return
+                  }
+
+                  // Check if email already exists
+                  if (dialogAction === "add" && users.some(u => u.email === email)) {
+                    toast.error("Email Already Exists", {
+                      description: "An admin with this email already exists",
+                    })
+                    return
+                  }
+
+                  if (dialogAction === "add") {
+                    const newId = `admin-${Date.now()}`
+                    const newAdmin: User = {
+                      id: newId,
+                      name,
+                      email,
+                      role,
+                      createdAt: new Date().toISOString(),
+                      lastLogin: new Date().toISOString(),
+                    }
+                    setUsers([...users, newAdmin])
+                    toast.success("Admin created", { description: `New admin ${name} has been created successfully` })
+                  } else {
                   const createdAt = (document.getElementById("admin-created") as HTMLInputElement)?.value
                   const lastLogin = (document.getElementById("admin-login") as HTMLInputElement)?.value
-
                   setUsers(users.map(u => u.id === selectedItem?.id ? { ...u, name, email, role, createdAt: createdAt ? new Date(createdAt).toISOString() : u.createdAt, lastLogin: lastLogin ? new Date(lastLogin).toISOString() : u.lastLogin } : u))
                   toast.success("Admin updated", { description: `Admin ${name} has been updated` })
+                  }
                   setDialogType(null)
                   setDialogAction(null)
                   setSelectedItem(null)

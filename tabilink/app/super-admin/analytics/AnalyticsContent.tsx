@@ -64,7 +64,7 @@ export default function AnalyticsContent() {
                 Super Admin Dashboard
               </p>
             </div>
-            <h1 className="text-3xl font-bold">Analytics</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
             <p className="text-muted-foreground">Comprehensive system metrics</p>
           </div>
         </div>
@@ -150,12 +150,12 @@ export default function AnalyticsContent() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Bookings by Status */}
-            <Card className="hover-lift bg-card">
+            <Card className="hover-lift bg-card h-full flex flex-col">
               <CardHeader>
                 <CardTitle>Bookings by Status</CardTitle>
                 <CardDescription>Current booking distribution</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 <div className="space-y-3">
                   {Object.entries(analyticsData.bookingsByStatus).map(([status, count]) => (
                     <div key={status} className="flex items-center justify-between">
@@ -181,14 +181,14 @@ export default function AnalyticsContent() {
             </Card>
 
             {/* Top Destinations */}
-            <Card className="hover-lift bg-card">
+            <Card className="hover-lift bg-card h-full flex flex-col">
               <CardHeader>
                 <CardTitle>Top Destinations</CardTitle>
                 <CardDescription>Most popular destinations</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {analyticsData.topDestinations.map((dest, index) => (
+              <CardContent className="flex-1">
+                <div className="space-y-2">
+                  {analyticsData.topDestinations.slice(0, 4).map((dest, index) => (
                     <div key={dest.destination} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-muted-foreground w-6">#{index + 1}</span>

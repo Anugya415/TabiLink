@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useRole } from "@/contexts/RoleContext"
 import {
   Card,
@@ -9,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import {
   Users,
   Shield,
@@ -17,16 +15,12 @@ import {
   Activity,
   CheckCircle2,
   Crown,
-  BarChart3,
-  Settings,
   DollarSign,
   Calendar,
 } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 export default function OverviewContent() {
   const { user } = useRole()
-  const router = useRouter()
 
   const systemStats = [
     {
@@ -121,13 +115,13 @@ export default function OverviewContent() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Crown className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+              <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-600 dark:text-yellow-400" />
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary">
                 Super Admin Dashboard
               </p>
             </div>
-            <h1 className="text-3xl font-bold">System Administration</h1>
-            <p className="text-muted-foreground">Full system control and management</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">System Administration</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Full system control and management</p>
           </div>
         </div>
       </div>
@@ -198,11 +192,11 @@ export default function OverviewContent() {
           {/* System Status */}
           <Card className="hover-lift bg-card">
             <CardHeader>
-              <CardTitle>System Status</CardTitle>
-              <CardDescription>Real-time system health monitoring</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">System Status</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Real-time system health monitoring</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 p-4 rounded-lg border bg-muted/50">
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                   <div>
@@ -229,15 +223,14 @@ export default function OverviewContent() {
           </Card>
 
           {/* Recent Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="hover-lift bg-card">
               <CardHeader>
                 <CardTitle>Recent System Logs</CardTitle>
                 <CardDescription>Latest system events and activities</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {systemLogs.slice(0, 5).map((log) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {systemLogs.slice(0, 4).map((log) => (
                     <div
                       key={log.id}
                       className="flex items-start gap-3 p-3 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
@@ -276,48 +269,6 @@ export default function OverviewContent() {
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="hover-lift bg-card">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>Common administrative tasks</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start hover-lift"
-                  onClick={() => router.push("/super-admin/users")}
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Manage Users
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start hover-lift"
-                  onClick={() => router.push("/super-admin/admins")}
-                >
-                  <Shield className="h-4 w-4 mr-2" />
-                  Manage Admins
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start hover-lift"
-                  onClick={() => router.push("/super-admin/analytics")}
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  View Analytics
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start hover-lift"
-                  onClick={() => router.push("/super-admin/settings")}
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  System Settings
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

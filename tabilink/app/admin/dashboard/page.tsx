@@ -33,6 +33,11 @@ import {
   Search,
   Filter,
   Star,
+  Lock,
+  UserCheck,
+  AlertCircle,
+  BookOpen,
+  Mail,
 } from "lucide-react"
 import { toast } from "sonner"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
@@ -1027,12 +1032,12 @@ function AdminDashboardContent() {
 
             {/* Bookings by Status */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="hover-lift bg-card">
+              <Card className="hover-lift bg-card h-full flex flex-col">
                 <CardHeader>
                   <CardTitle>Bookings by Status</CardTitle>
                   <CardDescription>Current booking distribution</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1">
                   <div className="space-y-3">
                     {Object.entries(analyticsData.bookingsByStatus).map(([status, count]) => (
                       <div key={status} className="flex items-center justify-between">
@@ -1057,14 +1062,14 @@ function AdminDashboardContent() {
                 </CardContent>
               </Card>
 
-              <Card className="hover-lift bg-card">
+              <Card className="hover-lift bg-card h-full flex flex-col">
                 <CardHeader>
                   <CardTitle>Top Destinations</CardTitle>
                   <CardDescription>Most popular destinations</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {analyticsData.topDestinations.map((dest, index) => (
+                <CardContent className="flex-1">
+                  <div className="space-y-2">
+                    {analyticsData.topDestinations.slice(0, 4).map((dest, index) => (
                       <div key={dest.destination} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-muted-foreground w-6">#{index + 1}</span>
@@ -1179,7 +1184,7 @@ function AdminDashboardContent() {
                 Admin Dashboard
               </p>
             </div>
-            <h1 className="text-3xl font-bold">Welcome back, {user?.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Welcome back, {user?.name}</h1>
             <p className="text-muted-foreground">
               Manage your platform and monitor activities
             </p>
@@ -1195,241 +1200,377 @@ function AdminDashboardContent() {
       {/* Configuration Dialogs */}
       {/* Email Notifications Dialog */}
       <Dialog open={openDialog === "email"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">Email Notifications</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
+          <DialogHeader className="space-y-3 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-yellow-100 dark:bg-yellow-900/20">
+                <Bell className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-2xl font-bold">Email Notifications</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-1">
               Configure email alert settings for important events
             </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <div className="space-y-6 py-4 overflow-x-hidden">
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-foreground">Notification Types</Label>
-              <div className="grid gap-3">
-                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
+          <div className="space-y-8">
+            {/* Notification Types */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                <h3 className="text-base font-semibold text-foreground">Notification Types</h3>
+              </div>
+              <div className="space-y-2 pl-6">
+                <label className="relative flex items-start gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-yellow-300 dark:hover:border-yellow-700 hover:bg-yellow-50/50 dark:hover:bg-yellow-950/20 transition-all cursor-pointer group">
                     <input 
                       type="checkbox" 
                       id="email-booking" 
                       defaultChecked 
-                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
-                    />
-                    <Label htmlFor="email-booking" className="text-base font-medium text-foreground cursor-pointer">
-                      New booking confirmations
-                    </Label>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
+                    className="absolute top-4 left-4 h-5 w-5 rounded-md border-2 border-border bg-background text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
+                  />
+                  <span className="text-sm font-medium text-foreground group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors pl-7">New booking confirmations</span>
+                </label>
+                <label className="relative flex items-start gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-yellow-300 dark:hover:border-yellow-700 hover:bg-yellow-50/50 dark:hover:bg-yellow-950/20 transition-all cursor-pointer group">
                     <input 
                       type="checkbox" 
                       id="email-cancellation" 
                       defaultChecked 
-                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
-                    />
-                    <Label htmlFor="email-cancellation" className="text-base font-medium text-foreground cursor-pointer">
-                      Booking cancellations
-                    </Label>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
+                    className="absolute top-4 left-4 h-5 w-5 rounded-md border-2 border-border bg-background text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
+                  />
+                  <span className="text-sm font-medium text-foreground group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors pl-7">Booking cancellations</span>
+                </label>
+                <label className="relative flex items-start gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-yellow-300 dark:hover:border-yellow-700 hover:bg-yellow-50/50 dark:hover:bg-yellow-950/20 transition-all cursor-pointer group">
                     <input 
                       type="checkbox" 
                       id="email-payment" 
                       defaultChecked 
-                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
-                    />
-                    <Label htmlFor="email-payment" className="text-base font-medium text-foreground cursor-pointer">
-                      Payment failures
-                    </Label>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
+                    className="absolute top-4 left-4 h-5 w-5 rounded-md border-2 border-border bg-background text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
+                  />
+                  <span className="text-sm font-medium text-foreground group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors pl-7">Payment failures</span>
+                </label>
+                <label className="relative flex items-start gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-yellow-300 dark:hover:border-yellow-700 hover:bg-yellow-50/50 dark:hover:bg-yellow-950/20 transition-all cursor-pointer group">
                     <input 
                       type="checkbox" 
                       id="email-user" 
-                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
+                    className="absolute top-4 left-4 h-5 w-5 rounded-md border-2 border-border bg-background text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                     />
-                    <Label htmlFor="email-user" className="text-base font-medium text-foreground cursor-pointer">
-                      New user registrations
-                    </Label>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-5 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-foreground group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors pl-7">New user registrations</span>
+                </label>
+                <label className="relative flex items-start gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-yellow-300 dark:hover:border-yellow-700 hover:bg-yellow-50/50 dark:hover:bg-yellow-950/20 transition-all cursor-pointer group">
                     <input 
                       type="checkbox" 
                       id="email-system" 
                       defaultChecked 
-                      className="h-5 w-5 rounded border-2 border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0" 
+                    className="absolute top-4 left-4 h-5 w-5 rounded-md border-2 border-border bg-background text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                     />
-                    <Label htmlFor="email-system" className="text-base font-medium text-foreground cursor-pointer">
-                      System alerts
-                    </Label>
+                  <span className="text-sm font-medium text-foreground group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors pl-7">System alerts</span>
+                </label>
                   </div>
                 </div>
+
+            <div className="border-t border-border"></div>
+
+            {/* Email Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  <Label className="text-sm font-semibold text-foreground">Email Frequency</Label>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Email Frequency</Label>
-              <Select defaultValue="realtime" className="w-full min-w-0">
+                <Select defaultValue="realtime" className="w-full">
                 <option value="realtime">Real-time</option>
                 <option value="hourly">Hourly digest</option>
                 <option value="daily">Daily digest</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Admin Email Address</Label>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  <Label className="text-sm font-semibold text-foreground">Admin Email Address</Label>
+                </div>
               <Input 
                 type="email" 
                 placeholder="admin@tabilink.com" 
                 defaultValue="admin@tabilink.com" 
-                className="w-full min-w-0"
+                  className="w-full"
               />
             </div>
-            <div className="flex justify-end gap-3 pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => setOpenDialog(null)}>Cancel</Button>
-              <Button onClick={() => {
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 mt-6 border-t border-border">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setOpenDialog(null)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700" onClick={() => {
                 toast.success("Settings saved", { description: "Email notification settings have been updated" })
                 setOpenDialog(null)
               }}>Save Changes</Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* System Preferences Dialog */}
       <Dialog open={openDialog === "system"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>System Preferences</DialogTitle>
-            <DialogDescription>
-              Manage system-wide settings and defaults
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
+          <DialogHeader className="space-y-4 pb-8">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-200/50 dark:border-blue-800/50">
+                <Settings className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1">
+                <DialogTitle className="text-3xl font-bold mb-2">System Preferences</DialogTitle>
+                <DialogDescription className="text-base text-muted-foreground">
+                  Manage system-wide settings and defaults for your platform
             </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Default Currency</Label>
-              <Select defaultValue="USD">
+          
+          <div className="space-y-10">
+            {/* Regional Settings Card */}
+            <div className="space-y-5">
+              <div className="flex items-center gap-3 pb-3 border-b border-border/50">
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                  <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">Regional Settings</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                    Default Currency
+                  </Label>
+                  <Select defaultValue="USD" className="w-full h-11">
                 <option value="USD">USD - US Dollar</option>
                 <option value="EUR">EUR - Euro</option>
                 <option value="GBP">GBP - British Pound</option>
                 <option value="INR">INR - Indian Rupee</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Default Language</Label>
-              <Select defaultValue="en">
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    Default Language
+                  </Label>
+                  <Select defaultValue="en" className="w-full h-11">
                 <option value="en">English</option>
                 <option value="hi">Hindi</option>
                 <option value="es">Spanish</option>
                 <option value="fr">French</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Time Zone</Label>
-              <Select defaultValue="UTC">
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    Time Zone
+                  </Label>
+                  <Select defaultValue="UTC" className="w-full h-11">
                 <option value="UTC">UTC</option>
                 <option value="EST">EST - Eastern Time</option>
                 <option value="PST">PST - Pacific Time</option>
                 <option value="IST">IST - Indian Standard Time</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Session Timeout (minutes)</Label>
-              <Input type="number" defaultValue="30" min="5" max="480" />
             </div>
-            <div className="flex items-start gap-3">
+            </div>
+
+            {/* System Configuration Card */}
+            <div className="space-y-5">
+              <div className="flex items-center gap-3 pb-3 border-b border-border/50">
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                  <Settings className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">System Configuration</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    Session Timeout (minutes)
+                  </Label>
+                  <Input type="number" defaultValue="30" min="5" max="480" className="w-full h-11" />
+                  <p className="text-xs text-muted-foreground">Set the idle timeout before automatic logout</p>
+                </div>
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                    System Status
+                  </Label>
+                  <div className="flex items-center gap-2 h-11 px-4 rounded-lg border border-border bg-muted/30">
+                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm font-medium text-foreground">Operational</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* System Options Card */}
+            <div className="space-y-5">
+              <div className="flex items-center gap-3 pb-3 border-b border-border/50">
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">System Options</h3>
+              </div>
+              <div className="space-y-3">
+                <label className="flex items-start gap-3 p-5 rounded-xl border-2 border-border bg-card hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-all cursor-pointer group">
+                  <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors flex-shrink-0 mt-0.5">
+                    <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Enable maintenance mode</span>
+                      <div className="relative flex items-center justify-center">
               <input 
                 type="checkbox" 
                 id="maintenance-mode" 
-                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                          className="peer h-7 w-9 appearance-none rounded-lg border-3 border-blue-400 dark:border-blue-500 bg-white dark:bg-gray-800 cursor-pointer transition-all duration-200 checked:bg-blue-600 checked:border-blue-600 hover:border-blue-500 dark:hover:border-blue-400 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md" 
               />
-              <Label htmlFor="maintenance-mode" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                Enable maintenance mode
-              </Label>
+                        <svg className="absolute h-5 w-5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
             </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setOpenDialog(null)}>Cancel</Button>
-              <Button onClick={() => {
+                    </div>
+                    <span className="text-xs text-muted-foreground block mt-1">Temporarily disable access for system updates</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-8 mt-8 border-t border-border">
+            <Button variant="outline" className="w-full sm:w-auto h-11" onClick={() => setOpenDialog(null)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 h-11" onClick={() => {
                 toast.success("Settings saved", { description: "System preferences have been updated" })
                 setOpenDialog(null)
               }}>Save Changes</Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Booking Rules Dialog */}
       <Dialog open={openDialog === "booking"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Booking Rules</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
+          <DialogHeader className="space-y-3 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/20">
+                <BookOpen className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-2xl font-bold">Booking Rules</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-1">
               Configure booking policies and restrictions
             </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-8">
+            {/* Booking Limits */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-base font-semibold text-foreground">Booking Limits</h3>
+            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
             <div className="space-y-2">
-              <Label>Maximum Advance Booking (days)</Label>
-              <Input type="number" defaultValue="365" min="30" max="730" />
+                  <Label className="text-sm font-medium text-foreground">Maximum Advance Booking (days)</Label>
+                  <Input type="number" defaultValue="365" min="30" max="730" className="w-full" />
             </div>
             <div className="space-y-2">
-              <Label>Minimum Booking Duration (nights)</Label>
-              <Input type="number" defaultValue="1" min="1" max="30" />
+                  <Label className="text-sm font-medium text-foreground">Minimum Booking Duration (nights)</Label>
+                  <Input type="number" defaultValue="1" min="1" max="30" className="w-full" />
             </div>
-            <div className="space-y-2">
-              <Label>Maximum Travelers per Booking</Label>
-              <Input type="number" defaultValue="10" min="1" max="50" />
+              </div>
+              <div className="space-y-2 pl-6">
+                <Label className="text-sm font-medium text-foreground">Maximum Travelers per Booking</Label>
+                <Input type="number" defaultValue="10" min="1" max="50" className="w-full" />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Cancellation Policy</Label>
-              <Select defaultValue="flexible">
+
+            <div className="border-t border-border"></div>
+
+            {/* Cancellation & Deposit */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  <Label className="text-sm font-semibold text-foreground">Cancellation Policy</Label>
+                </div>
+                <Select defaultValue="flexible" className="w-full">
                 <option value="flexible">Flexible - Free cancellation</option>
                 <option value="moderate">Moderate - 50% refund</option>
                 <option value="strict">Strict - No refund</option>
               </Select>
             </div>
-            <div className="flex items-start gap-3">
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  <Label className="text-sm font-semibold text-foreground">Deposit Percentage</Label>
+                </div>
+                <Input type="number" defaultValue="20" min="0" max="100" className="w-full" />
+              </div>
+            </div>
+
+            <div className="border-t border-border"></div>
+
+            {/* Deposit Requirement */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-base font-semibold text-foreground">Deposit Settings</h3>
+              </div>
+              <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all cursor-pointer group pl-6">
               <input 
                 type="checkbox" 
                 id="require-deposit" 
                 defaultChecked 
-                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                  className="h-5 w-5 rounded-md border-2 border-border bg-background text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
               />
-              <Label htmlFor="require-deposit" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                Require deposit for bookings
-              </Label>
+                <span className="text-sm font-medium text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Require deposit for bookings</span>
+              </label>
             </div>
-            <div className="space-y-2">
-              <Label>Deposit Percentage</Label>
-              <Input type="number" defaultValue="20" min="0" max="100" />
             </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setOpenDialog(null)}>Cancel</Button>
-              <Button onClick={() => {
+
+          {/* Action Buttons */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 mt-6 border-t border-border">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setOpenDialog(null)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700" onClick={() => {
                 toast.success("Settings saved", { description: "Booking rules have been updated" })
                 setOpenDialog(null)
               }}>Save Changes</Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Payment Settings Dialog */}
       <Dialog open={openDialog === "payment"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">Payment Settings</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
+          <DialogHeader className="space-y-3 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-orange-100 dark:bg-orange-900/20">
+                <CreditCard className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-2xl font-bold">Payment Settings</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-1">
               Manage payment gateways and processing methods
             </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <div className="space-y-6 py-4 overflow-x-hidden">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Primary Payment Gateway</Label>
+          <div className="space-y-8">
+            {/* Payment Gateway */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <Label className="text-sm font-semibold text-foreground">Primary Payment Gateway</Label>
+              </div>
+              <div className="pl-6">
               <Select defaultValue="stripe" className="w-full">
                 <option value="stripe">Stripe</option>
                 <option value="paypal">PayPal</option>
@@ -1437,200 +1578,257 @@ function AdminDashboardContent() {
                 <option value="square">Square</option>
               </Select>
             </div>
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-foreground">Accepted Payment Methods</Label>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
+            </div>
+
+            <div className="border-t border-border"></div>
+
+            {/* Accepted Payment Methods */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <h3 className="text-base font-semibold text-foreground">Accepted Payment Methods</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6">
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-orange-300 dark:hover:border-orange-700 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pm-credit" 
                     defaultChecked 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pm-credit" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    Credit Card
-                  </Label>
-                </div>
-                <div className="flex items-start gap-3">
+                  <span className="text-sm font-medium text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Credit Card</span>
+                </label>
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-orange-300 dark:hover:border-orange-700 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pm-debit" 
                     defaultChecked 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pm-debit" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    Debit Card
-                  </Label>
-                </div>
-                <div className="flex items-start gap-3">
+                  <span className="text-sm font-medium text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Debit Card</span>
+                </label>
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-orange-300 dark:hover:border-orange-700 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pm-paypal" 
                     defaultChecked 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pm-paypal" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    PayPal
-                  </Label>
-                </div>
-                <div className="flex items-start gap-3">
+                  <span className="text-sm font-medium text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">PayPal</span>
+                </label>
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-orange-300 dark:hover:border-orange-700 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pm-bank" 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pm-bank" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    Bank Transfer
-                  </Label>
+                  <span className="text-sm font-medium text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Bank Transfer</span>
+                </label>
                 </div>
               </div>
+
+            <div className="border-t border-border"></div>
+
+            {/* Refund Settings */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                  <Label className="text-sm font-semibold text-foreground">Auto-refund on Cancellation</Label>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Auto-refund on Cancellation</Label>
               <Select defaultValue="enabled" className="w-full">
                 <option value="enabled">Enabled</option>
                 <option value="disabled">Disabled</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Refund Processing Time (days)</Label>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                  <Label className="text-sm font-semibold text-foreground">Refund Processing Time (days)</Label>
+                </div>
               <Input type="number" defaultValue="5" min="1" max="30" className="w-full" />
             </div>
-            <div className="flex items-start gap-3">
+            </div>
+
+            <div className="border-t border-border"></div>
+
+            {/* Invoice Settings */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <h3 className="text-base font-semibold text-foreground">Invoice Settings</h3>
+              </div>
+              <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-orange-300 dark:hover:border-orange-700 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all cursor-pointer group pl-6">
               <input 
                 type="checkbox" 
                 id="enable-invoice" 
                 defaultChecked 
-                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                  className="h-5 w-5 rounded-md border-2 border-border bg-background text-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
               />
-              <Label htmlFor="enable-invoice" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                Auto-generate invoices
-              </Label>
+                <span className="text-sm font-medium text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Auto-generate invoices</span>
+              </label>
             </div>
-            <div className="flex justify-end gap-3 pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => setOpenDialog(null)}>Cancel</Button>
-              <Button onClick={() => {
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 mt-6 border-t border-border">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setOpenDialog(null)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700" onClick={() => {
                 toast.success("Settings saved", { description: "Payment settings have been updated" })
                 setOpenDialog(null)
               }}>Save Changes</Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Security Settings Dialog */}
       <Dialog open={openDialog === "security"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">Security Settings</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
+          <DialogHeader className="space-y-3 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-900/20">
+                <Shield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-2xl font-bold">Security Settings</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-1">
               Manage access controls and security policies
             </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <div className="space-y-6 py-4 overflow-x-hidden">
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-foreground">Password Requirements</Label>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
+          <div className="space-y-8">
+            {/* Password Requirements */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <h3 className="text-base font-semibold text-foreground">Password Requirements</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6">
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pw-min-length" 
                     defaultChecked 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pw-min-length" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    Minimum 8 characters
-                  </Label>
-                </div>
-                <div className="flex items-start gap-3">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Minimum 8 characters</span>
+                </label>
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pw-uppercase" 
                     defaultChecked 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pw-uppercase" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    Require uppercase letter
-                  </Label>
-                </div>
-                <div className="flex items-start gap-3">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Require uppercase</span>
+                </label>
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pw-number" 
                     defaultChecked 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pw-number" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    Require number
-                  </Label>
-                </div>
-                <div className="flex items-start gap-3">
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Require number</span>
+                </label>
+                <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 transition-all cursor-pointer group">
                   <input 
                     type="checkbox" 
                     id="pw-special" 
-                    className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                    className="h-5 w-5 rounded-md border-2 border-border bg-background text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
                   />
-                  <Label htmlFor="pw-special" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                    Require special character
-                  </Label>
+                  <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Require special char</span>
+                </label>
                 </div>
               </div>
+
+            <div className="border-t border-border"></div>
+
+            {/* Authentication & Session Settings */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <Label className="text-sm font-semibold text-foreground">Two-Factor Authentication</Label>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Two-Factor Authentication</Label>
               <Select defaultValue="optional" className="w-full">
                 <option value="optional">Optional</option>
                 <option value="required">Required for admins</option>
                 <option value="all">Required for all users</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Session Timeout (minutes)</Label>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <Label className="text-sm font-semibold text-foreground">Session Timeout (minutes)</Label>
+                </div>
               <Input type="number" defaultValue="30" min="5" max="480" className="w-full" />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Maximum Login Attempts</Label>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <Label className="text-sm font-semibold text-foreground">Maximum Login Attempts</Label>
+                </div>
               <Input type="number" defaultValue="5" min="3" max="10" className="w-full" />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Lockout Duration (minutes)</Label>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <Label className="text-sm font-semibold text-foreground">Lockout Duration (minutes)</Label>
+                </div>
               <Input type="number" defaultValue="15" min="5" max="120" className="w-full" />
             </div>
-            <div className="flex items-start gap-3">
+            </div>
+
+            <div className="border-t border-border"></div>
+
+            {/* Advanced Security */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <Label className="text-sm font-semibold text-foreground">Advanced Security</Label>
+              </div>
+              <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border bg-card hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 transition-all cursor-pointer group pl-6">
               <input 
                 type="checkbox" 
                 id="ip-whitelist" 
-                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer flex-shrink-0 mt-0.5" 
+                  className="h-5 w-5 rounded-md border-2 border-border bg-background text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 transition-all" 
               />
-              <Label htmlFor="ip-whitelist" className="text-sm font-normal text-foreground cursor-pointer leading-5 break-words flex-1">
-                Enable IP whitelist
-              </Label>
+                <span className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Enable IP Whitelist</span>
+              </label>
             </div>
-            <div className="flex justify-end gap-3 pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => setOpenDialog(null)}>Cancel</Button>
-              <Button onClick={() => {
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 mt-6 border-t border-border">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setOpenDialog(null)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700" onClick={() => {
                 toast.success("Settings saved", { description: "Security settings have been updated" })
                 setOpenDialog(null)
               }}>Save Changes</Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Booking Dialog */}
       <Dialog open={dialogType === "booking" && dialogAction !== null} onOpenChange={(open) => !open && (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-xl sm:text-2xl">
               {dialogAction === "add" ? "Add New Booking" : dialogAction === "view" ? "Booking Details" : "Edit Booking"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               {dialogAction === "add" ? "Create a new booking entry" : dialogAction === "view" ? "View booking information" : "Update booking details"}
             </DialogDescription>
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Booking ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -1688,7 +1886,7 @@ function AdminDashboardContent() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Customer Name *</Label>
                   <Input defaultValue={selectedItem?.customer || ""} id="booking-customer" />
@@ -1780,7 +1978,7 @@ function AdminDashboardContent() {
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>User ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -1829,7 +2027,7 @@ function AdminDashboardContent() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Name *</Label>
                   <Input defaultValue={selectedItem?.name || ""} id="user-name" />
@@ -1912,7 +2110,7 @@ function AdminDashboardContent() {
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Hotel ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -1961,7 +2159,7 @@ function AdminDashboardContent() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Hotel Name *</Label>
                   <Input defaultValue={selectedItem?.name || ""} id="hotel-name" />
@@ -2041,7 +2239,7 @@ function AdminDashboardContent() {
           </DialogHeader>
           {dialogAction === "view" ? (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Package ID</Label>
                   <p className="text-sm font-medium text-foreground">{selectedItem?.id}</p>
@@ -2086,7 +2284,7 @@ function AdminDashboardContent() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Package Name *</Label>
                   <Input defaultValue={selectedItem?.name || ""} id="package-name" />

@@ -308,7 +308,7 @@ function SidebarContent() {
         className={cn(
           "fixed left-0 top-0 h-screen bg-background/95 backdrop-blur border-r z-40 transition-all duration-300 ease-in-out shadow-lg",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-          isOpen && !isMobile ? "w-72" : "w-0 lg:w-20"
+          isMobile && isOpen ? "w-72" : isOpen && !isMobile ? "w-72" : "w-0 lg:w-20"
         )}
       >
         <div className="flex flex-col h-full">

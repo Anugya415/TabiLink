@@ -7,7 +7,6 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { useTranslation } from "@/contexts/TranslationContext"
-import { useRole, UserRole } from "@/contexts/RoleContext"
 import {
   LogIn,
   Mail,
@@ -41,34 +40,8 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>
 
-// Mock users for demo
-const mockUsers = [
-  {
-    email: "user@tabilink.com",
-    password: "User@1234",
-    role: "user" as UserRole,
-    name: "John Traveler",
-    id: "user-1",
-  },
-  {
-    email: "admin@tabilink.com",
-    password: "Admin@1234",
-    role: "admin" as UserRole,
-    name: "Admin Manager",
-    id: "admin-1",
-  },
-  {
-    email: "superadmin@tabilink.com",
-    password: "Super@1234",
-    role: "super_admin" as UserRole,
-    name: "Super Admin",
-    id: "super-admin-1",
-  },
-]
-
 export default function LoginPage() {
   const { t } = useTranslation()
-  const { setUser } = useRole()
   const router = useRouter()
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -79,42 +52,17 @@ export default function LoginPage() {
   })
 
   const onSubmit = (values: LoginValues) => {
-    // Find user in mock users
-    const foundUser = mockUsers.find(
-      (u) => u.email === values.email && u.password === values.password
-    )
-
-    if (foundUser) {
-      const userData = {
-        id: foundUser.id,
-        email: foundUser.email,
-        name: foundUser.name,
-        role: foundUser.role,
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-      }
-
-      setUser(userData)
-
-      toast.success(t("loginSuccessful"), {
-        description: t("loginSuccessfulDesc"),
-    })
-
-    form.reset(values)
-
-      // Redirect based on role
-      if (foundUser.role === "super_admin") {
-        router.push("/super-admin/overview")
-      } else if (foundUser.role === "admin") {
-        router.push("/admin/dashboard")
-      } else {
-        router.push("/dashboard")
-      }
-    } else {
-      toast.error("Invalid credentials", {
-        description: "Please check your email and password",
-      })
+    // Persist demo login so the dashboard stays unlocked
+    if (typeof window !== "undefined") {
+      localStorage.setItem("tabilinkDemoLoggedIn", "1")
+      // Notify other tabs/components in this tab
+      window.dispatchEvent(new StorageEvent("storage", { key: "tabilinkDemoLoggedIn", newValue: "1" }))
     }
+    toast.success(t("loginSuccessful"), {
+      description: t("loginSuccessfulDesc"),
+    })
+    form.reset(values)
+    router.push("/dashboard")
   }
 
   return (

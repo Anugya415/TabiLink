@@ -144,7 +144,7 @@ export default function SystemContent() {
                 Super Admin Dashboard
               </p>
             </div>
-            <h1 className="text-3xl font-bold">System Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">System Management</h1>
             <p className="text-muted-foreground">Critical system operations</p>
           </div>
         </div>
@@ -280,12 +280,12 @@ export default function SystemContent() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* System Actions */}
-            <Card className="hover-lift bg-card">
+            <Card className="hover-lift bg-card h-full flex flex-col">
               <CardHeader>
                 <CardTitle>System Actions</CardTitle>
                 <CardDescription>Critical system operations</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 flex-1">
                 <Button
                   variant="outline"
                   className="w-full justify-start hover-lift"
@@ -346,28 +346,16 @@ export default function SystemContent() {
                   <Settings className="h-4 w-4 mr-2" />
                   System Configuration
                 </Button>
-                <Button
-                  variant="destructive"
-                  className="w-full justify-start hover-lift"
-                  onClick={() => {
-                    toast.error("Emergency Shutdown", {
-                      description: "This action requires confirmation",
-                    })
-                  }}
-                >
-                  <AlertTriangle className="h-4 w-4 mr-2" />
-                  Emergency Shutdown
-                </Button>
               </CardContent>
             </Card>
 
             {/* Database Information */}
-            <Card className="hover-lift bg-card">
+            <Card className="hover-lift bg-card h-full flex flex-col">
               <CardHeader>
                 <CardTitle>Database Information</CardTitle>
                 <CardDescription>Database tables and statistics</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 <div className="space-y-3">
                   {databaseTables.map((table) => (
                     <div key={table.name} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
@@ -386,6 +374,7 @@ export default function SystemContent() {
                 </div>
               </CardContent>
             </Card>
+          </div>
 
             {/* System Logs */}
             <Card className="hover-lift bg-card">
@@ -434,7 +423,6 @@ export default function SystemContent() {
                 </div>
               </CardContent>
             </Card>
-          </div>
 
           {/* Backup History */}
           <Card className="hover-lift bg-card">
