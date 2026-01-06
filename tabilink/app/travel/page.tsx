@@ -69,15 +69,29 @@ export default function TravelPage() {
           search: searchTerm || undefined,
           category: selectedCategory !== "all" ? selectedCategory : undefined,
           featured: true,
-        })
+        }) as { success: boolean; data: { packages: any[] } }
         
         // Transform API response to match frontend format
-        const transformedPackages = response.data?.map((pkg: any) => ({
+        const transformedPackages = (response.data?.packages || []).map((pkg: any) => {
+          // Convert duration object to string format
+          let durationStr = ""
+          if (typeof pkg.duration === 'object' && pkg.duration !== null) {
+            const days = pkg.duration.days || 0
+            const nights = pkg.duration.nights || 0
+            durationStr = `${days} Days / ${nights} Nights`
+          } else if (typeof pkg.duration === 'string') {
+            durationStr = pkg.duration
+          } else {
+            // Fallback if duration is not available
+            durationStr = pkg.days ? `${pkg.days} Days / ${pkg.days - 1} Nights` : "1 Day / 0 Nights"
+          }
+          
+          return {
           id: pkg.id,
           title: pkg.title,
           destination: pkg.destination,
           image: pkg.images?.[0] || "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",
-          duration: pkg.duration || `${pkg.days} Days / ${pkg.days - 1} Nights`,
+          duration: durationStr,
           price: parseFloat(pkg.price || pkg.totalPrice),
           originalPrice: pkg.originalPrice ? parseFloat(pkg.originalPrice) : undefined,
           rating: pkg.rating || 0,
@@ -87,7 +101,8 @@ export default function TravelPage() {
           category: pkg.category || "adventure",
           popular: pkg.isPopular || false,
           discount: pkg.originalPrice ? Math.round(((parseFloat(pkg.originalPrice) - parseFloat(pkg.price)) / parseFloat(pkg.originalPrice)) * 100) : undefined,
-        })) || []
+          }
+        }) || []
         
         setTravelPackages(transformedPackages)
       } catch (error: any) {
@@ -472,7 +487,10 @@ export default function TravelPage() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4 text-blue-500 flex-shrink-0" />
                         <span className="font-medium">
-                          {pkg.duration.replace(/Days/g, t("days")).replace(/Nights/g, t("nights"))}
+                          {typeof pkg.duration === 'string' 
+                            ? pkg.duration.replace(/Days/g, t("days")).replace(/Nights/g, t("nights"))
+                            : pkg.duration || `${t("days")} / ${t("nights")}`
+                          }
                         </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">

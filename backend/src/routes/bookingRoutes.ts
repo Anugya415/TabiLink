@@ -17,3 +17,4 @@ router.route('/:id/cancel').put(cancelBooking);
 
 export default router;
 
+

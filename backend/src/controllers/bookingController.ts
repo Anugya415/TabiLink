@@ -119,13 +119,20 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
   const tax = price * 0.1;
   const total = price + tax;
 
+  // Generate booking ID
+  const prefix = type === 'hotel' ? 'HOTEL' : 'TRAVEL';
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  const bookingId = `${prefix}-${timestamp}-${random}`;
+
   const booking = await Booking.create({
+    bookingId,
     userId: req.user?.id!,
     type,
-    hotelId: type === 'hotel' ? hotel : undefined,
-    travelPackageId: type === 'travel' ? travelPackage : undefined,
-    checkIn: type === 'hotel' ? checkIn : undefined,
-    checkOut: type === 'hotel' ? checkOut : undefined,
+    hotelId: type === 'hotel' ? parseInt(hotel) : undefined,
+    travelPackageId: type === 'travel' ? parseInt(travelPackage) : undefined,
+    checkIn: type === 'hotel' ? new Date(checkIn) : undefined,
+    checkOut: type === 'hotel' ? new Date(checkOut) : undefined,
     travelers,
     guests,
     subtotal: price,

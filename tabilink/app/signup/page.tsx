@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,6 +14,7 @@ import {
   CheckCircle2,
   Sparkles,
   Globe2,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +33,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import api from "@/lib/api"
 
 const signupSchema = z
   .object({
@@ -50,6 +54,8 @@ const signupSchema = z
 type SignupValues = z.infer<typeof signupSchema>
 
 export default function SignupPage() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -60,11 +66,38 @@ export default function SignupPage() {
     },
   })
 
-  const onSubmit = (values: SignupValues) => {
-    toast.success("Account created (UI only)", {
-      description: "Wire this form to your auth backend to finish signup.",
-    })
-    form.reset(values)
+  const onSubmit = async (values: SignupValues) => {
+    setIsLoading(true)
+    try {
+      const response = await api.register({
+        name: values.fullName,
+        email: values.email,
+        password: values.password,
+      }) as { success: boolean; message: string; data: { token: string; user: any } }
+
+      if (response.success) {
+        // Store token for future API calls
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", response.data.token)
+        }
+
+        toast.success("Account created successfully!", {
+          description: "Your account has been created. Please sign in to continue.",
+        })
+
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          router.push("/login")
+        }, 1500)
+      }
+    } catch (error: any) {
+      console.error("Registration error:", error)
+      toast.error("Failed to create account", {
+        description: error.message || "An error occurred. Please try again.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -180,9 +213,18 @@ export default function SignupPage() {
                   and privacy standards.
                 </div>
 
-                <Button type="submit" className="w-full">
-                  <UserPlus className="h-4 w-4" />
-                  Create account
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" />
+                      Create account
+                    </>
+                  )}
                 </Button>
               </form>
             </Form>

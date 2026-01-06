@@ -50,3 +50,4 @@ router.put('/profile', authenticate, validate(updateProfileSchema), updateProfil
 
 export default router;
 
+

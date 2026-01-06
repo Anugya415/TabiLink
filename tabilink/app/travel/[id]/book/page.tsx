@@ -43,13 +43,27 @@ export default function TravelBookingPage() {
       if (!packageId) return
       try {
         setLoading(true)
-        const response = await api.getPackage(packageId)
+        const response = await api.getPackage(packageId) as { success: boolean; data: { package: any } }
         const pkg = response.data?.package || response.data
+        
+        // Convert duration object to string format
+        let durationStr = ""
+        if (typeof pkg.duration === 'object' && pkg.duration !== null) {
+          const days = pkg.duration.days || 0
+          const nights = pkg.duration.nights || 0
+          durationStr = `${days} Days / ${nights} Nights`
+        } else if (typeof pkg.duration === 'string') {
+          durationStr = pkg.duration
+        } else {
+          // Fallback if duration is not available
+          durationStr = pkg.days ? `${pkg.days} Days / ${pkg.days - 1} Nights` : "1 Day / 0 Nights"
+        }
+        
         setPackageData({
           id: pkg.id,
           title: pkg.title,
           destination: pkg.destination,
-          duration: pkg.duration || `${pkg.days} Days / ${pkg.days - 1} Nights`,
+          duration: durationStr,
           price: parseFloat(pkg.price || pkg.totalPrice || 0),
           originalPrice: pkg.originalPrice ? parseFloat(pkg.originalPrice) : undefined,
           image: pkg.images?.[0] || "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",

@@ -22,3 +22,4 @@ export const verifyToken = (token: string): TokenPayload => {
   return jwt.verify(token, process.env.JWT_SECRET || 'secret') as TokenPayload;
 };
 
+

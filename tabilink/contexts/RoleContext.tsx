@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import api from "@/lib/api"
 
 export type UserRole = "user" | "admin" | "super_admin"
 
@@ -76,21 +77,52 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<User | null>(null)
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("tabilinkUser")
-      const isLoggedIn = localStorage.getItem("tabilinkDemoLoggedIn")
-      
-      if (isLoggedIn === "1" && storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser)
-          setUserState(parsedUser)
-        } catch (error) {
-          console.error("Error parsing user data:", error)
-          localStorage.removeItem("tabilinkUser")
-          localStorage.removeItem("tabilinkDemoLoggedIn")
+    const loadUser = async () => {
+      if (typeof window !== "undefined") {
+        const token = localStorage.getItem("token")
+        const storedUser = localStorage.getItem("tabilinkUser")
+        const isLoggedIn = localStorage.getItem("tabilinkDemoLoggedIn")
+        
+        // If we have a token but no user data, fetch from API
+        if (token && (!storedUser || isLoggedIn !== "1")) {
+          try {
+            const response = await api.getMe() as { success: boolean; data: { user: any } }
+            if (response.success && response.data.user) {
+              const userData: User = {
+                id: response.data.user.id.toString(),
+                email: response.data.user.email,
+                name: response.data.user.name,
+                role: response.data.user.role,
+                avatar: response.data.user.avatar,
+                createdAt: response.data.user.createdAt || new Date().toISOString(),
+                lastLogin: response.data.user.lastLogin,
+              }
+              setUserState(userData)
+              localStorage.setItem("tabilinkUser", JSON.stringify(userData))
+              localStorage.setItem("tabilinkDemoLoggedIn", "1")
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error)
+            // Token might be invalid, clear everything
+            localStorage.removeItem("token")
+            localStorage.removeItem("tabilinkUser")
+            localStorage.removeItem("tabilinkDemoLoggedIn")
+          }
+        } else if (isLoggedIn === "1" && storedUser) {
+          // Load from localStorage if no token or if token exists with stored user
+          try {
+            const parsedUser = JSON.parse(storedUser)
+            setUserState(parsedUser)
+          } catch (error) {
+            console.error("Error parsing user data:", error)
+            localStorage.removeItem("tabilinkUser")
+            localStorage.removeItem("tabilinkDemoLoggedIn")
+          }
         }
       }
     }
+
+    loadUser()
   }, [])
 
   const setUser = (newUser: User | null) => {
@@ -133,6 +165,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("tabilinkUser")
       localStorage.removeItem("tabilinkDemoLoggedIn")
+      localStorage.removeItem("token") // Also remove auth token
     }
   }
 

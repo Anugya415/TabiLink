@@ -66,16 +66,12 @@ import { useTranslation } from "@/contexts/TranslationContext"
 import { useTheme } from "@/contexts/ThemeContext"
 import { useRole } from "@/contexts/RoleContext"
 import {
-  mockUserProfile,
-  mockBookings,
-  mockSavedTrips,
-  mockPaymentMethods,
-  mockNotifications,
   type Booking,
   type SavedTrip,
   type PaymentMethod,
   type Notification,
 } from "@/lib/mock-data"
+import api from "@/lib/api"
 
 const visitedDiscounts = [
   {
@@ -258,11 +254,18 @@ function DashboardContent() {
   }, [user, hasRole, router])
   const [activeTab, setActiveTab] = useState<"discounts" | "history">("discounts")
   const [sidebarTab, setSidebarTab] = useState<string | null>(null)
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(mockPaymentMethods)
+  
+  // User profile data from API
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  
+  // Notifications, payment methods, saved trips - empty for now
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   
   // Hooks for bookings section
-  const [bookings, setBookings] = useState<Booking[]>(mockBookings)
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [isLoadingBookings, setIsLoadingBookings] = useState(true)
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("date")
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
@@ -271,15 +274,15 @@ function DashboardContent() {
   
   // Hooks for saved trips section
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>(mockSavedTrips)
+  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([])
   
   // Hooks for settings section
-  const [currency, setCurrency] = useState(mockUserProfile.preferences.currency)
-  const [language, setLanguage] = useState(mockUserProfile.preferences.language)
+  const [currency, setCurrency] = useState("USD")
+  const [language, setLanguage] = useState("English")
   const { theme, setTheme } = useTheme()
-  const [emailNotif, setEmailNotif] = useState(mockUserProfile.preferences.notifications.email)
-  const [smsNotif, setSmsNotif] = useState(mockUserProfile.preferences.notifications.sms)
-  const [pushNotif, setPushNotif] = useState(mockUserProfile.preferences.notifications.push)
+  const [emailNotif, setEmailNotif] = useState(true)
+  const [smsNotif, setSmsNotif] = useState(false)
+  const [pushNotif, setPushNotif] = useState(true)
   
   // Hooks for notifications section
   const [filterType, setFilterType] = useState<"all" | "unread">("all")
@@ -303,16 +306,114 @@ function DashboardContent() {
   const [cabTime, setCabTime] = useState("")
   const [passengers, setPassengers] = useState("1")
 
+  // Fetch user profile and bookings on mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+        if (!token) {
+          setIsLoggedIn(false)
+          setIsLoadingProfile(false)
+          setIsLoadingBookings(false)
+          return
+        }
+
+        setIsLoggedIn(true)
+        
+        // Fetch user profile
+        try {
+          const profileResponse = await api.getMe() as { success: boolean; data: { user: any } }
+          if (profileResponse.success && profileResponse.data.user) {
+            setUserProfile(profileResponse.data.user)
+            // Set preferences if available
+            if (profileResponse.data.user.preferences) {
+              setCurrency(profileResponse.data.user.preferences.currency || "USD")
+              setLanguage(profileResponse.data.user.preferences.language || "English")
+              if (profileResponse.data.user.preferences.notifications) {
+                setEmailNotif(profileResponse.data.user.preferences.notifications.email ?? true)
+                setSmsNotif(profileResponse.data.user.preferences.notifications.sms ?? false)
+                setPushNotif(profileResponse.data.user.preferences.notifications.push ?? true)
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error)
+        } finally {
+          setIsLoadingProfile(false)
+        }
+
+        // Fetch bookings
+        try {
+          const bookingsResponse = await api.getBookings() as { success: boolean; data: { bookings: any[] } }
+          if (bookingsResponse.success && bookingsResponse.data.bookings) {
+            // Transform backend bookings to frontend format
+            const transformedBookings: Booking[] = bookingsResponse.data.bookings.map((b: any) => ({
+              id: b.bookingId || b.id.toString(),
+              type: b.type === 'hotel' ? 'hotel' : 'travel',
+              title: b.hotel?.name || b.travelPackage?.title || 'Booking',
+              destination: b.hotel 
+                ? `${b.hotel.locationCity}, ${b.hotel.locationCountry}`
+                : b.travelPackage?.destination?.join(', ') || 'Unknown',
+              checkIn: b.checkIn ? new Date(b.checkIn).toISOString().split('T')[0] : undefined,
+              checkOut: b.checkOut ? new Date(b.checkOut).toISOString().split('T')[0] : undefined,
+              travelers: b.travelers || 1,
+              status: b.status === 'confirmed' ? 'confirmed' : 
+                      b.status === 'pending' ? 'pending' : 
+                      b.status === 'cancelled' ? 'cancelled' : 
+                      b.status === 'completed' ? 'completed' : 'pending',
+              amount: parseFloat(b.total?.toString() || '0'),
+              bookingDate: b.bookingDate ? new Date(b.bookingDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              image: b.hotel?.images?.[0] || b.travelPackage?.images?.[0] || 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80',
+              details: {
+                hotelName: b.hotel?.name,
+                packageName: b.travelPackage?.title,
+              },
+            }))
+            setBookings(transformedBookings)
+          }
+        } catch (error) {
+          console.error("Error fetching bookings:", error)
+        } finally {
+          setIsLoadingBookings(false)
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+        setIsLoadingProfile(false)
+        setIsLoadingBookings(false)
+      }
+    }
+
+    fetchUserData()
+  }, [])
+
   useEffect(() => {
     if (typeof window === "undefined") return
     const stored = localStorage.getItem("tabilinkDemoLoggedIn")
-    setIsLoggedIn(stored === "1")
-  }, [])
+    const token = localStorage.getItem("token")
+    setIsLoggedIn(stored === "1" || !!token)
+  }, [user])
 
   useEffect(() => {
     const tab = searchParams.get("tab")
     setSidebarTab(tab)
   }, [searchParams])
+
+  // Calculate stats from bookings - defined early so they can be used throughout the component
+  const totalBookings = bookings.length
+  const upcomingBookings = bookings.filter(b => b.status === "confirmed" || b.status === "pending").length
+  const totalSaved = savedTrips.length
+  const totalSpent = bookings.reduce((sum, b) => sum + b.amount, 0)
+  
+  // User stats from API - computed values that depend on userProfile and bookings
+  const userTotalTrips = userProfile?.totalTrips || totalBookings
+  const userTotalSpent = userProfile?.totalSpent ? parseFloat(userProfile.totalSpent.toString()) : totalSpent
+  const userLoyaltyPoints = userProfile?.loyaltyPoints || 0
+  const userMembershipTier = userProfile?.membershipTier || "Silver"
+  const userMemberSince = userProfile?.memberSince 
+    ? new Date(userProfile.memberSince).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : userProfile?.createdAt 
+    ? new Date(userProfile.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : "N/A"
 
   const markNotificationAsRead = (id: string) => {
     setNotifications((prev) =>
@@ -2382,8 +2483,8 @@ function DashboardContent() {
                 <div className="relative group">
                   <div className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg">
                     <Image
-                      src={mockUserProfile.avatar}
-                      alt={mockUserProfile.name}
+                      src={userProfile?.avatar || user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + (userProfile?.name || user?.name || "User")}
+                      alt={userProfile?.name || user?.name || "User"}
                       fill
                       className="object-cover"
                     />
@@ -2396,10 +2497,10 @@ function DashboardContent() {
                   </Button>
                 </div>
                 <div className="text-center space-y-2 w-full">
-                  <h3 className="font-bold text-xl">{mockUserProfile.name}</h3>
-                  <p className="text-sm text-muted-foreground break-words">{mockUserProfile.email}</p>
+                  <h3 className="font-bold text-xl">{userProfile?.name || user?.name || "User"}</h3>
+                  <p className="text-sm text-muted-foreground break-words">{userProfile?.email || user?.email || ""}</p>
                   <span className="inline-block rounded-full bg-gradient-to-r from-primary to-primary/80 px-4 py-1.5 text-xs font-semibold text-primary-foreground mt-2 shadow-sm">
-                    {mockUserProfile.membershipTier} {t("member")}
+                    {userMembershipTier} {t("member")}
                   </span>
                 </div>
                 <div className="w-full space-y-3 pt-4 border-t">
@@ -2408,28 +2509,28 @@ function DashboardContent() {
                       <Calendar className="h-4 w-4 text-blue-500" />
                       <span className="text-sm text-muted-foreground">Total Trips</span>
                     </div>
-                    <span className="font-bold text-lg">{mockUserProfile.totalTrips}</span>
+                    <span className="font-bold text-lg">{userTotalTrips}</span>
                   </div>
                   <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
                       <Star className="h-4 w-4 text-yellow-500" />
                       <span className="text-sm text-muted-foreground">Loyalty Points</span>
                     </div>
-                    <span className="font-bold text-lg">{mockUserProfile?.loyaltyPoints ? mockUserProfile.loyaltyPoints.toLocaleString() : "0"}</span>
+                    <span className="font-bold text-lg">{userLoyaltyPoints.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-blue-500" />
                       <span className="text-sm text-muted-foreground">Member Since</span>
                     </div>
-                    <span className="font-semibold text-sm text-right">{mockUserProfile.memberSince}</span>
+                    <span className="font-semibold text-sm text-right">{userMemberSince}</span>
                   </div>
                   <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-green-500" />
                       <span className="text-sm text-muted-foreground">Total Spent</span>
                     </div>
-                    <span className="font-bold text-lg">${mockUserProfile?.totalSpent ? mockUserProfile.totalSpent.toLocaleString() : "0"}</span>
+                    <span className="font-bold text-lg">${userTotalSpent.toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="w-full pt-4 border-t space-y-2.5">
@@ -2462,32 +2563,40 @@ function DashboardContent() {
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-blue-500" />
-                      {t("fullName")}
-                    </Label>
-                    <Input id="name" defaultValue={mockUserProfile.name} className="w-full h-10" />
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <Label htmlFor="name" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {t("fullName")}
+                      </Label>
+                    </div>
+                    <Input id="name" defaultValue={userProfile?.name || user?.name || ""} className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-blue-500" />
-                      {t("emailAddress")}
-                    </Label>
-                    <Input id="email" type="email" defaultValue={mockUserProfile.email} className="w-full h-10" />
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <Label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {t("emailAddress")}
+                      </Label>
+                    </div>
+                    <Input id="email" type="email" defaultValue={userProfile?.email || user?.email || ""} className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-green-500" />
-                      {t("phoneNumber")}
-                    </Label>
-                    <Input id="phone" defaultValue={mockUserProfile.phone} className="w-full h-10" />
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <Label htmlFor="phone" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {t("phoneNumber")}
+                      </Label>
+                    </div>
+                    <Input id="phone" defaultValue={userProfile?.phone || ""} className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="memberSince" className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-blue-500" />
-                      {t("memberSince")}
-                    </Label>
-                    <Input id="memberSince" defaultValue={mockUserProfile.memberSince} disabled className="w-full h-10" />
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <Label htmlFor="memberSince" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {t("memberSince")}
+                      </Label>
+                    </div>
+                    <Input id="memberSince" defaultValue={userMemberSince} disabled className="w-full h-10" />
                   </div>
                 </div>
                 <div className="flex justify-end pt-4 border-t">
@@ -2974,11 +3083,8 @@ function DashboardContent() {
     )
   }
 
-  // Default dashboard view (discounts/history tabs)
-  const totalBookings = mockBookings.length
-  const upcomingBookings = mockBookings.filter(b => b.status === "confirmed" || b.status === "pending").length
-  const totalSaved = mockSavedTrips.length
-  const totalSpent = mockBookings.reduce((sum, b) => sum + b.amount, 0)
+  // Stats are already calculated earlier in the component
+  // Using those values here
 
   const bookingOptions = [
     {
@@ -3102,7 +3208,7 @@ function DashboardContent() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary animate-fade-in">
               Dashboard
             </p>
-            <h1 className="text-3xl font-bold animate-fade-in-up">{t("welcomeBack")}, {mockUserProfile.name.split(' ')[0]}!</h1>
+            <h1 className="text-3xl font-bold animate-fade-in-up">{t("welcomeBack")}, {userProfile?.name?.split(' ')[0] || user?.name?.split(' ')[0] || "User"}!</h1>
             <p className="text-muted-foreground animate-fade-in-up">
               {t("overviewActivity")}
             </p>
@@ -3393,7 +3499,7 @@ function DashboardContent() {
                 <CardDescription>{t("previouslyCompletedTrips")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 animate-stagger">
-                {mockBookings.filter((b) => b.status === "completed").map((trip, index) => (
+                {bookings.filter((b) => b.status === "completed").map((trip, index) => (
                   <div
                     key={trip.id}
                     className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between hover-lift transition-all duration-300"

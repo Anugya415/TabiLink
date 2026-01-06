@@ -2,11 +2,13 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { useTranslation } from "@/contexts/TranslationContext"
+import { useRole } from "@/contexts/RoleContext"
 import {
   LogIn,
   Mail,
@@ -14,6 +16,7 @@ import {
   ShieldCheck,
   Clock3,
   CheckCircle2,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,6 +35,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import api from "@/lib/api"
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -43,6 +47,8 @@ type LoginValues = z.infer<typeof loginSchema>
 export default function LoginPage() {
   const { t } = useTranslation()
   const router = useRouter()
+  const { setUser } = useRole()
+  const [isLoading, setIsLoading] = useState(false)
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -51,18 +57,52 @@ export default function LoginPage() {
     },
   })
 
-  const onSubmit = (values: LoginValues) => {
-    // Persist demo login so the dashboard stays unlocked
-    if (typeof window !== "undefined") {
-      localStorage.setItem("tabilinkDemoLoggedIn", "1")
-      // Notify other tabs/components in this tab
-      window.dispatchEvent(new StorageEvent("storage", { key: "tabilinkDemoLoggedIn", newValue: "1" }))
+  const onSubmit = async (values: LoginValues) => {
+    setIsLoading(true)
+    try {
+      const response = await api.login({
+        email: values.email,
+        password: values.password,
+      }) as { success: boolean; message: string; data: { token: string; user: any } }
+
+      if (response.success) {
+        // Store token for future API calls
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", response.data.token)
+        }
+
+        // Set user in context
+        const userData = {
+          id: response.data.user.id.toString(),
+          email: response.data.user.email,
+          name: response.data.user.name,
+          role: response.data.user.role,
+          avatar: response.data.user.avatar,
+          createdAt: new Date().toISOString(),
+        }
+        setUser(userData)
+
+        toast.success(t("loginSuccessful"), {
+          description: t("loginSuccessfulDesc"),
+        })
+        
+        // Redirect based on user role
+        if (response.data.user.role === "super_admin") {
+          router.push("/super-admin/overview")
+        } else if (response.data.user.role === "admin") {
+          router.push("/admin/dashboard")
+        } else {
+          router.push("/dashboard")
+        }
+      }
+    } catch (error: any) {
+      console.error("Login error:", error)
+      toast.error("Login failed", {
+        description: error.message || "Invalid email or password. Please try again.",
+      })
+    } finally {
+      setIsLoading(false)
     }
-    toast.success(t("loginSuccessful"), {
-      description: t("loginSuccessfulDesc"),
-    })
-    form.reset(values)
-    router.push("/dashboard")
   }
 
   return (
@@ -149,9 +189,18 @@ export default function LoginPage() {
                   </Link>
                 </div>
 
-                <Button type="submit" className="w-full">
-                  <LogIn className="h-4 w-4" />
-                  {t("signIn")}
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="h-4 w-4" />
+                      {t("signIn")}
+                    </>
+                  )}
                 </Button>
               </form>
             </Form>
