@@ -4,6 +4,7 @@ import { useState, Suspense, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useRole } from "@/contexts/RoleContext"
 import { useTranslation } from "@/contexts/TranslationContext"
+import { api } from "@/lib/api"
 import {
   Card,
   CardContent,
@@ -84,6 +85,7 @@ function AdminDashboardContent() {
   const [dialogType, setDialogType] = useState<string | null>(null)
   const [dialogAction, setDialogAction] = useState<"add" | "view" | "edit" | null>(null)
   const [selectedItem, setSelectedItem] = useState<any>(null)
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
 
   // Mock admin data
   const stats = [
@@ -229,75 +231,46 @@ function AdminDashboardContent() {
     },
   ])
 
-  // Comprehensive mock users data
-  const [allUsers, setAllUsers] = useState([
-    {
-      id: "user-1",
-      name: "John Traveler",
-      email: "john@example.com",
-      role: "user",
-      bookings: 12,
-      status: "active",
-      joined: "2024-01-01",
-      totalSpent: 12500,
-      lastLogin: "2024-01-15",
-    },
-    {
-      id: "user-2",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "user",
-      bookings: 8,
-      status: "active",
-      joined: "2024-01-05",
-      totalSpent: 8900,
-      lastLogin: "2024-01-14",
-    },
-    {
-      id: "user-3",
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      role: "user",
-      bookings: 5,
-      status: "inactive",
-      joined: "2024-01-10",
-      totalSpent: 3200,
-      lastLogin: "2024-01-08",
-    },
-    {
-      id: "user-4",
-      name: "Sarah Williams",
-      email: "sarah@example.com",
-      role: "user",
-      bookings: 15,
-      status: "active",
-      joined: "2023-12-15",
-      totalSpent: 18900,
-      lastLogin: "2024-01-16",
-    },
-    {
-      id: "user-5",
-      name: "David Brown",
-      email: "david@example.com",
-      role: "user",
-      bookings: 3,
-      status: "active",
-      joined: "2024-01-20",
-      totalSpent: 2100,
-      lastLogin: "2024-01-17",
-    },
-    {
-      id: "user-6",
-      name: "Emily Davis",
-      email: "emily@example.com",
-      role: "user",
-      bookings: 20,
-      status: "active",
-      joined: "2023-11-10",
-      totalSpent: 24500,
-      lastLogin: "2024-01-16",
-    },
-  ])
+  // Users data from backend
+  const [allUsers, setAllUsers] = useState<any[]>([])
+
+  // Fetch users from backend
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoadingUsers(true)
+      try {
+        const response = await api.getUsers() as { success: boolean; data: { users: any[] } }
+        if (response.success && response.data?.users) {
+          // Transform backend user data to match frontend format
+          const transformedUsers = response.data.users.map((user: any) => ({
+            id: user.id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            bookings: user.totalTrips || 0,
+            status: user.isActive ? "active" : "inactive",
+            joined: user.memberSince ? new Date(user.memberSince).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            totalSpent: parseFloat(user.totalSpent || 0),
+            lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString().split('T')[0] : "",
+            phone: user.phone || "",
+            membershipTier: user.membershipTier || "Silver",
+          }))
+          setAllUsers(transformedUsers)
+        }
+      } catch (error: any) {
+        console.error("Error fetching users:", error)
+        toast.error("Failed to load users", {
+          description: error.message || "An error occurred while fetching users",
+        })
+      } finally {
+        setIsLoadingUsers(false)
+      }
+    }
+
+    if (activeTab === "users") {
+      fetchUsers()
+    }
+  }, [activeTab])
 
   // Mock hotels data
   const [allHotels, setAllHotels] = useState([
@@ -2036,6 +2009,22 @@ function AdminDashboardContent() {
                   <Label>Email *</Label>
                   <Input type="email" defaultValue={selectedItem?.email || ""} id="user-email" />
                 </div>
+                {dialogAction === "add" && (
+                  <div className="space-y-2">
+                    <Label>Password *</Label>
+                    <Input type="password" placeholder="Minimum 8 characters" id="user-password" />
+                  </div>
+                )}
+                {dialogAction === "edit" && (
+                  <div className="space-y-2">
+                    <Label>New Password (leave blank to keep current)</Label>
+                    <Input type="password" placeholder="Minimum 8 characters" id="user-password" />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input type="tel" defaultValue={selectedItem?.phone || ""} id="user-phone" />
+                </div>
                 <div className="space-y-2">
                   <Label>Status *</Label>
                   <Select defaultValue={selectedItem?.status || "active"} id="user-status">
@@ -2069,28 +2058,108 @@ function AdminDashboardContent() {
               </div>
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button onClick={() => {
-                  const name = (document.getElementById("user-name") as HTMLInputElement)?.value
-                  const email = (document.getElementById("user-email") as HTMLInputElement)?.value
-                  const status = (document.getElementById("user-status") as HTMLSelectElement)?.value
-                  const role = (document.getElementById("user-role") as HTMLSelectElement)?.value
-                  const bookings = parseInt((document.getElementById("user-bookings") as HTMLInputElement)?.value || "0")
-                  const totalSpent = parseFloat((document.getElementById("user-spent") as HTMLInputElement)?.value || "0")
-                  const joined = (document.getElementById("user-joined") as HTMLInputElement)?.value
-                  const lastLogin = (document.getElementById("user-login") as HTMLInputElement)?.value
+                <Button onClick={async () => {
+                  try {
+                    const name = (document.getElementById("user-name") as HTMLInputElement)?.value
+                    const email = (document.getElementById("user-email") as HTMLInputElement)?.value
+                    const status = (document.getElementById("user-status") as HTMLSelectElement)?.value
+                    const role = (document.getElementById("user-role") as HTMLSelectElement)?.value
+                    const password = (document.getElementById("user-password") as HTMLInputElement)?.value
+                    const phone = (document.getElementById("user-phone") as HTMLInputElement)?.value || ""
 
-                  if (dialogAction === "add") {
-                    const newId = `user-${allUsers.length + 1}`
-                    setAllUsers([...allUsers, { id: newId, name, email, role, status, bookings, totalSpent, joined, lastLogin }])
-                    toast.success("User added", { description: `New user ${name} has been created` })
-                  } else {
-                    setAllUsers(allUsers.map(u => u.id === selectedItem?.id ? { ...u, name, email, role, status, bookings, totalSpent, joined, lastLogin } : u))
-                    toast.success("User updated", { description: `User ${name} has been updated` })
+                    // Validation
+                    if (!name || !email) {
+                      toast.error("Validation Error", {
+                        description: "Name and email are required fields",
+                      })
+                      return
+                    }
+
+                    if (dialogAction === "add") {
+                      // Create new user via API
+                      if (!password || password.length < 8) {
+                        toast.error("Password Required", {
+                          description: "Password must be at least 8 characters",
+                        })
+                        return
+                      }
+
+                      setIsLoadingUsers(true)
+                      const response = await api.createUser({
+                        name,
+                        email,
+                        password,
+                        phone,
+                        role: role as "user" | "admin" | "super_admin",
+                      }) as { success: boolean; message: string; data: { user: any } }
+
+                      if (response.success) {
+                        toast.success("User added", { description: `New user ${name} has been created successfully` })
+                        // Refresh users list
+                        const usersResponse = await api.getUsers() as { success: boolean; data: { users: any[] } }
+                        if (usersResponse.success && usersResponse.data?.users) {
+                          const transformedUsers = usersResponse.data.users.map((user: any) => ({
+                            id: user.id.toString(),
+                            name: user.name,
+                            email: user.email,
+                            role: user.role,
+                            bookings: user.totalTrips || 0,
+                            status: user.isActive ? "active" : "inactive",
+                            joined: user.memberSince ? new Date(user.memberSince).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                            totalSpent: parseFloat(user.totalSpent || 0),
+                            lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString().split('T')[0] : "",
+                            phone: user.phone || "",
+                            membershipTier: user.membershipTier || "Silver",
+                          }))
+                          setAllUsers(transformedUsers)
+                        }
+                      }
+                    } else {
+                      // Update existing user via API
+                      setIsLoadingUsers(true)
+                      const response = await api.updateUser(selectedItem?.id, {
+                        name,
+                        email,
+                        phone,
+                        role: role as "user" | "admin" | "super_admin",
+                        isActive: status === "active",
+                        ...(password && password.length >= 8 && { password }),
+                      }) as { success: boolean; message: string; data: { user: any } }
+
+                      if (response.success) {
+                        toast.success("User updated", { description: `User ${name} has been updated successfully` })
+                        // Refresh users list
+                        const usersResponse = await api.getUsers() as { success: boolean; data: { users: any[] } }
+                        if (usersResponse.success && usersResponse.data?.users) {
+                          const transformedUsers = usersResponse.data.users.map((user: any) => ({
+                            id: user.id.toString(),
+                            name: user.name,
+                            email: user.email,
+                            role: user.role,
+                            bookings: user.totalTrips || 0,
+                            status: user.isActive ? "active" : "inactive",
+                            joined: user.memberSince ? new Date(user.memberSince).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                            totalSpent: parseFloat(user.totalSpent || 0),
+                            lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString().split('T')[0] : "",
+                            phone: user.phone || "",
+                            membershipTier: user.membershipTier || "Silver",
+                          }))
+                          setAllUsers(transformedUsers)
+                        }
+                      }
+                    }
+                    setDialogType(null)
+                    setDialogAction(null)
+                    setSelectedItem(null)
+                  } catch (error: any) {
+                    console.error("Error saving user:", error)
+                    toast.error("Failed to save user", {
+                      description: error.message || "An error occurred while saving the user",
+                    })
+                  } finally {
+                    setIsLoadingUsers(false)
                   }
-                  setDialogType(null)
-                  setDialogAction(null)
-                  setSelectedItem(null)
-                }}>Save</Button>
+                }} disabled={isLoadingUsers}>Save</Button>
               </div>
             </div>
           )}

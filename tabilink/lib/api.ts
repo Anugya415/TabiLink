@@ -196,6 +196,51 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // User Management (Admin/Super Admin)
+  async getUsers(params?: {
+    role?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    return this.request('/auth/users', { params });
+  }
+
+  async createUser(data: {
+    name: string;
+    email: string;
+    password?: string;
+    phone?: string;
+    role?: 'user' | 'admin' | 'super_admin';
+    membershipTier?: 'Silver' | 'Gold' | 'Platinum';
+  }) {
+    return this.request('/auth/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateUser(id: string | number, data: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    role?: 'user' | 'admin' | 'super_admin';
+    isActive?: boolean;
+    membershipTier?: 'Silver' | 'Gold' | 'Platinum';
+    password?: string;
+  }) {
+    return this.request(`/auth/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteUser(id: string | number) {
+    return this.request(`/auth/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);

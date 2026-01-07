@@ -155,3 +155,172 @@ export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response
     },
   });
 });
+
+// @desc    Get all users (Admin/Super Admin)
+// @route   GET /api/v1/auth/users
+// @access  Private (Admin/Super Admin)
+export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { role, search, page = 1, limit = 50 } = req.query;
+  
+  const where: any = {};
+  if (role && typeof role === 'string') {
+    where.role = role;
+  }
+  if (search && typeof search === 'string') {
+    where[Op.or] = [
+      { name: { [Op.like]: `%${search}%` } },
+      { email: { [Op.like]: `%${search}%` } },
+    ];
+  }
+
+  const pageNum = parseInt(page as string, 10);
+  const limitNum = parseInt(limit as string, 10);
+  const offset = (pageNum - 1) * limitNum;
+
+  const { count, rows } = await User.findAndCountAll({
+    where,
+    limit: limitNum,
+    offset,
+    order: [['createdAt', 'DESC']],
+    attributes: { exclude: ['password', 'passwordResetToken', 'emailVerificationToken'] },
+  });
+
+  res.json({
+    success: true,
+    data: {
+      users: rows,
+      pagination: {
+        total: count,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(count / limitNum),
+      },
+    },
+  });
+});
+
+// @desc    Create user (Admin/Super Admin)
+// @route   POST /api/v1/auth/users
+// @access  Private (Admin/Super Admin)
+export const createUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { name, email, password, phone, role = 'user', membershipTier = 'Silver' } = req.body;
+
+  // Validate required fields
+  if (!name || !email) {
+    throw new AppError('Name and email are required', 400);
+  }
+
+  // Check if user exists
+  const existingUser = await User.findOne({ where: { email: email.toLowerCase() } });
+  if (existingUser) {
+    throw new AppError('User already exists with this email', 400);
+  }
+
+  // Generate a default password if not provided or empty
+  const userPassword = (password && password.trim().length >= 8) ? password : `Temp${Math.random().toString(36).slice(-8)}123`;
+
+  // Create user
+  const user = await User.create({
+    name,
+    email: email.toLowerCase(),
+    password: userPassword,
+    phone,
+    role: role || 'user',
+    membershipTier: membershipTier || 'Silver',
+    isEmailVerified: true,
+  } as any);
+
+  res.status(201).json({
+    success: true,
+    message: 'User created successfully',
+    data: {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        membershipTier: user.membershipTier,
+        isActive: user.isActive,
+        memberSince: user.memberSince,
+      },
+      // Only return password if it was auto-generated
+      ...(!password && { generatedPassword: userPassword }),
+    },
+  });
+});
+
+// @desc    Update user (Admin/Super Admin)
+// @route   PUT /api/v1/auth/users/:id
+// @access  Private (Admin/Super Admin)
+export const updateUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const { name, email, phone, role, isActive, membershipTier, password } = req.body;
+
+  const user = await User.findByPk(id);
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  // Prevent updating own role/status if admin
+  if (req.user?.id === parseInt(id) && (role || isActive !== undefined)) {
+    throw new AppError('You cannot modify your own role or status', 400);
+  }
+
+  if (email && email.toLowerCase() !== user.email) {
+    const existingUser = await User.findOne({ where: { email: email.toLowerCase() } });
+    if (existingUser) {
+      throw new AppError('Email already exists', 400);
+    }
+    user.email = email.toLowerCase();
+  }
+
+  if (name) user.name = name;
+  if (phone !== undefined) user.phone = phone;
+  if (role) user.role = role;
+  if (isActive !== undefined) user.isActive = isActive;
+  if (membershipTier) user.membershipTier = membershipTier;
+  if (password) user.password = password; // Will be hashed by beforeUpdate hook
+
+  await user.save();
+
+  res.json({
+    success: true,
+    message: 'User updated successfully',
+    data: {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        membershipTier: user.membershipTier,
+        isActive: user.isActive,
+      },
+    },
+  });
+});
+
+// @desc    Delete user (Admin/Super Admin)
+// @route   DELETE /api/v1/auth/users/:id
+// @access  Private (Admin/Super Admin)
+export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  const user = await User.findByPk(id);
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  // Prevent deleting own account
+  if (req.user?.id === parseInt(id)) {
+    throw new AppError('You cannot delete your own account', 400);
+  }
+
+  await user.destroy();
+
+  res.json({
+    success: true,
+    message: 'User deleted successfully',
+  });
+});

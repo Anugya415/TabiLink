@@ -21,3 +21,5 @@ router.get('/', authenticate, authorize('admin', 'super_admin'), getContacts);
 export default router;
 
 
+
+
