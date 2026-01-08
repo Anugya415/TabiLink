@@ -48,6 +48,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { api } from "@/lib/api"
 
 function SuperAdminDashboardContent() {
   const { user } = useRole()
@@ -63,10 +64,43 @@ function SuperAdminDashboardContent() {
   const [dialogType, setDialogType] = useState<string | null>(null)
   const [dialogAction, setDialogAction] = useState<"add" | "view" | "edit" | null>(null)
   const [selectedItem, setSelectedItem] = useState<any>(null)
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
 
-  // Load comprehensive mock users
+  // Fetch users from backend
   useEffect(() => {
-    setUsers([
+    const fetchUsers = async () => {
+      setIsLoadingUsers(true)
+      try {
+        const response = await api.getUsers({ search: userSearch || adminSearch }) as { success: boolean; data: { users: any[] } }
+        if (response.success && response.data.users) {
+          setUsers(response.data.users.map((u: any) => ({
+            id: u.id.toString(),
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+            lastLogin: u.lastLogin || null,
+          })))
+        }
+      } catch (error: any) {
+        console.error("Error fetching users:", error)
+        toast.error("Failed to load users", {
+          description: error.message || "An error occurred while fetching users",
+        })
+      } finally {
+        setIsLoadingUsers(false)
+      }
+    }
+    fetchUsers()
+  }, [userSearch, adminSearch])
+
+  // Old mock users (removed)
+  useEffect(() => {
+    // Mock data removed - now using API
+  }, [])
+  
+  // Removed mock data array
+  const [oldUsers] = useState([
       {
         id: "user-1",
         email: "user@tabilink.com",
@@ -2176,6 +2210,14 @@ function SuperAdminDashboardContent() {
                   <Input type="email" defaultValue={selectedItem?.email || ""} id="user-email" />
                 </div>
                 <div className="space-y-2">
+                  <Label>Password {dialogAction === "add" ? "*" : "(leave blank to keep current)"}</Label>
+                  <Input type="password" id="user-password" placeholder={dialogAction === "add" ? "Minimum 8 characters" : "Leave blank to keep current"} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input type="tel" defaultValue={selectedItem?.phone || ""} id="user-phone" placeholder="Optional" />
+                </div>
+                <div className="space-y-2">
                   <Label>Role *</Label>
                   <Select defaultValue={selectedItem?.role || "user"} id="user-role">
                     <option value="user">User</option>
@@ -2183,36 +2225,112 @@ function SuperAdminDashboardContent() {
                     <option value="super_admin">Super Admin</option>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label>Created At</Label>
-                  <Input type="datetime-local" defaultValue={selectedItem?.createdAt ? new Date(selectedItem.createdAt).toISOString().slice(0, 16) : ""} id="user-created" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Last Login</Label>
-                  <Input type="datetime-local" defaultValue={selectedItem?.lastLogin ? new Date(selectedItem.lastLogin).toISOString().slice(0, 16) : ""} id="user-login" />
-                </div>
               </div>
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button onClick={() => {
-                  const name = (document.getElementById("user-name") as HTMLInputElement)?.value
-                  const email = (document.getElementById("user-email") as HTMLInputElement)?.value
-                  const role = (document.getElementById("user-role") as HTMLSelectElement)?.value as "user" | "admin" | "super_admin"
-                  const createdAt = (document.getElementById("user-created") as HTMLInputElement)?.value
-                  const lastLogin = (document.getElementById("user-login") as HTMLInputElement)?.value
+                <Button onClick={async () => {
+                  try {
+                    const name = (document.getElementById("user-name") as HTMLInputElement)?.value
+                    const email = (document.getElementById("user-email") as HTMLInputElement)?.value
+                    const password = (document.getElementById("user-password") as HTMLInputElement)?.value
+                    const phone = (document.getElementById("user-phone") as HTMLInputElement)?.value || ""
+                    const role = (document.getElementById("user-role") as HTMLSelectElement)?.value as "user" | "admin" | "super_admin"
 
-                  if (dialogAction === "add") {
-                    const newId = `user-${users.length + 1}`
-                    setUsers([...users, { id: newId, name, email, role, createdAt: createdAt ? new Date(createdAt).toISOString() : new Date().toISOString(), lastLogin: lastLogin ? new Date(lastLogin).toISOString() : new Date().toISOString() }])
-                    toast.success("User added", { description: `New user ${name} has been created` })
-                  } else {
-                    setUsers(users.map(u => u.id === selectedItem?.id ? { ...u, name, email, role, createdAt: createdAt ? new Date(createdAt).toISOString() : u.createdAt, lastLogin: lastLogin ? new Date(lastLogin).toISOString() : u.lastLogin } : u))
-                    toast.success("User updated", { description: `User ${name} has been updated` })
+                    // Validation
+                    if (!name || !email) {
+                      toast.error("Validation Error", {
+                        description: "Name and email are required fields",
+                      })
+                      return
+                    }
+                    if (dialogAction === "add" && (!password || password.length < 8)) {
+                      toast.error("Validation Error", {
+                        description: "Password must be at least 8 characters for new users",
+                      })
+                      return
+                    }
+
+                    setIsLoadingUsers(true)
+
+                    if (dialogAction === "add") {
+                      // Create new user via API
+                      console.log("Creating user with data:", { name, email, phone, role, passwordLength: password?.length })
+                      const response = await api.createUser({
+                        name,
+                        email,
+                        password,
+                        phone,
+                        role,
+                      }) as { success?: boolean; message?: string; data?: { user: any } }
+                      console.log("Create user response:", response)
+
+                      if (response && (response.success !== false)) {
+                        toast.success("User added", {
+                          description: `New user ${name} has been created successfully`,
+                        })
+                        // Refresh users list
+                        try {
+                          const usersResponse = await api.getUsers() as { success?: boolean; data?: { users: any[] } }
+                          if (usersResponse && usersResponse.data && usersResponse.data.users) {
+                            setUsers(usersResponse.data.users.map((u: any) => ({
+                              id: u.id.toString(),
+                              name: u.name,
+                              email: u.email,
+                              role: u.role,
+                              createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+                              lastLogin: u.lastLogin || null,
+                            })))
+                          }
+                        } catch (refreshError: any) {
+                          console.error("Error refreshing users list:", refreshError)
+                          // Don't show error for refresh failure, user was still created
+                        }
+                      } else {
+                        throw new Error(response.message || "Failed to create user")
+                      }
+                    } else {
+                      // Update existing user via API
+                      const updateData: any = {
+                        name,
+                        email,
+                        phone,
+                        role,
+                      }
+                      if (password && password.length >= 8) {
+                        updateData.password = password
+                      }
+                      const response = await api.updateUser(selectedItem?.id, updateData) as { success: boolean; message: string; data: { user: any } }
+
+                      if (response.success) {
+                        toast.success("User updated", {
+                          description: `User ${name} has been updated successfully`,
+                        })
+                        // Refresh users list
+                        const usersResponse = await api.getUsers() as { success: boolean; data: { users: any[] } }
+                        if (usersResponse.success && usersResponse.data.users) {
+                          setUsers(usersResponse.data.users.map((u: any) => ({
+                            id: u.id.toString(),
+                            name: u.name,
+                            email: u.email,
+                            role: u.role,
+                            createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+                            lastLogin: u.lastLogin || null,
+                          })))
+                        }
+                      }
+                    }
+                    setDialogType(null)
+                    setDialogAction(null)
+                    setSelectedItem(null)
+                  } catch (error: any) {
+                    console.error("Error saving user:", error)
+                    toast.error("Failed to save user", {
+                      description: error.message || "An error occurred while saving the user",
+                    })
+                  } finally {
+                    setIsLoadingUsers(false)
                   }
-                  setDialogType(null)
-                  setDialogAction(null)
-                  setSelectedItem(null)
-                }}>Save</Button>
+                }} disabled={isLoadingUsers}>Save</Button>
               </div>
             </div>
           )}

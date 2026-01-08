@@ -58,10 +58,23 @@ function AdminDashboardContent() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const router = useRouter()
+
+  // Helper function to format duration
+  const formatDuration = (duration: any): string => {
+    if (!duration) return "N/A"
+    if (typeof duration === 'string') return duration
+    if (typeof duration === 'object' && duration.days) {
+      return `${duration.days} Days${duration.nights ? ` / ${duration.nights} Nights` : ''}`
+    }
+    return "N/A"
+  }
   const [activeTab, setActiveTab] = useState<string>(
     searchParams.get("tab") || "overview"
   )
   const [openDialog, setOpenDialog] = useState<string | null>(null)
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
+  const [isLoadingHotels, setIsLoadingHotels] = useState(false)
+  const [isLoadingPackages, setIsLoadingPackages] = useState(false)
 
   // Update URL when tab changes
   useEffect(() => {
@@ -85,7 +98,6 @@ function AdminDashboardContent() {
   const [dialogType, setDialogType] = useState<string | null>(null)
   const [dialogAction, setDialogAction] = useState<"add" | "view" | "edit" | null>(null)
   const [selectedItem, setSelectedItem] = useState<any>(null)
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
 
   // Mock admin data
   const stats = [
@@ -272,151 +284,103 @@ function AdminDashboardContent() {
     }
   }, [activeTab])
 
-  // Mock hotels data
-  const [allHotels, setAllHotels] = useState([
-    {
-      id: "hotel-1",
-      name: "Grand Luxury Hotel",
-      location: "Paris, France",
-      rating: 4.8,
-      price: 299,
-      rooms: 150,
-      status: "active",
-      bookings: 1245,
-      revenue: 372255,
-    },
-    {
-      id: "hotel-2",
-      name: "Beach Resort",
-      location: "Barcelona, Spain",
-      rating: 4.6,
-      price: 189,
-      rooms: 200,
-      status: "active",
-      bookings: 1890,
-      revenue: 357210,
-    },
-    {
-      id: "hotel-3",
-      name: "City Center Hotel",
-      location: "New York, USA",
-      rating: 4.7,
-      price: 225,
-      rooms: 120,
-      status: "active",
-      bookings: 980,
-      revenue: 220500,
-    },
-    {
-      id: "hotel-4",
-      name: "Mountain View Lodge",
-      location: "Banff, Canada",
-      rating: 4.9,
-      price: 320,
-      rooms: 80,
-      status: "active",
-      bookings: 650,
-      revenue: 208000,
-    },
-    {
-      id: "hotel-5",
-      name: "Seaside Paradise",
-      location: "Maldives",
-      rating: 4.9,
-      price: 450,
-      rooms: 50,
-      status: "active",
-      bookings: 420,
-      revenue: 189000,
-    },
-    {
-      id: "hotel-6",
-      name: "Tokyo Grand",
-      location: "Tokyo, Japan",
-      rating: 4.8,
-      price: 280,
-      rooms: 180,
-      status: "active",
-      bookings: 1120,
-      revenue: 313600,
-    },
-    {
-      id: "hotel-7",
-      name: "Dubai Marina",
-      location: "Dubai, UAE",
-      rating: 4.7,
-      price: 350,
-      rooms: 100,
-      status: "active",
-      bookings: 780,
-      revenue: 273000,
-    },
-    {
-      id: "hotel-8",
-      name: "Santorini Sunset",
-      location: "Santorini, Greece",
-      rating: 4.9,
-      price: 380,
-      rooms: 60,
-      status: "active",
-      bookings: 520,
-      revenue: 197600,
-    },
-  ])
+  // Hotels data from backend
+  const [allHotels, setAllHotels] = useState<any[]>([])
 
-  // Mock packages data
-  const [allPackages, setAllPackages] = useState([
-    {
-      id: "pkg-1",
-      name: "European Adventure",
-      destination: "Paris, Rome, Barcelona",
-      duration: "7 days",
-      price: 1899,
-      bookings: 245,
-      status: "active",
-      revenue: 465255,
-    },
-    {
-      id: "pkg-2",
-      name: "Asian Discovery",
-      destination: "Tokyo, Kyoto, Seoul",
-      duration: "10 days",
-      price: 2499,
-      bookings: 180,
-      status: "active",
-      revenue: 449820,
-    },
-    {
-      id: "pkg-3",
-      name: "Tropical Paradise",
-      destination: "Maldives, Seychelles",
-      duration: "8 days",
-      price: 3299,
-      bookings: 120,
-      status: "active",
-      revenue: 395880,
-    },
-    {
-      id: "pkg-4",
-      name: "Northern Lights",
-      destination: "Iceland, Norway",
-      duration: "6 days",
-      price: 2199,
-      bookings: 95,
-      status: "active",
-      revenue: 208905,
-    },
-    {
-      id: "pkg-5",
-      name: "Mediterranean Cruise",
-      destination: "Greece, Italy, Spain",
-      duration: "12 days",
-      price: 3899,
-      bookings: 150,
-      status: "active",
-      revenue: 584850,
-    },
-  ])
+  // Fetch hotels from backend
+  useEffect(() => {
+    const fetchHotels = async () => {
+      setIsLoadingHotels(true)
+      try {
+        const response = await api.getHotels({ limit: 100 }) as { success: boolean; data: { hotels?: any[]; packages?: any[] } }
+        if (response.success && response.data) {
+          const hotels = response.data.hotels || response.data.packages || []
+          // Transform backend hotel data to match frontend format
+          const transformedHotels = hotels.map((hotel: any) => {
+            const roomsCount = hotel.rooms && Array.isArray(hotel.rooms) 
+              ? hotel.rooms.reduce((sum: number, room: any) => sum + (room.available || 0), 0) 
+              : 0
+            return {
+              ...hotel, // Keep original data for updates
+              id: hotel.id.toString(),
+              name: hotel.name,
+              location: `${hotel.locationCity || ''}, ${hotel.locationCountry || ''}`.trim(),
+              rating: parseFloat(hotel.rating || 0),
+              price: parseFloat(hotel.price || 0),
+              rooms: roomsCount, // Overwrite with calculated number
+              status: hotel.isActive ? "active" : "inactive",
+              bookings: hotel.reviewCount || 0,
+              revenue: 0, // Not stored in backend, would need to calculate from bookings
+            }
+          })
+          setAllHotels(transformedHotels)
+        }
+      } catch (error: any) {
+        console.error("Error fetching hotels:", error)
+        toast.error("Failed to load hotels", {
+          description: error.message || "An error occurred while fetching hotels",
+        })
+      } finally {
+        setIsLoadingHotels(false)
+      }
+    }
+
+    if (activeTab === "hotels") {
+      fetchHotels()
+    }
+  }, [activeTab])
+
+
+  // Packages data from backend
+  const [allPackages, setAllPackages] = useState<any[]>([])
+
+  // Fetch packages from backend
+  useEffect(() => {
+    const fetchPackages = async () => {
+      setIsLoadingPackages(true)
+      try {
+        const response = await api.getPackages({ limit: 100 }) as { success: boolean; data: { packages?: any[] } }
+        if (response.success && response.data?.packages) {
+          // Transform backend package data to match frontend format
+          const transformedPackages = response.data.packages.map((pkg: any) => {
+            let durationStr = pkg.duration
+            if (typeof pkg.duration === 'object' && pkg.duration.days) {
+              durationStr = `${pkg.duration.days} Days${pkg.duration.nights ? ` / ${pkg.duration.nights} Nights` : ''}`
+            } else if (typeof pkg.duration === 'string') {
+              durationStr = pkg.duration
+            } else {
+              durationStr = "N/A"
+            }
+            
+            return {
+              id: pkg.id.toString(),
+              name: pkg.title,
+              destination: Array.isArray(pkg.destination) ? pkg.destination.join(", ") : (pkg.destination || ""),
+              duration: durationStr,
+              price: parseFloat(pkg.price || 0),
+              bookings: 0, // Not stored in backend
+              status: pkg.isActive ? "active" : "inactive",
+              revenue: 0, // Not stored in backend
+              ...pkg, // Keep original data for updates
+            }
+          })
+          setAllPackages(transformedPackages)
+        }
+      } catch (error: any) {
+        console.error("Error fetching packages:", error)
+        toast.error("Failed to load packages", {
+          description: error.message || "An error occurred while fetching packages",
+        })
+      } finally {
+        setIsLoadingPackages(false)
+      }
+    }
+
+    if (activeTab === "packages") {
+      fetchPackages()
+    }
+  }, [activeTab])
+
 
   // Filter bookings
   const filteredBookings = allBookings.filter((booking) => {
@@ -928,7 +892,7 @@ function AdminDashboardContent() {
                           <span>{pkg.destination}</span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {pkg.duration} • {pkg.bookings || 0} bookings • ${pkg.revenue ? pkg.revenue.toLocaleString() : "0"} revenue
+                          {formatDuration(pkg.duration)} • {pkg.bookings || 0} bookings • ${pkg.revenue ? pkg.revenue.toLocaleString() : "0"} revenue
                         </p>
                       </div>
                       <div className="text-right space-y-1 mr-4">
@@ -2060,10 +2024,10 @@ function AdminDashboardContent() {
                 <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
                 <Button onClick={async () => {
                   try {
-                    const name = (document.getElementById("user-name") as HTMLInputElement)?.value
-                    const email = (document.getElementById("user-email") as HTMLInputElement)?.value
-                    const status = (document.getElementById("user-status") as HTMLSelectElement)?.value
-                    const role = (document.getElementById("user-role") as HTMLSelectElement)?.value
+                  const name = (document.getElementById("user-name") as HTMLInputElement)?.value
+                  const email = (document.getElementById("user-email") as HTMLInputElement)?.value
+                  const status = (document.getElementById("user-status") as HTMLSelectElement)?.value
+                  const role = (document.getElementById("user-role") as HTMLSelectElement)?.value
                     const password = (document.getElementById("user-password") as HTMLInputElement)?.value
                     const phone = (document.getElementById("user-phone") as HTMLInputElement)?.value || ""
 
@@ -2075,7 +2039,7 @@ function AdminDashboardContent() {
                       return
                     }
 
-                    if (dialogAction === "add") {
+                  if (dialogAction === "add") {
                       // Create new user via API
                       if (!password || password.length < 8) {
                         toast.error("Password Required", {
@@ -2114,7 +2078,7 @@ function AdminDashboardContent() {
                           setAllUsers(transformedUsers)
                         }
                       }
-                    } else {
+                  } else {
                       // Update existing user via API
                       setIsLoadingUsers(true)
                       const response = await api.updateUser(selectedItem?.id, {
@@ -2147,10 +2111,10 @@ function AdminDashboardContent() {
                           setAllUsers(transformedUsers)
                         }
                       }
-                    }
-                    setDialogType(null)
-                    setDialogAction(null)
-                    setSelectedItem(null)
+                  }
+                  setDialogType(null)
+                  setDialogAction(null)
+                  setSelectedItem(null)
                   } catch (error: any) {
                     console.error("Error saving user:", error)
                     toast.error("Failed to save user", {
@@ -2211,7 +2175,14 @@ function AdminDashboardContent() {
                 </div>
                 <div>
                   <Label>Total Rooms</Label>
-                  <p className="text-sm text-foreground">{selectedItem?.rooms}</p>
+                  <p className="text-sm text-foreground">
+                    {(() => {
+                      if (Array.isArray(selectedItem?.rooms)) {
+                        return selectedItem.rooms.reduce((sum: number, room: any) => sum + (room.available || 0), 0)
+                      }
+                      return selectedItem?.rooms || 0
+                    })()}
+                  </p>
                 </div>
                 <div>
                   <Label>Total Bookings</Label>
@@ -2247,7 +2218,12 @@ function AdminDashboardContent() {
                 </div>
                 <div className="space-y-2">
                   <Label>Total Rooms *</Label>
-                  <Input type="number" defaultValue={selectedItem?.rooms || 0} min="0" id="hotel-rooms" />
+                  <Input type="number" defaultValue={(() => {
+                    if (Array.isArray(selectedItem?.rooms)) {
+                      return selectedItem.rooms.reduce((sum: number, room: any) => sum + (room.available || 0), 0)
+                    }
+                    return selectedItem?.rooms || 0
+                  })()} min="0" id="hotel-rooms" />
                 </div>
                 <div className="space-y-2">
                   <Label>Status *</Label>
@@ -2267,28 +2243,160 @@ function AdminDashboardContent() {
               </div>
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button onClick={() => {
+                <Button onClick={async () => {
+                  try {
                   const name = (document.getElementById("hotel-name") as HTMLInputElement)?.value
                   const location = (document.getElementById("hotel-location") as HTMLInputElement)?.value
-                  const rating = parseFloat((document.getElementById("hotel-rating") as HTMLInputElement)?.value || "0")
-                  const price = parseFloat((document.getElementById("hotel-price") as HTMLInputElement)?.value || "0")
-                  const rooms = parseInt((document.getElementById("hotel-rooms") as HTMLInputElement)?.value || "0")
+                  const ratingInput = (document.getElementById("hotel-rating") as HTMLInputElement)?.value || "0"
+                  const rating = parseFloat(ratingInput)
+                  const priceInput = (document.getElementById("hotel-price") as HTMLInputElement)?.value || "0"
+                  const price = parseFloat(priceInput)
+                  const roomsInput = (document.getElementById("hotel-rooms") as HTMLInputElement)?.value || "0"
+                  const rooms = parseInt(roomsInput)
                   const status = (document.getElementById("hotel-status") as HTMLSelectElement)?.value
-                  const bookings = parseInt((document.getElementById("hotel-bookings") as HTMLInputElement)?.value || "0")
-                  const revenue = parseFloat((document.getElementById("hotel-revenue") as HTMLInputElement)?.value || "0")
+
+                    // Validation
+                    if (!name || !location) {
+                      toast.error("Validation Error", {
+                        description: "Hotel name and location are required fields",
+                      })
+                      return
+                    }
+                    if (isNaN(rating) || rating < 0 || rating > 5) {
+                      toast.error("Validation Error", {
+                        description: "Rating must be a number between 0 and 5",
+                      })
+                      return
+                    }
+                    if (isNaN(price) || price < 0) {
+                      toast.error("Validation Error", {
+                        description: "Price must be a positive number",
+                      })
+                      return
+                    }
+                    if (isNaN(rooms) || rooms < 0) {
+                      toast.error("Validation Error", {
+                        description: "Number of rooms must be a positive number",
+                      })
+                      return
+                    }
+
+                    // Parse location (format: "City, Country")
+                    const locationParts = location.split(',').map(part => part.trim())
+                    const locationCity = locationParts[0] || ''
+                    const locationCountry = locationParts.slice(1).join(', ') || locationParts[0] || ''
+
+                    setIsLoadingHotels(true)
+
+                    // Prepare hotel data for backend
+                    // Clamp and round rating to ensure it's between 0 and 5 with max 2 decimal places
+                    const clampedRating = Math.max(0, Math.min(5, Math.round(rating * 100) / 100))
+                    const hotelData: any = {
+                      name,
+                      locationCity,
+                      locationCountry,
+                      locationAddress: location,
+                      description: selectedItem?.description || `${name} is a beautiful hotel located in ${location}.`,
+                      images: selectedItem?.images || ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80'],
+                      category: selectedItem?.category || 'business',
+                      amenities: selectedItem?.amenities || ['WiFi', 'Pool', 'Restaurant', 'Gym'],
+                      price,
+                      rating: clampedRating,
+                      reviewCount: parseInt((document.getElementById("hotel-bookings") as HTMLInputElement)?.value || "0"),
+                      rooms: [{
+                        type: 'Standard Room',
+                        capacity: 2,
+                        price: price,
+                        available: rooms,
+                        amenities: ['WiFi', 'AC', 'TV'],
+                      }],
+                      policies: selectedItem?.policies || {
+                        checkIn: '14:00',
+                        checkOut: '11:00',
+                        cancellation: 'Free cancellation up to 24 hours before check-in',
+                        petsAllowed: false,
+                        smokingAllowed: false,
+                      },
+                      contact: selectedItem?.contact || {
+                        phone: '+1-800-123-4567',
+                        email: `info@${name.toLowerCase().replace(/\s+/g, '')}.com`,
+                      },
+                      isActive: status === "active",
+                      isPopular: false,
+                      featured: false,
+                    }
 
                   if (dialogAction === "add") {
-                    const newId = `hotel-${allHotels.length + 1}`
-                    setAllHotels([...allHotels, { id: newId, name, location, rating, price, rooms, status, bookings, revenue }])
-                    toast.success("Hotel added", { description: `New hotel ${name} has been created` })
+                      // Create new hotel via API
+                      const response = await api.createHotel(hotelData) as { success: boolean; message: string; data: { hotel: any } }
+                      if (response.success) {
+                        toast.success("Hotel added", { description: `New hotel ${name} has been created successfully` })
+                        // Refresh hotels list
+                        const hotelsResponse = await api.getHotels({ limit: 100 }) as { success: boolean; data: { hotels?: any[] } }
+                        if (hotelsResponse.success && hotelsResponse.data) {
+                          const hotels = hotelsResponse.data.hotels || []
+                          const transformedHotels = hotels.map((hotel: any) => {
+                            const roomsCount = hotel.rooms && Array.isArray(hotel.rooms) 
+                              ? hotel.rooms.reduce((sum: number, room: any) => sum + (room.available || 0), 0) 
+                              : 0
+                            return {
+                              ...hotel,
+                              id: hotel.id.toString(),
+                              name: hotel.name,
+                              location: `${hotel.locationCity || ''}, ${hotel.locationCountry || ''}`.trim(),
+                              rating: parseFloat(hotel.rating || 0),
+                              price: parseFloat(hotel.price || 0),
+                              rooms: roomsCount,
+                              status: hotel.isActive ? "active" : "inactive",
+                              bookings: hotel.reviewCount || 0,
+                              revenue: 0,
+                            }
+                          })
+                          setAllHotels(transformedHotels)
+                        }
+                      }
                   } else {
-                    setAllHotels(allHotels.map(h => h.id === selectedItem?.id ? { ...h, name, location, rating, price, rooms, status, bookings, revenue } : h))
-                    toast.success("Hotel updated", { description: `Hotel ${name} has been updated` })
+                      // Update existing hotel via API
+                      const response = await api.updateHotel(selectedItem?.id, hotelData) as { success: boolean; message: string; data: { hotel: any } }
+                      if (response.success) {
+                        toast.success("Hotel updated", { description: `Hotel ${name} has been updated successfully` })
+                        // Refresh hotels list
+                        const hotelsResponse = await api.getHotels({ limit: 100 }) as { success: boolean; data: { hotels?: any[] } }
+                        if (hotelsResponse.success && hotelsResponse.data) {
+                          const hotels = hotelsResponse.data.hotels || []
+                          const transformedHotels = hotels.map((hotel: any) => {
+                            const roomsCount = hotel.rooms && Array.isArray(hotel.rooms) 
+                              ? hotel.rooms.reduce((sum: number, room: any) => sum + (room.available || 0), 0) 
+                              : 0
+                            return {
+                              ...hotel,
+                              id: hotel.id.toString(),
+                              name: hotel.name,
+                              location: `${hotel.locationCity || ''}, ${hotel.locationCountry || ''}`.trim(),
+                              rating: parseFloat(hotel.rating || 0),
+                              price: parseFloat(hotel.price || 0),
+                              rooms: roomsCount,
+                              status: hotel.isActive ? "active" : "inactive",
+                              bookings: hotel.reviewCount || 0,
+                              revenue: 0,
+                            }
+                          })
+                          setAllHotels(transformedHotels)
+                        }
+                      }
                   }
                   setDialogType(null)
                   setDialogAction(null)
                   setSelectedItem(null)
-                }}>Save</Button>
+                  } catch (error: any) {
+                    console.error("Error saving hotel:", error)
+                    toast.error("Failed to save hotel", {
+                      description: error.message || "An error occurred while saving the hotel",
+                    })
+                  } finally {
+                    setIsLoadingHotels(false)
+                  }
+                }} disabled={isLoadingHotels}>Save</Button>
               </div>
             </div>
           )}
@@ -2332,7 +2440,7 @@ function AdminDashboardContent() {
                 </div>
                 <div>
                   <Label>Duration</Label>
-                  <p className="text-sm text-foreground">{selectedItem?.duration}</p>
+                  <p className="text-sm text-foreground">{formatDuration(selectedItem?.duration)}</p>
                 </div>
                 <div>
                   <Label>Price per Person</Label>
@@ -2364,7 +2472,7 @@ function AdminDashboardContent() {
                 </div>
                 <div className="space-y-2">
                   <Label>Duration *</Label>
-                  <Input defaultValue={selectedItem?.duration || ""} id="package-duration" placeholder="e.g., 7 days" />
+                  <Input defaultValue={selectedItem?.duration && typeof selectedItem.duration === 'string' ? selectedItem.duration : (selectedItem?.duration?.days ? `${selectedItem.duration.days} Days${selectedItem.duration.nights ? ` / ${selectedItem.duration.nights} Nights` : ''}` : "")} id="package-duration" placeholder="e.g., 7 days" />
                 </div>
                 <div className="space-y-2">
                   <Label>Price per Person ($) *</Label>
@@ -2388,27 +2496,146 @@ function AdminDashboardContent() {
               </div>
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button onClick={() => {
+                <Button onClick={async () => {
+                  try {
                   const name = (document.getElementById("package-name") as HTMLInputElement)?.value
                   const destination = (document.getElementById("package-destination") as HTMLInputElement)?.value
                   const duration = (document.getElementById("package-duration") as HTMLInputElement)?.value
                   const price = parseFloat((document.getElementById("package-price") as HTMLInputElement)?.value || "0")
                   const status = (document.getElementById("package-status") as HTMLSelectElement)?.value
-                  const bookings = parseInt((document.getElementById("package-bookings") as HTMLInputElement)?.value || "0")
-                  const revenue = parseFloat((document.getElementById("package-revenue") as HTMLInputElement)?.value || "0")
+
+                    // Validation
+                    if (!name || !destination) {
+                      toast.error("Validation Error", {
+                        description: "Package name and destination are required fields",
+                      })
+                      return
+                    }
+
+                    setIsLoadingPackages(true)
+
+                    // Parse destination into array (format: "City1, City2, City3")
+                    const destinationArray = destination.split(',').map(d => d.trim()).filter(d => d)
+
+                    // Parse duration (format: "7 Days / 6 Nights" or "7 days" or "7")
+                    let durationObj = { days: 7, nights: 6 }
+                    if (duration) {
+                      const durationLower = duration.toLowerCase()
+                      const daysMatch = durationLower.match(/(\d+)\s*days?/)
+                      const nightsMatch = durationLower.match(/(\d+)\s*nights?/)
+                      if (daysMatch) {
+                        durationObj.days = parseInt(daysMatch[1])
+                      }
+                      if (nightsMatch) {
+                        durationObj.nights = parseInt(nightsMatch[1])
+                      } else if (daysMatch) {
+                        // If only days specified, assume nights = days - 1
+                        durationObj.nights = Math.max(0, durationObj.days - 1)
+                      }
+                    }
+
+                    // Prepare package data for backend
+                    const packageData: any = {
+                      title: name,
+                      destination: destinationArray,
+                      description: selectedItem?.description || `Explore ${destinationArray.join(', ')} in this amazing ${durationObj.days}-day travel package.`,
+                      images: selectedItem?.images || ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80'],
+                      duration: durationObj,
+                      includes: selectedItem?.includes || ['Hotels', 'Breakfast', 'Transportation'],
+                      price,
+                      category: selectedItem?.category || 'cultural',
+                      maxTravelers: selectedItem?.maxTravelers || 25,
+                      minTravelers: selectedItem?.minTravelers || 2,
+                      itinerary: selectedItem?.itinerary || [],
+                      highlights: selectedItem?.highlights || [],
+                      exclusions: selectedItem?.exclusions || ['International Flights', 'Personal Expenses'],
+                      termsAndConditions: selectedItem?.termsAndConditions || ['Valid passport required'],
+                      isActive: status === "active",
+                      isPopular: false,
+                      featured: false,
+                      rating: 0,
+                      reviewCount: 0,
+                    }
 
                   if (dialogAction === "add") {
-                    const newId = `pkg-${allPackages.length + 1}`
-                    setAllPackages([...allPackages, { id: newId, name, destination, duration, price, status, bookings, revenue }])
-                    toast.success("Package added", { description: `New package ${name} has been created` })
+                      // Create new package via API
+                      const response = await api.createPackage(packageData) as { success: boolean; message: string; data: { package: any } }
+                      if (response.success) {
+                        toast.success("Package added", { description: `New package ${name} has been created successfully` })
+                        // Refresh packages list
+                        const packagesResponse = await api.getPackages({ limit: 100 }) as { success: boolean; data: { packages?: any[] } }
+                        if (packagesResponse.success && packagesResponse.data?.packages) {
+                          const transformedPackages = packagesResponse.data.packages.map((pkg: any) => {
+                            let durationStr = pkg.duration
+                            if (typeof pkg.duration === 'object' && pkg.duration.days) {
+                              durationStr = `${pkg.duration.days} Days${pkg.duration.nights ? ` / ${pkg.duration.nights} Nights` : ''}`
+                            } else if (typeof pkg.duration === 'string') {
+                              durationStr = pkg.duration
                   } else {
-                    setAllPackages(allPackages.map(p => p.id === selectedItem?.id ? { ...p, name, destination, duration, price, status, bookings, revenue } : p))
-                    toast.success("Package updated", { description: `Package ${name} has been updated` })
+                              durationStr = "N/A"
+                            }
+                            
+                            return {
+                              id: pkg.id.toString(),
+                              name: pkg.title,
+                              destination: Array.isArray(pkg.destination) ? pkg.destination.join(", ") : (pkg.destination || ""),
+                              duration: durationStr,
+                              price: parseFloat(pkg.price || 0),
+                              bookings: 0,
+                              status: pkg.isActive ? "active" : "inactive",
+                              revenue: 0,
+                              ...pkg,
+                            }
+                          })
+                          setAllPackages(transformedPackages)
+                        }
+                      }
+                    } else {
+                      // Update existing package via API
+                      const response = await api.updatePackage(selectedItem?.id, packageData) as { success: boolean; message: string; data: { package: any } }
+                      if (response.success) {
+                        toast.success("Package updated", { description: `Package ${name} has been updated successfully` })
+                        // Refresh packages list
+                        const packagesResponse = await api.getPackages({ limit: 100 }) as { success: boolean; data: { packages?: any[] } }
+                        if (packagesResponse.success && packagesResponse.data?.packages) {
+                          const transformedPackages = packagesResponse.data.packages.map((pkg: any) => {
+                            let durationStr = pkg.duration
+                            if (typeof pkg.duration === 'object' && pkg.duration.days) {
+                              durationStr = `${pkg.duration.days} Days${pkg.duration.nights ? ` / ${pkg.duration.nights} Nights` : ''}`
+                            } else if (typeof pkg.duration === 'string') {
+                              durationStr = pkg.duration
+                            } else {
+                              durationStr = "N/A"
+                            }
+                            
+                            return {
+                              id: pkg.id.toString(),
+                              name: pkg.title,
+                              destination: Array.isArray(pkg.destination) ? pkg.destination.join(", ") : (pkg.destination || ""),
+                              duration: durationStr,
+                              price: parseFloat(pkg.price || 0),
+                              bookings: 0,
+                              status: pkg.isActive ? "active" : "inactive",
+                              revenue: 0,
+                              ...pkg,
+                            }
+                          })
+                          setAllPackages(transformedPackages)
+                        }
+                      }
                   }
                   setDialogType(null)
                   setDialogAction(null)
                   setSelectedItem(null)
-                }}>Save</Button>
+                  } catch (error: any) {
+                    console.error("Error saving package:", error)
+                    toast.error("Failed to save package", {
+                      description: error.message || "An error occurred while saving the package",
+                    })
+                  } finally {
+                    setIsLoadingPackages(false)
+                  }
+                }} disabled={isLoadingPackages}>Save</Button>
               </div>
             </div>
           )}

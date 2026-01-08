@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { api } from "@/lib/api"
 
 export default function AdminsContent() {
   const { user } = useRole()
@@ -35,44 +36,37 @@ export default function AdminsContent() {
   const [dialogType, setDialogType] = useState<string | null>(null)
   const [dialogAction, setDialogAction] = useState<"add" | "view" | "edit" | null>(null)
   const [selectedItem, setSelectedItem] = useState<any>(null)
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
 
-  // Load comprehensive mock users
+  // Fetch admins from backend
   useEffect(() => {
-    setUsers([
-      {
-        id: "admin-1",
-        email: "admin@tabilink.com",
-        name: "Admin Manager",
-        role: "admin",
-        createdAt: "2024-01-01T00:00:00Z",
-        lastLogin: "2024-01-15T09:15:00Z",
-      },
-      {
-        id: "admin-2",
-        email: "admin2@tabilink.com",
-        name: "Support Admin",
-        role: "admin",
-        createdAt: "2023-11-10T00:00:00Z",
-        lastLogin: "2024-01-15T14:45:00Z",
-      },
-      {
-        id: "admin-3",
-        email: "admin3@tabilink.com",
-        name: "Operations Admin",
-        role: "admin",
-        createdAt: "2023-10-15T00:00:00Z",
-        lastLogin: "2024-01-16T10:20:00Z",
-      },
-      {
-        id: "super-admin-1",
-        email: user?.email || "superadmin@tabilink.com",
-        name: user?.name || "Super Admin",
-        role: "super_admin",
-        createdAt: "2023-01-01T00:00:00Z",
-        lastLogin: "2024-01-17T10:00:00Z",
-      },
-    ])
-  }, [user])
+    const fetchAdmins = async () => {
+      setIsLoadingUsers(true)
+      try {
+        const response = await api.getUsers({ search: adminSearch }) as { success: boolean; data: { users: any[] } }
+        if (response.success && response.data.users) {
+          // Filter to only admins and super admins
+          const admins = response.data.users.filter((u: any) => u.role === "admin" || u.role === "super_admin")
+          setUsers(admins.map((u: any) => ({
+            id: u.id.toString(),
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+            lastLogin: u.lastLogin || null,
+          })))
+        }
+      } catch (error: any) {
+        console.error("Error fetching admins:", error)
+        toast.error("Failed to load admins", {
+          description: error.message || "An error occurred while fetching admins",
+        })
+      } finally {
+        setIsLoadingUsers(false)
+      }
+    }
+    fetchAdmins()
+  }, [adminSearch])
 
   const allAdmins = users.filter(u => u.role === "admin" || u.role === "super_admin")
   const filteredAdmins = allAdmins.filter((a) =>
@@ -86,11 +80,31 @@ export default function AdminsContent() {
     super_admin: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400",
   }
 
-  const handleRoleChange = (userId: string, newRole: UserRole) => {
-    setUsers(users.map((u) => (u.id === userId ? { ...u, role: newRole } : u)))
-    toast.success("Role updated", {
-      description: `Admin role has been changed to ${newRole}`,
-    })
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    try {
+      await api.updateUser(userId, { role: newRole }) as { success: boolean; message: string }
+      toast.success("Role updated", {
+        description: `Admin role has been changed to ${newRole}`,
+      })
+      // Refresh admins list
+      const response = await api.getUsers({ search: adminSearch }) as { success: boolean; data: { users: any[] } }
+      if (response.success && response.data.users) {
+        const admins = response.data.users.filter((u: any) => u.role === "admin" || u.role === "super_admin")
+        setUsers(admins.map((u: any) => ({
+          id: u.id.toString(),
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+          lastLogin: u.lastLogin || null,
+        })))
+      }
+    } catch (error: any) {
+      console.error("Error updating role:", error)
+      toast.error("Failed to update role", {
+        description: error.message || "An error occurred while updating the role",
+      })
+    }
   }
 
   return (
@@ -334,6 +348,14 @@ export default function AdminsContent() {
                   <Input type="email" defaultValue={selectedItem?.email || ""} id="admin-email" placeholder="admin@example.com" />
                 </div>
                 <div className="space-y-2">
+                  <Label>Password {dialogAction === "add" ? "*" : "(leave blank to keep current)"}</Label>
+                  <Input type="password" id="admin-password" placeholder={dialogAction === "add" ? "Minimum 8 characters" : "Leave blank to keep current"} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input type="tel" defaultValue={selectedItem?.phone || ""} id="admin-phone" placeholder="Optional" />
+                </div>
+                <div className="space-y-2">
                   <Label>Role *</Label>
                   <Select defaultValue={selectedItem?.role || "admin"} id="admin-role">
                     <option value="admin">Admin</option>
@@ -355,49 +377,111 @@ export default function AdminsContent() {
               </div>
               <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
                 <Button variant="outline" className="w-full sm:w-auto" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button className="w-full sm:w-auto" onClick={() => {
-                  const name = (document.getElementById("admin-name") as HTMLInputElement)?.value
-                  const email = (document.getElementById("admin-email") as HTMLInputElement)?.value
-                  const role = (document.getElementById("admin-role") as HTMLSelectElement)?.value as "admin" | "super_admin"
-                  
-                  // Validation
-                  if (!name || !email) {
-                    toast.error("Validation Error", {
-                      description: "Name and email are required fields",
-                    })
-                    return
-                  }
-
-                  // Check if email already exists
-                  if (dialogAction === "add" && users.some(u => u.email === email)) {
-                    toast.error("Email Already Exists", {
-                      description: "An admin with this email already exists",
-                    })
-                    return
-                  }
-
-                  if (dialogAction === "add") {
-                    const newId = `admin-${Date.now()}`
-                    const newAdmin: User = {
-                      id: newId,
-                      name,
-                      email,
-                      role,
-                      createdAt: new Date().toISOString(),
-                      lastLogin: new Date().toISOString(),
+                <Button className="w-full sm:w-auto" onClick={async () => {
+                  try {
+                    const name = (document.getElementById("admin-name") as HTMLInputElement)?.value
+                    const email = (document.getElementById("admin-email") as HTMLInputElement)?.value
+                    const password = (document.getElementById("admin-password") as HTMLInputElement)?.value
+                    const phone = (document.getElementById("admin-phone") as HTMLInputElement)?.value || ""
+                    const role = (document.getElementById("admin-role") as HTMLSelectElement)?.value as "admin" | "super_admin"
+                    
+                    // Validation
+                    if (!name || !email) {
+                      toast.error("Validation Error", {
+                        description: "Name and email are required fields",
+                      })
+                      return
                     }
-                    setUsers([...users, newAdmin])
-                    toast.success("Admin created", { description: `New admin ${name} has been created successfully` })
-                  } else {
-                  const createdAt = (document.getElementById("admin-created") as HTMLInputElement)?.value
-                  const lastLogin = (document.getElementById("admin-login") as HTMLInputElement)?.value
-                  setUsers(users.map(u => u.id === selectedItem?.id ? { ...u, name, email, role, createdAt: createdAt ? new Date(createdAt).toISOString() : u.createdAt, lastLogin: lastLogin ? new Date(lastLogin).toISOString() : u.lastLogin } : u))
-                  toast.success("Admin updated", { description: `Admin ${name} has been updated` })
+                    if (dialogAction === "add" && (!password || password.length < 8)) {
+                      toast.error("Validation Error", {
+                        description: "Password must be at least 8 characters for new admins",
+                      })
+                      return
+                    }
+
+                    setIsLoadingUsers(true)
+
+                    if (dialogAction === "add") {
+                      // Create new admin via API
+                      console.log("Creating admin with data:", { name, email, phone, role, passwordLength: password?.length })
+                      const response = await api.createUser({
+                        name,
+                        email,
+                        password,
+                        phone,
+                        role,
+                      }) as { success?: boolean; message?: string; data?: { user: any } }
+                      console.log("Create admin response:", response)
+
+                      if (response && (response.success !== false)) {
+                        toast.success("Admin created", { 
+                          description: `New admin ${name} has been created successfully` 
+                        })
+                        // Refresh admins list
+                        try {
+                          const usersResponse = await api.getUsers({ search: adminSearch }) as { success?: boolean; data?: { users: any[] } }
+                          if (usersResponse && usersResponse.data && usersResponse.data.users) {
+                            const admins = usersResponse.data.users.filter((u: any) => u.role === "admin" || u.role === "super_admin")
+                            setUsers(admins.map((u: any) => ({
+                              id: u.id.toString(),
+                              name: u.name,
+                              email: u.email,
+                              role: u.role,
+                              createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+                              lastLogin: u.lastLogin || null,
+                            })))
+                          }
+                        } catch (refreshError: any) {
+                          console.error("Error refreshing admins list:", refreshError)
+                          // Don't show error for refresh failure, admin was still created
+                        }
+                      } else {
+                        throw new Error(response.message || "Failed to create admin")
+                      }
+                    } else {
+                      // Update existing admin via API
+                      const updateData: any = {
+                        name,
+                        email,
+                        phone,
+                        role,
+                      }
+                      if (password && password.length >= 8) {
+                        updateData.password = password
+                      }
+                      const response = await api.updateUser(selectedItem?.id, updateData) as { success: boolean; message: string; data: { user: any } }
+
+                      if (response.success) {
+                        toast.success("Admin updated", { 
+                          description: `Admin ${name} has been updated successfully` 
+                        })
+                        // Refresh admins list
+                        const usersResponse = await api.getUsers({ search: adminSearch }) as { success: boolean; data: { users: any[] } }
+                        if (usersResponse.success && usersResponse.data.users) {
+                          const admins = usersResponse.data.users.filter((u: any) => u.role === "admin" || u.role === "super_admin")
+                          setUsers(admins.map((u: any) => ({
+                            id: u.id.toString(),
+                            name: u.name,
+                            email: u.email,
+                            role: u.role,
+                            createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+                            lastLogin: u.lastLogin || null,
+                          })))
+                        }
+                      }
+                    }
+                    setDialogType(null)
+                    setDialogAction(null)
+                    setSelectedItem(null)
+                  } catch (error: any) {
+                    console.error("Error saving admin:", error)
+                    toast.error("Failed to save admin", {
+                      description: error.message || "An error occurred while saving the admin",
+                    })
+                  } finally {
+                    setIsLoadingUsers(false)
                   }
-                  setDialogType(null)
-                  setDialogAction(null)
-                  setSelectedItem(null)
-                }}>Save</Button>
+                }} disabled={isLoadingUsers}>Save</Button>
               </div>
             </div>
           )}

@@ -42,10 +42,17 @@ class ApiClient {
     }
 
     try {
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(url, {
         ...fetchOptions,
         headers,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       // Handle non-JSON responses
       const contentType = response.headers.get('content-type');
@@ -65,11 +72,21 @@ class ApiClient {
       return data;
     } catch (error: any) {
       // Handle network errors
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        console.error('Network error: Could not connect to API server. Make sure the backend is running on http://localhost:5000');
-        throw new Error('Cannot connect to server. Please make sure the backend server is running.');
+      if (error instanceof TypeError && (error.message === 'Failed to fetch' || error.message.includes('fetch'))) {
+        const errorMessage = `Cannot connect to backend server at ${this.baseURL}. Please make sure:
+1. The backend server is running on http://localhost:5000
+2. The server is accessible and not blocked by firewall
+3. Check the browser console for more details`;
+        console.error('Network error:', errorMessage);
+        console.error('Attempted URL:', url);
+        throw new Error(errorMessage);
+      }
+      // Handle timeout errors
+      if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+        throw new Error('Request timeout. The server is taking too long to respond.');
       }
       console.error('API request failed:', error);
+      console.error('Request URL:', url);
       throw error;
     }
   }
@@ -122,6 +139,26 @@ class ApiClient {
     return this.request(`/hotels/${id}`);
   }
 
+  async createHotel(data: any) {
+    return this.request('/hotels', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateHotel(id: string | number, data: any) {
+    return this.request(`/hotels/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteHotel(id: string | number) {
+    return this.request(`/hotels/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Travel Packages
   async getPackages(params?: {
     search?: string;
@@ -141,6 +178,26 @@ class ApiClient {
 
   async getPackage(id: string) {
     return this.request(`/packages/${id}`);
+  }
+
+  async createPackage(data: any) {
+    return this.request('/packages', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updatePackage(id: string | number, data: any) {
+    return this.request(`/packages/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deletePackage(id: string | number) {
+    return this.request(`/packages/${id}`, {
+      method: 'DELETE',
+    });
   }
 
   // Bookings

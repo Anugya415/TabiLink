@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { api } from "@/lib/api"
 
 export default function UsersContent() {
   const { user } = useRole()
@@ -36,92 +37,36 @@ export default function UsersContent() {
   const [dialogType, setDialogType] = useState<string | null>(null)
   const [dialogAction, setDialogAction] = useState<"add" | "view" | "edit" | null>(null)
   const [selectedItem, setSelectedItem] = useState<any>(null)
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
 
-  // Load comprehensive mock users
+  // Fetch users from backend
   useEffect(() => {
-    setUsers([
-      {
-        id: "user-1",
-        email: "user@tabilink.com",
-        name: "John Traveler",
-        role: "user",
-        createdAt: "2024-01-01T00:00:00Z",
-        lastLogin: "2024-01-15T10:30:00Z",
-      },
-      {
-        id: "user-2",
-        email: "jane@tabilink.com",
-        name: "Jane Smith",
-        role: "user",
-        createdAt: "2024-01-05T00:00:00Z",
-        lastLogin: "2024-01-14T14:20:00Z",
-      },
-      {
-        id: "user-3",
-        email: "mike@tabilink.com",
-        name: "Mike Johnson",
-        role: "user",
-        createdAt: "2024-01-10T00:00:00Z",
-        lastLogin: "2024-01-13T16:45:00Z",
-      },
-      {
-        id: "user-4",
-        email: "sarah@tabilink.com",
-        name: "Sarah Williams",
-        role: "user",
-        createdAt: "2023-12-15T00:00:00Z",
-        lastLogin: "2024-01-16T08:20:00Z",
-      },
-      {
-        id: "user-5",
-        email: "david@tabilink.com",
-        name: "David Brown",
-        role: "user",
-        createdAt: "2024-01-20T00:00:00Z",
-        lastLogin: "2024-01-17T11:30:00Z",
-      },
-      {
-        id: "user-6",
-        email: "emily@tabilink.com",
-        name: "Emily Davis",
-        role: "user",
-        createdAt: "2023-11-05T00:00:00Z",
-        lastLogin: "2024-01-16T09:15:00Z",
-      },
-      {
-        id: "user-7",
-        email: "robert@tabilink.com",
-        name: "Robert Wilson",
-        role: "user",
-        createdAt: "2024-01-08T00:00:00Z",
-        lastLogin: "2024-01-17T15:22:00Z",
-      },
-      {
-        id: "user-8",
-        email: "lisa@tabilink.com",
-        name: "Lisa Anderson",
-        role: "user",
-        createdAt: "2024-01-12T00:00:00Z",
-        lastLogin: "2024-01-16T12:10:00Z",
-      },
-      {
-        id: "user-9",
-        email: "james@tabilink.com",
-        name: "James Martinez",
-        role: "user",
-        createdAt: "2023-12-20T00:00:00Z",
-        lastLogin: "2024-01-15T09:45:00Z",
-      },
-      {
-        id: "user-10",
-        email: "maria@tabilink.com",
-        name: "Maria Garcia",
-        role: "user",
-        createdAt: "2024-01-03T00:00:00Z",
-        lastLogin: "2024-01-17T14:30:00Z",
-      },
-    ])
-  }, [])
+    const fetchUsers = async () => {
+      setIsLoadingUsers(true)
+      try {
+        const response = await api.getUsers({ search: userSearch }) as { success: boolean; data: { users: any[] } }
+        if (response.success && response.data.users) {
+          setUsers(response.data.users.map((u: any) => ({
+            id: u.id.toString(),
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+            lastLogin: u.lastLogin || null,
+          })))
+        }
+      } catch (error: any) {
+        console.error("Error fetching users:", error)
+        toast.error("Failed to load users", {
+          description: error.message || "An error occurred while fetching users",
+        })
+      } finally {
+        setIsLoadingUsers(false)
+      }
+    }
+    fetchUsers()
+  }, [userSearch])
+
 
   const allRegularUsers = users.filter(u => u.role === "user")
   const filteredUsers = allRegularUsers.filter((u) =>
@@ -135,11 +80,33 @@ export default function UsersContent() {
     super_admin: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400",
   }
 
-  const handleRoleChange = (userId: string, newRole: UserRole) => {
-    setUsers(users.map((u) => (u.id === userId ? { ...u, role: newRole } : u)))
-    toast.success("Role updated", {
-      description: `User role has been changed to ${newRole}`,
-    })
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    try {
+      const user = users.find(u => u.id === userId)
+      if (!user) return
+
+      await api.updateUser(userId, { role: newRole }) as { success: boolean; message: string }
+      toast.success("Role updated", {
+        description: `User role has been changed to ${newRole}`,
+      })
+      // Refresh users list
+      const usersResponse = await api.getUsers() as { success: boolean; data: { users: any[] } }
+      if (usersResponse.success && usersResponse.data.users) {
+        setUsers(usersResponse.data.users.map((u: any) => ({
+          id: u.id.toString(),
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+          lastLogin: u.lastLogin || null,
+        })))
+      }
+    } catch (error: any) {
+      console.error("Error updating role:", error)
+      toast.error("Failed to update role", {
+        description: error.message || "An error occurred while updating the role",
+      })
+    }
   }
 
   return (
@@ -290,11 +257,30 @@ export default function UsersContent() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            toast.success("User deleted", {
-                              description: `${u.name} has been removed from the system`,
-                            })
-                            setUsers(users.filter((user) => user.id !== u.id))
+                          onClick={async () => {
+                            try {
+                              await api.deleteUser(u.id) as { success: boolean; message: string }
+                              toast.success("User deleted", {
+                                description: `${u.name} has been removed from the system`,
+                              })
+                              // Refresh users list
+                              const usersResponse = await api.getUsers() as { success: boolean; data: { users: any[] } }
+                              if (usersResponse.success && usersResponse.data.users) {
+                                setUsers(usersResponse.data.users.map((user: any) => ({
+                                  id: user.id.toString(),
+                                  name: user.name,
+                                  email: user.email,
+                                  role: user.role,
+                                  createdAt: user.createdAt || user.memberSince || new Date().toISOString(),
+                                  lastLogin: user.lastLogin || null,
+                                })))
+                              }
+                            } catch (error: any) {
+                              console.error("Error deleting user:", error)
+                              toast.error("Failed to delete user", {
+                                description: error.message || "An error occurred while deleting the user",
+                              })
+                            }
                           }}
                           className="text-destructive hover:text-destructive"
                         >
@@ -371,6 +357,14 @@ export default function UsersContent() {
                   <Input type="email" defaultValue={selectedItem?.email || ""} id="user-email" />
                 </div>
                 <div className="space-y-2">
+                  <Label>Password {dialogAction === "add" ? "*" : "(leave blank to keep current)"}</Label>
+                  <Input type="password" id="user-password" placeholder={dialogAction === "add" ? "Minimum 8 characters" : "Leave blank to keep current"} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input type="tel" defaultValue={selectedItem?.phone || ""} id="user-phone" placeholder="Optional" />
+                </div>
+                <div className="space-y-2">
                   <Label>Role *</Label>
                   <Select defaultValue={selectedItem?.role || "user"} id="user-role">
                     <option value="user">User</option>
@@ -378,36 +372,112 @@ export default function UsersContent() {
                     <option value="super_admin">Super Admin</option>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label>Created At</Label>
-                  <Input type="datetime-local" defaultValue={selectedItem?.createdAt ? new Date(selectedItem.createdAt).toISOString().slice(0, 16) : ""} id="user-created" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Last Login</Label>
-                  <Input type="datetime-local" defaultValue={selectedItem?.lastLogin ? new Date(selectedItem.lastLogin).toISOString().slice(0, 16) : ""} id="user-login" />
-                </div>
               </div>
               <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
                 <Button variant="outline" className="w-full sm:w-auto" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
-                <Button className="w-full sm:w-auto" onClick={() => {
-                  const name = (document.getElementById("user-name") as HTMLInputElement)?.value
-                  const email = (document.getElementById("user-email") as HTMLInputElement)?.value
-                  const role = (document.getElementById("user-role") as HTMLSelectElement)?.value as "user" | "admin" | "super_admin"
-                  const createdAt = (document.getElementById("user-created") as HTMLInputElement)?.value
-                  const lastLogin = (document.getElementById("user-login") as HTMLInputElement)?.value
+                <Button className="w-full sm:w-auto" onClick={async () => {
+                  try {
+                    const name = (document.getElementById("user-name") as HTMLInputElement)?.value
+                    const email = (document.getElementById("user-email") as HTMLInputElement)?.value
+                    const password = (document.getElementById("user-password") as HTMLInputElement)?.value
+                    const phone = (document.getElementById("user-phone") as HTMLInputElement)?.value || ""
+                    const role = (document.getElementById("user-role") as HTMLSelectElement)?.value as "user" | "admin" | "super_admin"
 
-                  if (dialogAction === "add") {
-                    const newId = `user-${users.length + 1}`
-                    setUsers([...users, { id: newId, name, email, role, createdAt: createdAt ? new Date(createdAt).toISOString() : new Date().toISOString(), lastLogin: lastLogin ? new Date(lastLogin).toISOString() : new Date().toISOString() }])
-                    toast.success("User added", { description: `New user ${name} has been created` })
-                  } else {
-                    setUsers(users.map(u => u.id === selectedItem?.id ? { ...u, name, email, role, createdAt: createdAt ? new Date(createdAt).toISOString() : u.createdAt, lastLogin: lastLogin ? new Date(lastLogin).toISOString() : u.lastLogin } : u))
-                    toast.success("User updated", { description: `User ${name} has been updated` })
+                    // Validation
+                    if (!name || !email) {
+                      toast.error("Validation Error", {
+                        description: "Name and email are required fields",
+                      })
+                      return
+                    }
+                    if (dialogAction === "add" && (!password || password.length < 8)) {
+                      toast.error("Validation Error", {
+                        description: "Password must be at least 8 characters for new users",
+                      })
+                      return
+                    }
+
+                    setIsLoadingUsers(true)
+
+                    if (dialogAction === "add") {
+                      // Create new user via API
+                      console.log("Creating user with data:", { name, email, phone, role, passwordLength: password?.length })
+                      const response = await api.createUser({
+                        name,
+                        email,
+                        password,
+                        phone,
+                        role,
+                      }) as { success?: boolean; message?: string; data?: { user: any } }
+                      console.log("Create user response:", response)
+
+                      if (response && (response.success !== false)) {
+                        toast.success("User added", {
+                          description: `New user ${name} has been created successfully`,
+                        })
+                        // Refresh users list
+                        try {
+                          const usersResponse = await api.getUsers({ search: userSearch }) as { success?: boolean; data?: { users: any[] } }
+                          if (usersResponse && usersResponse.data && usersResponse.data.users) {
+                            setUsers(usersResponse.data.users.map((u: any) => ({
+                              id: u.id.toString(),
+                              name: u.name,
+                              email: u.email,
+                              role: u.role,
+                              createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+                              lastLogin: u.lastLogin || null,
+                            })))
+                          }
+                        } catch (refreshError: any) {
+                          console.error("Error refreshing users list:", refreshError)
+                          // Don't show error for refresh failure, user was still created
+                        }
+                      } else {
+                        throw new Error(response?.message || "Failed to create user")
+                      }
+                    } else {
+                      // Update existing user via API
+                      const updateData: any = {
+                        name,
+                        email,
+                        phone,
+                        role,
+                      }
+                      if (password && password.length >= 8) {
+                        updateData.password = password
+                      }
+                      const response = await api.updateUser(selectedItem?.id, updateData) as { success: boolean; message: string; data: { user: any } }
+
+                      if (response.success) {
+                        toast.success("User updated", {
+                          description: `User ${name} has been updated successfully`,
+                        })
+                        // Refresh users list
+                        const usersResponse = await api.getUsers() as { success: boolean; data: { users: any[] } }
+                        if (usersResponse.success && usersResponse.data.users) {
+                          setUsers(usersResponse.data.users.map((u: any) => ({
+                            id: u.id.toString(),
+                            name: u.name,
+                            email: u.email,
+                            role: u.role,
+                            createdAt: u.createdAt || u.memberSince || new Date().toISOString(),
+                            lastLogin: u.lastLogin || null,
+                          })))
+                        }
+                      }
+                    }
+                    setDialogType(null)
+                    setDialogAction(null)
+                    setSelectedItem(null)
+                  } catch (error: any) {
+                    console.error("Error saving user:", error)
+                    toast.error("Failed to save user", {
+                      description: error.message || "An error occurred while saving the user",
+                    })
+                  } finally {
+                    setIsLoadingUsers(false)
                   }
-                  setDialogType(null)
-                  setDialogAction(null)
-                  setSelectedItem(null)
-                }}>Save</Button>
+                }} disabled={isLoadingUsers}>Save</Button>
               </div>
             </div>
           )}
