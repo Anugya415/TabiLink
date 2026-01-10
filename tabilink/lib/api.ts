@@ -58,7 +58,8 @@ class ApiClient {
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const text = await response.text().catch(() => '');
+          throw new Error(`HTTP error! status: ${response.status}${text ? ` - ${text}` : ''}`);
         }
         return {} as T;
       }
@@ -66,7 +67,21 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
+        // Extract error message from response
+        const errorMessage = data.message || data.error || `HTTP error! status: ${response.status}`;
+        const error = new Error(errorMessage);
+        // Attach response data to error for debugging
+        (error as any).response = data;
+        (error as any).status = response.status;
+        // Don't log expected client errors (4xx) as errors, only server errors (5xx)
+        if (response.status >= 500) {
+          console.error('Server error:', {
+            status: response.status,
+            message: errorMessage,
+            url: url,
+          });
+        }
+        throw error;
       }
 
       return data;
@@ -79,15 +94,32 @@ class ApiClient {
 3. Check the browser console for more details`;
         console.error('Network error:', errorMessage);
         console.error('Attempted URL:', url);
+        console.error('Error details:', error);
         throw new Error(errorMessage);
       }
-      // Handle timeout errors
+      // Handle abort/timeout errors
       if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+        console.error('Request timeout:', url);
         throw new Error('Request timeout. The server is taking too long to respond.');
       }
-      console.error('API request failed:', error);
-      console.error('Request URL:', url);
-      throw error;
+      // Only log unexpected errors (not 4xx client errors which are expected)
+      // Check if error has a status code (from response)
+      const errorStatus = (error as any).status;
+      if (!errorStatus || errorStatus >= 500) {
+        // Log server errors or unexpected errors
+        console.error('API request failed:', {
+          message: error.message,
+          name: error.name,
+          status: errorStatus,
+          url: url,
+        });
+      }
+      
+      // If error has a message, throw it; otherwise wrap it
+      if (error.message) {
+        throw error;
+      }
+      throw new Error(`API request failed: ${error.toString()}`);
     }
   }
 

@@ -96,9 +96,33 @@ export default function LoginPage() {
         }
       }
     } catch (error: any) {
-      console.error("Login error:", error)
+      // Only log unexpected errors (not 401 Invalid credentials which is expected)
+      const errorStatus = error.status || error.response?.status;
+      if (!errorStatus || errorStatus >= 500) {
+        // Log server errors or unexpected errors for debugging
+        console.error("Login error:", {
+          message: error.message,
+          status: errorStatus,
+          name: error.name,
+        });
+      }
+      
+      // Provide more specific error messages
+      let errorMessage = "Invalid email or password. Please try again."
+      if (error.message) {
+        if (error.message.includes("Cannot connect")) {
+          errorMessage = "Cannot connect to server. Please make sure the backend server is running on http://localhost:5000"
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "Request timeout. The server is taking too long to respond."
+        } else if (error.message.includes("Invalid credentials") || errorStatus === 401) {
+          errorMessage = "Invalid email or password. Please check your credentials and try again."
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
       toast.error("Login failed", {
-        description: error.message || "Invalid email or password. Please try again.",
+        description: errorMessage,
       })
     } finally {
       setIsLoading(false)

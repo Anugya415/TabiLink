@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { toast } from "sonner"
 import { Calendar, Users, CreditCard, Lock, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,6 +15,9 @@ import { Label } from "@/components/ui/label"
 import { Select } from "@/components/ui/select"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import api from "@/lib/api"
+import { useRole } from "@/contexts/RoleContext"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 const bookingSchema = z.object({
   checkIn: z.date({ message: "Check-in date is required" }),
@@ -37,6 +41,7 @@ type BookingFormData = z.infer<typeof bookingSchema>
 export default function HotelBookingPage() {
   const router = useRouter()
   const params = useParams()
+  const { user } = useRole()
   const hotelId = params?.id as string
   const [hotelData, setHotelData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -90,13 +95,23 @@ export default function HotelBookingPage() {
   }
 
   const nights = calculateNights()
-  const subtotal = hotelData.price * nights * guests
+  const subtotal = (hotelData?.price || 0) * nights * guests
   const tax = subtotal * 0.1
   const total = subtotal + tax
 
   const onSubmit = async (data: BookingFormData) => {
     if (!hotelId) {
       toast.error("Hotel ID is missing")
+      return
+    }
+
+    // Check if user is authenticated
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token || !user) {
+      toast.error("Authentication required", {
+        description: "Please log in to make a booking.",
+      })
+      router.push("/login")
       return
     }
 
@@ -117,12 +132,35 @@ export default function HotelBookingPage() {
         }],
       }
 
-      const response = await api.createBooking(bookingData)
-      const bookingId = response.data?.bookingId || response.data?.id || `HOTEL-${Date.now()}`
+      console.log("Creating booking with data:", bookingData)
+      const response = await api.createBooking(bookingData) as { success: boolean; message?: string; data?: { booking?: any } }
+      console.log("Booking response:", response)
+
+      if (!response.success) {
+        throw new Error(response.message || "Failed to create booking")
+      }
+
+      // Extract booking ID from the response
+      const booking = response.data?.booking
+      const bookingId = booking?.bookingId || booking?.id || `HOTEL-${Date.now()}`
+      
+      if (!bookingId) {
+        throw new Error("Booking ID not found in response")
+      }
+
+      console.log("Booking created successfully with ID:", bookingId)
+      toast.success("Booking confirmed!", {
+        description: "Your hotel booking has been successfully created.",
+      })
       
       router.push(`/booking/confirmation?bookingId=${bookingId}&type=hotel`)
     } catch (error: any) {
       console.error("Booking error:", error)
+      console.error("Error details:", {
+        message: error.message,
+        status: error.status,
+        response: error.response,
+      })
       toast.error("Booking failed", {
         description: error.message || "Please try again later.",
       })
@@ -152,7 +190,8 @@ export default function HotelBookingPage() {
   }
 
   return (
-    <div className="container py-6 sm:py-8 px-4 max-w-6xl">
+    <ProtectedRoute>
+      <div className="container py-6 sm:py-8 px-4 max-w-6xl">
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Complete Your Booking</h1>
         <p className="text-sm sm:text-base text-muted-foreground">Secure checkout for {hotelData.name}</p>
@@ -453,6 +492,7 @@ export default function HotelBookingPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   )
 }
 

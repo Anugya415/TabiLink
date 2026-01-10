@@ -399,14 +399,18 @@ function AdminDashboardContent() {
 
   // Filter hotels
   const filteredHotels = allHotels.filter((h) =>
-    h.name.toLowerCase().includes(hotelSearch.toLowerCase()) ||
-    h.location.toLowerCase().includes(hotelSearch.toLowerCase())
+    h != null && (
+      (h.name?.toLowerCase() || '').includes(hotelSearch.toLowerCase()) ||
+      (h.location?.toLowerCase() || '').includes(hotelSearch.toLowerCase())
+    )
   )
 
   // Filter packages
   const filteredPackages = allPackages.filter((p) =>
-    p.name.toLowerCase().includes(packageSearch.toLowerCase()) ||
-    p.destination.toLowerCase().includes(packageSearch.toLowerCase())
+    p != null && (
+      (p.name?.toLowerCase() || '').includes(packageSearch.toLowerCase()) ||
+      (p.destination?.toLowerCase() || '').includes(packageSearch.toLowerCase())
+    )
   )
 
   // Analytics data
@@ -803,7 +807,7 @@ function AdminDashboardContent() {
                         </p>
                       </div>
                       <div className="text-right space-y-1 mr-4">
-                        <p className="font-semibold text-foreground">${hotel.price}/night</p>
+                        <p className="font-semibold text-foreground">${hotel.price || 0}/night</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
@@ -1826,35 +1830,35 @@ function AdminDashboardContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Customer Name *</Label>
-                  <Input defaultValue={selectedItem?.customer || ""} id="booking-customer" />
+                  <Input defaultValue={selectedItem?.customer ?? ""} id="booking-customer" />
                 </div>
                 <div className="space-y-2">
                   <Label>Customer Email *</Label>
-                  <Input type="email" defaultValue={selectedItem?.customerEmail || ""} id="booking-email" />
+                  <Input type="email" defaultValue={selectedItem?.customerEmail ?? ""} id="booking-email" />
                 </div>
                 <div className="space-y-2">
                   <Label>Hotel Name *</Label>
-                  <Input defaultValue={selectedItem?.hotel || ""} id="booking-hotel" />
+                  <Input defaultValue={selectedItem?.hotel ?? ""} id="booking-hotel" />
                 </div>
                 <div className="space-y-2">
                   <Label>Destination *</Label>
-                  <Input defaultValue={selectedItem?.destination || ""} id="booking-destination" />
+                  <Input defaultValue={selectedItem?.destination ?? ""} id="booking-destination" />
                 </div>
                 <div className="space-y-2">
                   <Label>Check-in Date *</Label>
-                  <Input type="date" defaultValue={selectedItem?.checkIn || ""} id="booking-checkin" />
+                  <Input type="date" defaultValue={selectedItem?.checkIn ?? ""} id="booking-checkin" />
                 </div>
                 <div className="space-y-2">
                   <Label>Check-out Date *</Label>
-                  <Input type="date" defaultValue={selectedItem?.checkOut || ""} id="booking-checkout" />
+                  <Input type="date" defaultValue={selectedItem?.checkOut ?? ""} id="booking-checkout" />
                 </div>
                 <div className="space-y-2">
                   <Label>Travelers *</Label>
-                  <Input type="number" defaultValue={selectedItem?.travelers || 1} min="1" id="booking-travelers" />
+                  <Input type="number" defaultValue={String(selectedItem?.travelers || 1)} min="1" id="booking-travelers" />
                 </div>
                 <div className="space-y-2">
                   <Label>Amount ($) *</Label>
-                  <Input type="number" defaultValue={selectedItem?.amount || 0} min="0" id="booking-amount" />
+                  <Input type="number" defaultValue={String(selectedItem?.amount || 0)} min="0" id="booking-amount" />
                 </div>
                 <div className="space-y-2">
                   <Label>Status *</Label>
@@ -1867,7 +1871,7 @@ function AdminDashboardContent() {
                 </div>
                 <div className="space-y-2">
                   <Label>Booking Date *</Label>
-                  <Input type="date" defaultValue={selectedItem?.bookingDate || ""} id="booking-date" />
+                  <Input type="date" defaultValue={selectedItem?.bookingDate ?? ""} id="booking-date" />
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-4">
@@ -1967,27 +1971,27 @@ function AdminDashboardContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Name *</Label>
-                  <Input defaultValue={selectedItem?.name || ""} id="user-name" />
+                  <Input defaultValue={selectedItem?.name ?? ""} id="user-name" />
                 </div>
                 <div className="space-y-2">
                   <Label>Email *</Label>
-                  <Input type="email" defaultValue={selectedItem?.email || ""} id="user-email" />
+                  <Input type="email" defaultValue={selectedItem?.email ?? ""} id="user-email" />
                 </div>
                 {dialogAction === "add" && (
                   <div className="space-y-2">
                     <Label>Password *</Label>
-                    <Input type="password" placeholder="Minimum 8 characters" id="user-password" />
+                    <Input type="password" defaultValue="" placeholder="Minimum 8 characters" id="user-password" />
                   </div>
                 )}
                 {dialogAction === "edit" && (
                   <div className="space-y-2">
                     <Label>New Password (leave blank to keep current)</Label>
-                    <Input type="password" placeholder="Minimum 8 characters" id="user-password" />
+                    <Input type="password" defaultValue="" placeholder="Minimum 8 characters" id="user-password" />
                   </div>
                 )}
                 <div className="space-y-2">
                   <Label>Phone</Label>
-                  <Input type="tel" defaultValue={selectedItem?.phone || ""} id="user-phone" />
+                  <Input type="tel" defaultValue={selectedItem?.phone ?? ""} id="user-phone" />
                 </div>
                 <div className="space-y-2">
                   <Label>Status *</Label>
@@ -2005,19 +2009,19 @@ function AdminDashboardContent() {
                 </div>
                 <div className="space-y-2">
                   <Label>Total Bookings</Label>
-                  <Input type="number" defaultValue={selectedItem?.bookings || 0} min="0" id="user-bookings" />
+                  <Input type="number" defaultValue={String(selectedItem?.bookings || 0)} min="0" id="user-bookings" />
                 </div>
                 <div className="space-y-2">
                   <Label>Total Spent ($)</Label>
-                  <Input type="number" defaultValue={selectedItem?.totalSpent || 0} min="0" id="user-spent" />
+                  <Input type="number" defaultValue={String(selectedItem?.totalSpent || 0)} min="0" id="user-spent" />
                 </div>
                 <div className="space-y-2">
                   <Label>Joined Date</Label>
-                  <Input type="date" defaultValue={selectedItem?.joined || ""} id="user-joined" />
+                  <Input type="date" defaultValue={selectedItem?.joined ?? ""} id="user-joined" />
                 </div>
                 <div className="space-y-2">
                   <Label>Last Login</Label>
-                  <Input type="date" defaultValue={selectedItem?.lastLogin || ""} id="user-login" />
+                  <Input type="date" defaultValue={selectedItem?.lastLogin ?? ""} id="user-login" />
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-4">
@@ -2171,7 +2175,7 @@ function AdminDashboardContent() {
                 </div>
                 <div>
                   <Label>Price per Night</Label>
-                  <p className="text-sm font-semibold text-foreground">${selectedItem?.price}</p>
+                  <p className="text-sm font-semibold text-foreground">${selectedItem?.price || 0}</p>
                 </div>
                 <div>
                   <Label>Total Rooms</Label>
@@ -2202,28 +2206,29 @@ function AdminDashboardContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Hotel Name *</Label>
-                  <Input defaultValue={selectedItem?.name || ""} id="hotel-name" />
+                  <Input defaultValue={selectedItem?.name ?? ""} id="hotel-name" />
                 </div>
                 <div className="space-y-2">
                   <Label>Location *</Label>
-                  <Input defaultValue={selectedItem?.location || ""} id="hotel-location" />
+                  <Input defaultValue={selectedItem?.location ?? ""} id="hotel-location" />
                 </div>
                 <div className="space-y-2">
                   <Label>Rating *</Label>
-                  <Input type="number" step="0.1" min="0" max="5" defaultValue={selectedItem?.rating || 0} id="hotel-rating" />
+                  <Input type="number" step="0.1" min="0" max="5" defaultValue={String(selectedItem?.rating || 0)} id="hotel-rating" />
                 </div>
                 <div className="space-y-2">
                   <Label>Price per Night ($) *</Label>
-                  <Input type="number" defaultValue={selectedItem?.price || 0} min="0" id="hotel-price" />
+                  <Input type="number" defaultValue={String(selectedItem?.price || 0)} min="0" id="hotel-price" />
                 </div>
                 <div className="space-y-2">
                   <Label>Total Rooms *</Label>
-                  <Input type="number" defaultValue={(() => {
-                    if (Array.isArray(selectedItem?.rooms)) {
+                  <Input type="number" defaultValue={String((() => {
+                    if (!selectedItem) return 0
+                    if (Array.isArray(selectedItem.rooms)) {
                       return selectedItem.rooms.reduce((sum: number, room: any) => sum + (room.available || 0), 0)
                     }
-                    return selectedItem?.rooms || 0
-                  })()} min="0" id="hotel-rooms" />
+                    return selectedItem.rooms || 0
+                  })())} min="0" id="hotel-rooms" />
                 </div>
                 <div className="space-y-2">
                   <Label>Status *</Label>
@@ -2234,11 +2239,11 @@ function AdminDashboardContent() {
                 </div>
                 <div className="space-y-2">
                   <Label>Total Bookings</Label>
-                  <Input type="number" defaultValue={selectedItem?.bookings || 0} min="0" id="hotel-bookings" />
+                  <Input type="number" defaultValue={String(selectedItem?.bookings || 0)} min="0" id="hotel-bookings" />
                 </div>
                 <div className="space-y-2">
                   <Label>Total Revenue ($)</Label>
-                  <Input type="number" defaultValue={selectedItem?.revenue || 0} min="0" id="hotel-revenue" />
+                  <Input type="number" defaultValue={String(selectedItem?.revenue || 0)} min="0" id="hotel-revenue" />
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-4">
@@ -2464,19 +2469,30 @@ function AdminDashboardContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Package Name *</Label>
-                  <Input defaultValue={selectedItem?.name || ""} id="package-name" />
+                  <Input defaultValue={selectedItem?.name ?? ""} id="package-name" />
                 </div>
                 <div className="space-y-2">
                   <Label>Destination *</Label>
-                  <Input defaultValue={selectedItem?.destination || ""} id="package-destination" />
+                  <Input defaultValue={selectedItem?.destination ?? ""} id="package-destination" />
                 </div>
                 <div className="space-y-2">
                   <Label>Duration *</Label>
-                  <Input defaultValue={selectedItem?.duration && typeof selectedItem.duration === 'string' ? selectedItem.duration : (selectedItem?.duration?.days ? `${selectedItem.duration.days} Days${selectedItem.duration.nights ? ` / ${selectedItem.duration.nights} Nights` : ''}` : "")} id="package-duration" placeholder="e.g., 7 days" />
+                  <Input defaultValue={(() => {
+                    if (!selectedItem || !selectedItem.duration) return ""
+                    if (typeof selectedItem.duration === 'string') {
+                      return selectedItem.duration
+                    }
+                    if (selectedItem.duration.days) {
+                      const days = selectedItem.duration.days
+                      const nights = selectedItem.duration.nights || Math.max(0, days - 1)
+                      return `${days} Days${nights ? ` / ${nights} Nights` : ''}`
+                    }
+                    return ""
+                  })()} id="package-duration" placeholder="e.g., 7 days" />
                 </div>
                 <div className="space-y-2">
                   <Label>Price per Person ($) *</Label>
-                  <Input type="number" defaultValue={selectedItem?.price || 0} min="0" id="package-price" />
+                  <Input type="number" defaultValue={String(selectedItem?.price || 0)} min="0" id="package-price" />
                 </div>
                 <div className="space-y-2">
                   <Label>Status *</Label>
@@ -2487,11 +2503,11 @@ function AdminDashboardContent() {
                 </div>
                 <div className="space-y-2">
                   <Label>Total Bookings</Label>
-                  <Input type="number" defaultValue={selectedItem?.bookings || 0} min="0" id="package-bookings" />
+                  <Input type="number" defaultValue={String(selectedItem?.bookings || 0)} min="0" id="package-bookings" />
                 </div>
                 <div className="space-y-2">
                   <Label>Total Revenue ($)</Label>
-                  <Input type="number" defaultValue={selectedItem?.revenue || 0} min="0" id="package-revenue" />
+                  <Input type="number" defaultValue={String(selectedItem?.revenue || 0)} min="0" id="package-revenue" />
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-4">

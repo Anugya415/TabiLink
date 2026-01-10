@@ -90,8 +90,10 @@ export default function TravelBookingPage() {
   })
 
   const travelers = parseInt(form.watch("travelers") || "1")
-  const subtotal = packageData.price * travelers
-  const discount = (packageData.originalPrice - packageData.price) * travelers
+  const subtotal = (packageData?.price || 0) * travelers
+  const discount = packageData?.originalPrice && packageData?.price 
+    ? (packageData.originalPrice - packageData.price) * travelers 
+    : 0
   const tax = subtotal * 0.1
   const total = subtotal + tax
 

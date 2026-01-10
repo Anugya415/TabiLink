@@ -125,30 +125,67 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
   const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
   const bookingId = `${prefix}-${timestamp}-${random}`;
 
-  const booking = await Booking.create({
-    bookingId,
-    userId: req.user?.id!,
-    type,
-    hotelId: type === 'hotel' ? parseInt(hotel) : undefined,
-    travelPackageId: type === 'travel' ? parseInt(travelPackage) : undefined,
-    checkIn: type === 'hotel' ? new Date(checkIn) : undefined,
-    checkOut: type === 'hotel' ? new Date(checkOut) : undefined,
-    travelers,
-    guests,
-    subtotal: price,
-    tax,
-    total,
-    status: 'pending',
-    paymentStatus: 'pending',
-  } as any);
+  // Ensure user is authenticated
+  if (!req.user?.id) {
+    throw new AppError('Authentication required', 401);
+  }
 
-  res.status(201).json({
-    success: true,
-    message: 'Booking created successfully',
-    data: {
-      booking,
-    },
-  });
+  try {
+    const booking = await Booking.create({
+      bookingId,
+      userId: req.user.id,
+      type,
+      hotelId: type === 'hotel' ? parseInt(hotel) : undefined,
+      travelPackageId: type === 'travel' ? parseInt(travelPackage) : undefined,
+      checkIn: type === 'hotel' ? new Date(checkIn) : undefined,
+      checkOut: type === 'hotel' ? new Date(checkOut) : undefined,
+      travelers,
+      guests: guests || [],
+      subtotal: price,
+      tax,
+      total,
+      status: 'pending',
+      paymentStatus: 'pending',
+    } as any);
+
+    console.log('Booking created successfully:', {
+      bookingId: booking.bookingId,
+      userId: booking.userId,
+      type: booking.type,
+      hotelId: booking.hotelId,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Booking created successfully',
+      data: {
+        booking: {
+          id: booking.id,
+          bookingId: booking.bookingId,
+          userId: booking.userId,
+          type: booking.type,
+          hotelId: booking.hotelId,
+          travelPackageId: booking.travelPackageId,
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          travelers: booking.travelers,
+          guests: booking.guests,
+          subtotal: booking.subtotal,
+          tax: booking.tax,
+          total: booking.total,
+          status: booking.status,
+          paymentStatus: booking.paymentStatus,
+          createdAt: booking.createdAt,
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Error creating booking:', error);
+    if (error.name === 'SequelizeValidationError') {
+      throw new AppError('Validation error: ' + error.errors.map((e: any) => e.message).join(', '), 400);
+    }
+    throw error;
+  }
 });
 
 // @desc    Cancel booking

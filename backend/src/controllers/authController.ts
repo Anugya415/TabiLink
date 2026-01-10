@@ -66,52 +66,68 @@ export const login = asyncHandler(async (req: AuthRequest, res: Response) => {
     throw new AppError('Please provide email and password', 400);
   }
 
-  // Check user and password (include password in scope)
-  const user = await User.scope('withPassword').findOne({
-    where: { email: email.toLowerCase() },
-  });
-  
-  if (!user || !(await user.comparePassword(password))) {
-    throw new AppError('Invalid credentials', 401);
-  }
+  try {
+    // Check user and password (include password in scope)
+    const user = await User.scope('withPassword').findOne({
+      where: { email: email.toLowerCase() },
+    });
+    
+    if (!user) {
+      throw new AppError('Invalid credentials', 401);
+    }
 
-  if (!user.isActive) {
-    throw new AppError('Account is inactive. Please contact support', 401);
-  }
+    // Compare password
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      throw new AppError('Invalid credentials', 401);
+    }
 
-  // Update last login
-  user.lastLogin = new Date();
-  await user.save();
+    if (!user.isActive) {
+      throw new AppError('Account is inactive. Please contact support', 401);
+    }
 
-  // Generate tokens
-  const token = generateToken({
-    userId: user.id.toString(),
-    email: user.email,
-    role: user.role,
-  });
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
 
-  const refreshToken = generateRefreshToken({
-    userId: user.id.toString(),
-    email: user.email,
-    role: user.role,
-  });
+    // Generate tokens
+    const token = generateToken({
+      userId: user.id.toString(),
+      email: user.email,
+      role: user.role,
+    });
 
-  res.json({
-    success: true,
-    message: 'Login successful',
-    data: {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
-        membershipTier: user.membershipTier,
+    const refreshToken = generateRefreshToken({
+      userId: user.id.toString(),
+      email: user.email,
+      role: user.role,
+    });
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          avatar: user.avatar,
+          membershipTier: user.membershipTier,
+        },
+        token,
+        refreshToken,
       },
-      token,
-      refreshToken,
-    },
-  });
+    });
+  } catch (error: any) {
+    // Re-throw AppError as-is
+    if (error instanceof AppError) {
+      throw error;
+    }
+    // Log unexpected errors
+    console.error('Login error:', error);
+    throw new AppError('Login failed. Please try again.', 500);
+  }
 });
 
 // @desc    Get current user

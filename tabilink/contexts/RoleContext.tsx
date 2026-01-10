@@ -101,8 +101,12 @@ export function RoleProvider({ children }: { children: ReactNode }) {
               localStorage.setItem("tabilinkUser", JSON.stringify(userData))
               localStorage.setItem("tabilinkDemoLoggedIn", "1")
             }
-          } catch (error) {
-            console.error("Error fetching user data:", error)
+          } catch (error: any) {
+            // Only log unexpected errors (not 401 which means token is invalid/expired)
+            const errorStatus = error.status || error.response?.status;
+            if (!errorStatus || errorStatus >= 500) {
+              console.error("Error fetching user data:", error)
+            }
             // Token might be invalid, clear everything
             localStorage.removeItem("token")
             localStorage.removeItem("tabilinkUser")
