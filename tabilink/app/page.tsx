@@ -314,7 +314,7 @@ const faqs = [
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                       <div className="relative h-20 w-28 overflow-hidden rounded-md hover-scale transition-transform flex-shrink-0">
-                      <Image
+        <Image
                         src={trip.image}
                         alt={trip.title}
                         fill
@@ -636,7 +636,7 @@ const faqs = [
             >
               <Link href="/travel">{t("browsePackages")}</Link>
             </Button>
-          </div>
+        </div>
         </div>
       </section>
     </div>

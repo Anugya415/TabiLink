@@ -149,6 +149,13 @@ class ApiClient {
     });
   }
 
+  async changePassword(data: { currentPassword: string; newPassword: string }) {
+    return this.request('/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Hotels
   async getHotels(params?: {
     search?: string;

@@ -4,6 +4,7 @@ import {
   login,
   getMe,
   updateProfile,
+  changePassword,
   getAllUsers,
   createUser,
   updateUser,
@@ -47,6 +48,13 @@ const updateProfileSchema = z.object({
   }),
 });
 
+const changePasswordSchema = z.object({
+  body: z.object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+  }),
+});
+
 const createUserSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -81,6 +89,7 @@ router.post('/login', validate(loginSchema), login);
 // Protected routes
 router.get('/me', authenticate, getMe);
 router.put('/profile', authenticate, validate(updateProfileSchema), updateProfile);
+router.put('/change-password', authenticate, validate(changePasswordSchema), changePassword);
 
 // Admin/Super Admin routes
 router.get('/users', authenticate, authorize('admin', 'super_admin'), getAllUsers);

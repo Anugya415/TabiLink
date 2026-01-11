@@ -283,6 +283,17 @@ function DashboardContent() {
   const [emailNotif, setEmailNotif] = useState(true)
   const [smsNotif, setSmsNotif] = useState(false)
   const [pushNotif, setPushNotif] = useState(true)
+
+  // Profile form state
+  const [profileName, setProfileName] = useState("")
+  const [profilePhone, setProfilePhone] = useState("")
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+
+  // Password form state
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   
   // Hooks for notifications section
   const [filterType, setFilterType] = useState<"all" | "unread">("all")
@@ -324,15 +335,19 @@ function DashboardContent() {
         try {
           const profileResponse = await api.getMe() as { success: boolean; data: { user: any } }
           if (profileResponse.success && profileResponse.data.user) {
-            setUserProfile(profileResponse.data.user)
+            const profile = profileResponse.data.user
+            setUserProfile(profile)
+            // Initialize form state with profile data
+            setProfileName(profile?.name || user?.name || "")
+            setProfilePhone(profile?.phone || "")
             // Set preferences if available
-            if (profileResponse.data.user.preferences) {
-              setCurrency(profileResponse.data.user.preferences.currency || "USD")
-              setLanguage(profileResponse.data.user.preferences.language || "English")
-              if (profileResponse.data.user.preferences.notifications) {
-                setEmailNotif(profileResponse.data.user.preferences.notifications.email ?? true)
-                setSmsNotif(profileResponse.data.user.preferences.notifications.sms ?? false)
-                setPushNotif(profileResponse.data.user.preferences.notifications.push ?? true)
+            if (profile.preferences) {
+              setCurrency(profile.preferences.currency || "USD")
+              setLanguage(profile.preferences.language || "English")
+              if (profile.preferences.notifications) {
+                setEmailNotif(profile.preferences.notifications.email ?? true)
+                setSmsNotif(profile.preferences.notifications.sms ?? false)
+                setPushNotif(profile.preferences.notifications.push ?? true)
               }
             }
           }
@@ -435,6 +450,87 @@ function DashboardContent() {
 
   const deletePaymentMethod = (id: string) => {
     setPaymentMethods((prev) => prev.filter((pm) => pm.id !== id))
+  }
+
+  // Handler for updating profile
+  const handleUpdateProfile = async () => {
+    if (!profileName.trim()) {
+      toast.error("Name is required")
+      return
+    }
+
+    setIsUpdatingProfile(true)
+    try {
+      const updateData: { name?: string; phone?: string } = {}
+      if (profileName.trim()) updateData.name = profileName.trim()
+      if (profilePhone.trim()) updateData.phone = profilePhone.trim()
+
+      const response = await api.updateProfile(updateData) as { success: boolean; message?: string; data?: { user: any } }
+      
+      if (response.success) {
+        // Update local state
+        if (response.data?.user) {
+          setUserProfile(response.data.user)
+        }
+        toast.success("Profile updated successfully", {
+          description: "Your personal information has been saved.",
+        })
+      } else {
+        throw new Error(response.message || "Failed to update profile")
+      }
+    } catch (error: any) {
+      console.error("Error updating profile:", error)
+      toast.error("Failed to update profile", {
+        description: error.message || "Please try again later.",
+      })
+    } finally {
+      setIsUpdatingProfile(false)
+    }
+  }
+
+  // Handler for changing password
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("All password fields are required")
+      return
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters")
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match")
+      return
+    }
+
+    setIsUpdatingPassword(true)
+    try {
+      const response = await api.changePassword({
+        currentPassword,
+        newPassword,
+      }) as { success: boolean; message?: string }
+      
+      if (response.success) {
+        // Clear password fields
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+        toast.success("Password updated successfully", {
+          description: "Your password has been changed.",
+        })
+      } else {
+        throw new Error(response.message || "Failed to change password")
+      }
+    } catch (error: any) {
+      console.error("Error changing password:", error)
+      toast.error("Failed to change password", {
+        description: error.message || "Please check your current password and try again.",
+      })
+    } finally {
+      setIsUpdatingPassword(false)
+    }
   }
 
   // Hooks for plan your trip section
@@ -2569,7 +2665,12 @@ function DashboardContent() {
                         {t("fullName")}
                       </Label>
                     </div>
-                    <Input id="name" defaultValue={userProfile?.name || user?.name || ""} className="w-full h-10" />
+                    <Input 
+                      id="name" 
+                      value={profileName} 
+                      onChange={(e) => setProfileName(e.target.value)}
+                      className="w-full h-10" 
+                    />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -2578,7 +2679,7 @@ function DashboardContent() {
                         {t("emailAddress")}
                       </Label>
                     </div>
-                    <Input id="email" type="email" defaultValue={userProfile?.email || user?.email || ""} className="w-full h-10" />
+                    <Input id="email" type="email" defaultValue={userProfile?.email || user?.email || ""} disabled className="w-full h-10" />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -2587,7 +2688,12 @@ function DashboardContent() {
                         {t("phoneNumber")}
                       </Label>
                     </div>
-                    <Input id="phone" defaultValue={userProfile?.phone || ""} className="w-full h-10" />
+                    <Input 
+                      id="phone" 
+                      value={profilePhone} 
+                      onChange={(e) => setProfilePhone(e.target.value)}
+                      className="w-full h-10" 
+                    />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -2600,9 +2706,14 @@ function DashboardContent() {
                   </div>
                 </div>
                 <div className="flex justify-end pt-4 border-t">
-                  <Button className="hover-lift" size="lg">
+                  <Button 
+                    className="hover-lift" 
+                    size="lg"
+                    onClick={handleUpdateProfile}
+                    disabled={isUpdatingProfile}
+                  >
                     <Edit className="h-4 w-4 mr-2" />
-                    {t("saveChanges")}
+                    {isUpdatingProfile ? "Saving..." : t("saveChanges")}
                   </Button>
                 </div>
               </CardContent>
@@ -2619,21 +2730,47 @@ function DashboardContent() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="currentPassword">{t("currentPassword")}</Label>
-                  <Input id="currentPassword" type="password" placeholder={t("enterCurrentPassword")} className="w-full h-10" />
+                  <Input 
+                    id="currentPassword" 
+                    type="password" 
+                    placeholder={t("enterCurrentPassword")} 
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full h-10" 
+                  />
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">{t("newPassword")}</Label>
-                    <Input id="newPassword" type="password" placeholder={t("enterNewPassword")} className="w-full h-10" />
+                    <Input 
+                      id="newPassword" 
+                      type="password" 
+                      placeholder={t("enterNewPassword")} 
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full h-10" 
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
-                    <Input id="confirmPassword" type="password" placeholder={t("confirmNewPassword")} className="w-full h-10" />
+                    <Input 
+                      id="confirmPassword" 
+                      type="password" 
+                      placeholder={t("confirmNewPassword")} 
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full h-10" 
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end pt-2">
-                  <Button variant="outline" className="hover-lift">
-                    {t("updatePassword")}
+                  <Button 
+                    variant="outline" 
+                    className="hover-lift"
+                    onClick={handleChangePassword}
+                    disabled={isUpdatingPassword}
+                  >
+                    {isUpdatingPassword ? "Updating..." : t("updatePassword")}
                   </Button>
                 </div>
               </CardContent>

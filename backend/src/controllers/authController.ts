@@ -5,6 +5,7 @@ import { generateToken, generateRefreshToken } from '../utils/generateToken';
 import { AppError } from '../middleware/errorHandler';
 import { asyncHandler } from '../utils/asyncHandler';
 import { Op } from 'sequelize';
+import bcrypt from 'bcryptjs';
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
@@ -169,6 +170,41 @@ export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response
     data: {
       user,
     },
+  });
+});
+
+// @desc    Change password
+// @route   PUT /api/v1/auth/change-password
+// @access  Private
+export const changePassword = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    throw new AppError('Current password and new password are required', 400);
+  }
+
+  if (newPassword.length < 8) {
+    throw new AppError('New password must be at least 8 characters', 400);
+  }
+
+  const user = await User.scope('withPassword').findByPk(req.user?.id);
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  // Verify current password
+  const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+  if (!isPasswordValid) {
+    throw new AppError('Current password is incorrect', 401);
+  }
+
+  // Update password (will be hashed by beforeUpdate hook)
+  user.password = newPassword;
+  await user.save();
+
+  res.json({
+    success: true,
+    message: 'Password changed successfully',
   });
 });
 
