@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -44,11 +44,18 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>
 
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
+
 export default function LoginPage() {
   const { t } = useTranslation()
   const router = useRouter()
   const { setUser } = useRole()
   const [isLoading, setIsLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -56,6 +63,159 @@ export default function LoginPage() {
       password: "",
     },
   })
+
+  const handleGoogleSignIn = useCallback(async (response: any) => {
+    if (!response.credential) {
+      toast.error("Google sign-in failed", {
+        description: "No credential received from Google.",
+      });
+      return;
+    }
+
+    setIsGoogleLoading(true);
+    try {
+      const apiResponse = await api.googleLogin(response.credential) as { 
+        success: boolean; 
+        message: string; 
+        data: { token: string; user: any } 
+      };
+
+      if (apiResponse.success) {
+        // Store token for future API calls
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", apiResponse.data.token);
+        }
+
+        // Set user in context
+        const userData = {
+          id: apiResponse.data.user.id.toString(),
+          email: apiResponse.data.user.email,
+          name: apiResponse.data.user.name,
+          role: apiResponse.data.user.role,
+          avatar: apiResponse.data.user.avatar,
+          createdAt: new Date().toISOString(),
+        };
+        setUser(userData);
+
+        toast.success(t("loginSuccessful"), {
+          description: t("loginSuccessfulDesc"),
+        });
+        
+        // Redirect based on user role
+        if (apiResponse.data.user.role === "super_admin") {
+          router.push("/super-admin/overview");
+        } else if (apiResponse.data.user.role === "admin") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
+      }
+    } catch (error: any) {
+      // Extract error message from error object - check multiple sources
+      let errorMessage = "Google sign-in failed. Please try again later.";
+      const errorStatus = error.status || error.response?.status;
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.message) {
+        errorMessage = error.response.message;
+      } else if (typeof error.response === 'object' && error.response !== null) {
+        // Try to extract from response object
+        errorMessage = error.response.message || error.response.error || errorMessage;
+      }
+      
+      // Only log server errors (5xx), not client errors (4xx) or service unavailable (503)
+      if (errorStatus && errorStatus >= 500 && errorStatus !== 503) {
+        console.error("Google login error:", errorMessage);
+        console.error("Error status:", errorStatus);
+      } else if (errorStatus === 503) {
+        // 503 Service Unavailable - log as warning, not error
+        console.warn("Google login service unavailable:", errorMessage);
+      }
+      
+      // Show user-friendly error message
+      toast.error("Google sign-in failed", {
+        description: errorMessage,
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  }, [setUser, router, t]);
+
+  // Load Google Sign-In script and initialize
+  useEffect(() => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      // Don't show warning in console - it's expected if not configured
+      return;
+    }
+
+    // Check if script already exists
+    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+      // Script already loaded, just initialize
+      if (window.google && window.google.accounts) {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleSignIn,
+        });
+        
+        const button = document.getElementById('google-signin-button');
+        if (button && !button.hasAttribute('data-google-rendered')) {
+          try {
+            window.google.accounts.id.renderButton(button, {
+              type: 'standard',
+              theme: 'outline',
+              size: 'large',
+              text: 'signin_with',
+              width: 300,
+            });
+            button.setAttribute('data-google-rendered', 'true');
+          } catch (error) {
+            console.error('Error rendering Google button:', error);
+          }
+        }
+      }
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (window.google && window.google.accounts) {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleSignIn,
+        });
+        
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+          const button = document.getElementById('google-signin-button');
+          if (button && !button.hasAttribute('data-google-rendered')) {
+            try {
+              window.google.accounts.id.renderButton(button, {
+                type: 'standard',
+                theme: 'outline',
+                size: 'large',
+                text: 'signin_with',
+                width: 300,
+              });
+              button.setAttribute('data-google-rendered', 'true');
+            } catch (error) {
+              console.error('Error rendering Google button:', error);
+            }
+          }
+        }, 200);
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Don't remove script on cleanup to avoid re-loading
+    };
+  }, [handleGoogleSignIn]);
+
 
   const onSubmit = async (values: LoginValues) => {
     setIsLoading(true)
@@ -228,6 +388,25 @@ export default function LoginPage() {
                 </Button>
               </form>
             </Form>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            
+            <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]"></div>
+            
+            {!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+              <p className="text-xs text-center text-muted-foreground">
+                Google Sign-In requires NEXT_PUBLIC_GOOGLE_CLIENT_ID to be configured
+              </p>
+            )}
 
             <div className="rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground">
               {t("agreeToPolicies")}{" "}

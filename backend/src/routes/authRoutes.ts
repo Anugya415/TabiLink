@@ -2,6 +2,7 @@ import express from 'express';
 import {
   register,
   login,
+  googleLogin,
   getMe,
   updateProfile,
   changePassword,
@@ -55,6 +56,12 @@ const changePasswordSchema = z.object({
   }),
 });
 
+const googleLoginSchema = z.object({
+  body: z.object({
+    idToken: z.string().min(1, 'Google ID token is required'),
+  }),
+});
+
 const createUserSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -85,6 +92,7 @@ const updateUserSchema = z.object({
 // Public routes
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
+router.post('/google', validate(googleLoginSchema), googleLogin);
 
 // Protected routes
 router.get('/me', authenticate, getMe);

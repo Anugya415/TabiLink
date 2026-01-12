@@ -6,6 +6,7 @@ import { AppError } from '../middleware/errorHandler';
 import { asyncHandler } from '../utils/asyncHandler';
 import { Op } from 'sequelize';
 import bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
@@ -208,6 +209,106 @@ export const changePassword = asyncHandler(async (req: AuthRequest, res: Respons
   });
 });
 
+// @desc    Google OAuth login
+// @route   POST /api/v1/auth/google
+// @access  Public
+export const googleLogin = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { idToken } = req.body;
+
+  if (!idToken) {
+    throw new AppError('Google ID token is required', 400);
+  }
+
+  try {
+    // Initialize Google OAuth client
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      throw new AppError('Google Sign-In is not available. Please contact the administrator.', 503);
+    }
+
+    const client = new OAuth2Client(clientId);
+    
+    // Verify the ID token
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: clientId,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) {
+      throw new AppError('Invalid Google token', 401);
+    }
+
+    const { email, name, picture } = payload;
+
+    if (!email) {
+      throw new AppError('Email not provided by Google', 400);
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ where: { email: email.toLowerCase() } });
+
+    if (user) {
+      // User exists, update last login
+      user.lastLogin = new Date();
+      if (!user.avatar && picture) {
+        user.avatar = picture;
+      }
+      await user.save();
+    } else {
+      // Create new user with a random password (OAuth users won't use password)
+      const randomPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12) + 'Aa1!';
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email: email.toLowerCase(),
+        avatar: picture || null,
+        password: randomPassword,
+        isEmailVerified: true,
+      } as any);
+    }
+
+    if (!user.isActive) {
+      throw new AppError('Account is inactive. Please contact support', 401);
+    }
+
+    // Generate tokens
+    const token = generateToken({
+      userId: user.id.toString(),
+      email: user.email,
+      role: user.role,
+    });
+
+    const refreshToken = generateRefreshToken({
+      userId: user.id.toString(),
+      email: user.email,
+      role: user.role,
+    });
+
+    res.json({
+      success: true,
+      message: 'Google login successful',
+      data: {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          avatar: user.avatar,
+          membershipTier: user.membershipTier,
+        },
+        token,
+        refreshToken,
+      },
+    });
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    console.error('Google login error:', error);
+    throw new AppError('Google authentication failed. Please try again.', 500);
+  }
+});
+
 // @desc    Get all users (Admin/Super Admin)
 // @route   GET /api/v1/auth/users
 // @access  Private (Admin/Super Admin)
@@ -376,3 +477,4 @@ export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) =
     message: 'User deleted successfully',
   });
 });
+

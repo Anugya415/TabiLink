@@ -64,22 +64,49 @@ class ApiClient {
         return {} as T;
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        const responseText = await response.text();
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        // If JSON parsing fails, create a meaningful error
+        const errorMessage = `Invalid JSON response from server (status: ${response.status})`;
+        if (response.status >= 500) {
+          console.error('Server error - JSON parse failed:', {
+            status: response.status,
+            url: url,
+            parseError: parseError instanceof Error ? parseError.message : String(parseError),
+          });
+        }
+        throw new Error(errorMessage);
+      }
 
       if (!response.ok) {
         // Extract error message from response
-        const errorMessage = data.message || data.error || `HTTP error! status: ${response.status}`;
+        const errorMessage = data?.message || data?.error || `HTTP error! status: ${response.status}`;
         const error = new Error(errorMessage);
         // Attach response data to error for debugging
         (error as any).response = data;
         (error as any).status = response.status;
         // Don't log expected client errors (4xx) as errors, only server errors (5xx)
-        if (response.status >= 500) {
-          console.error('Server error:', {
-            status: response.status,
-            message: errorMessage,
-            url: url,
-          });
+        // 503 is Service Unavailable (configuration issues), log but don't treat as critical error
+        if (response.status >= 500 && response.status !== 503) {
+          // Build log data with guaranteed non-empty values
+          const statusCode = response.status ?? 500;
+          const msg = errorMessage || 'Server error occurred';
+          const requestUrl = url || 'Unknown URL';
+          
+          // Log with explicit properties to avoid empty object issues
+          console.error(`Server error (${statusCode}):`, msg);
+          console.error('Request URL:', requestUrl);
+          if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+            console.error('Response data:', data);
+          } else if (data && typeof data !== 'object') {
+            console.error('Response data:', data);
+          }
+        } else if (response.status === 503) {
+          // 503 Service Unavailable - log as info, not error (configuration issues)
+          console.warn(`Service unavailable (503):`, errorMessage);
         }
         throw error;
       }
@@ -108,10 +135,11 @@ class ApiClient {
       if (!errorStatus || errorStatus >= 500) {
         // Log server errors or unexpected errors
         console.error('API request failed:', {
-          message: error.message,
-          name: error.name,
-          status: errorStatus,
+          message: error.message || 'Unknown error',
+          name: error.name || 'Error',
+          status: errorStatus || 'N/A',
           url: url,
+          error: error.toString(),
         });
       }
       
@@ -119,7 +147,7 @@ class ApiClient {
       if (error.message) {
         throw error;
       }
-      throw new Error(`API request failed: ${error.toString()}`);
+      throw new Error(`API request failed: ${error.toString() || 'Unknown error'}`);
     }
   }
 
@@ -135,6 +163,13 @@ class ApiClient {
     return this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  async googleLogin(idToken: string) {
+    return this.request('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ idToken }),
     });
   }
 
