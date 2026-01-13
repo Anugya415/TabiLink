@@ -7,6 +7,8 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { Op } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import { OAuth2Client } from 'google-auth-library';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/email';
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
@@ -39,6 +41,24 @@ export const register = asyncHandler(async (req: AuthRequest, res: Response) => 
     userId: user.id.toString(),
     email: user.email,
     role: user.role,
+  });
+
+  // Fire-and-forget welcome email (non-blocking)
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const welcomeHtml = `
+    <div>
+      <h2>Welcome to TabiLink, ${user.name}!</h2>
+      <p>Your account has been created successfully.</p>
+      <p>You can log in anytime: <a href="${frontendUrl}/login">${frontendUrl}/login</a></p>
+      <p>If you did not sign up, please ignore this email.</p>
+    </div>
+  `;
+  sendEmail({
+    to: user.email,
+    subject: 'Welcome to TabiLink',
+    html: welcomeHtml,
+  }).catch((err) => {
+    console.error('Failed to send welcome email:', err);
   });
 
   res.status(201).json({
@@ -206,6 +226,105 @@ export const changePassword = asyncHandler(async (req: AuthRequest, res: Respons
   res.json({
     success: true,
     message: 'Password changed successfully',
+  });
+});
+
+// @desc    Request password reset
+// @route   POST /api/v1/auth/forgot-password
+// @access  Public
+export const forgotPassword = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new AppError('Email is required', 400);
+  }
+
+  const user = await User.findOne({ where: { email: email.toLowerCase() } });
+
+  // Respond success even if user not found to avoid user enumeration
+  if (!user) {
+    return res.json({
+      success: true,
+      message: 'If that email exists, password reset instructions have been sent',
+    });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  user.passwordResetToken = hashedToken;
+  user.passwordResetExpires = expires;
+  await user.save();
+
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const resetLink = `${frontendUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(
+    user.email
+  )}`;
+
+  const resetHtml = `
+    <div>
+      <h3>Password Reset Requested</h3>
+      <p>Hello ${user.name || ''},</p>
+      <p>We received a request to reset your password. Click the link below to set a new one:</p>
+      <p><a href="${resetLink}">${resetLink}</a></p>
+      <p>This link will expire in 1 hour. If you didn't request this, you can ignore this email.</p>
+    </div>
+  `;
+
+  sendEmail({
+    to: user.email,
+    subject: 'TabiLink Password Reset',
+    html: resetHtml,
+  }).catch((err) => {
+    console.error('Failed to send reset password email:', err);
+  });
+
+  res.json({
+    success: true,
+    message: 'If that email exists, password reset instructions have been sent',
+  });
+});
+
+// @desc    Reset password
+// @route   POST /api/v1/auth/reset-password
+// @access  Public
+export const resetPassword = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { token, email, password } = req.body;
+
+  if (!token || !email || !password) {
+    throw new AppError('Token, email, and new password are required', 400);
+  }
+
+  if (password.length < 8) {
+    throw new AppError('Password must be at least 8 characters', 400);
+  }
+
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.scope('withPassword').findOne({
+    where: {
+      email: email.toLowerCase(),
+      passwordResetToken: hashedToken,
+      passwordResetExpires: {
+        [Op.gt]: new Date(),
+      },
+    },
+  });
+
+  if (!user) {
+    throw new AppError('Invalid or expired reset token', 400);
+  }
+
+  user.password = password;
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
+  user.isEmailVerified = true;
+  await user.save();
+
+  res.json({
+    success: true,
+    message: 'Password has been reset successfully',
   });
 });
 

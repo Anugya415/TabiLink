@@ -215,7 +215,7 @@ function ModifyBookingForm({ booking, onSave, onCancel, t }: ModifyBookingFormPr
           <Input
             type="number"
             min="1"
-            value={travelers}
+            value={travelers || "1"}
             onChange={(e) => setTravelers(e.target.value)}
             className="w-full"
           />
@@ -1809,7 +1809,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="City or Airport"
-                              value={flightFrom}
+                              value={flightFrom || ""}
                               onChange={(e) => setFlightFrom(e.target.value)}
                               className="pl-10"
                             />
@@ -1821,7 +1821,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="City or Airport"
-                              value={flightTo}
+                              value={flightTo || ""}
                               onChange={(e) => setFlightTo(e.target.value)}
                               className="pl-10"
                             />
@@ -1853,7 +1853,7 @@ function DashboardContent() {
                             <Input
                               type="number"
                               min="1"
-                              value={passengers}
+                              value={passengers || "1"}
                               onChange={(e) => setPassengers(e.target.value)}
                               placeholder="1"
                             />
@@ -1889,7 +1889,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="Enter station"
-                              value={trainFrom}
+                              value={trainFrom || ""}
                               onChange={(e) => setTrainFrom(e.target.value)}
                               className="pl-10"
                             />
@@ -1901,7 +1901,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="Enter station"
-                              value={trainTo}
+                              value={trainTo || ""}
                               onChange={(e) => setTrainTo(e.target.value)}
                               className="pl-10"
                             />
@@ -1943,7 +1943,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="Enter city"
-                              value={busFrom}
+                              value={busFrom || ""}
                               onChange={(e) => setBusFrom(e.target.value)}
                               className="pl-10"
                             />
@@ -1955,7 +1955,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="Enter city"
-                              value={busTo}
+                              value={busTo || ""}
                               onChange={(e) => setBusTo(e.target.value)}
                               className="pl-10"
                             />
@@ -1997,7 +1997,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="Enter pickup location"
-                              value={cabFrom}
+                              value={cabFrom || ""}
                               onChange={(e) => setCabFrom(e.target.value)}
                               className="pl-10"
                             />
@@ -2009,7 +2009,7 @@ function DashboardContent() {
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
                             <Input
                               placeholder="Enter drop location"
-                              value={cabTo}
+                              value={cabTo || ""}
                               onChange={(e) => setCabTo(e.target.value)}
                               className="pl-10"
                             />
@@ -2028,7 +2028,7 @@ function DashboardContent() {
                           <Label>Pickup Time</Label>
                           <Input
                             type="time"
-                            value={cabTime}
+                            value={cabTime || ""}
                             onChange={(e) => setCabTime(e.target.value)}
                           />
                         </div>
@@ -2171,7 +2171,7 @@ function DashboardContent() {
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">{t("filter")}:</label>
                 <select
-                  value={filterStatus}
+                  value={filterStatus || "all"}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
@@ -2185,7 +2185,7 @@ function DashboardContent() {
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">{t("sortBy")}:</label>
                 <select
-                  value={sortBy}
+                  value={sortBy || "date"}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
@@ -2667,7 +2667,7 @@ function DashboardContent() {
                     </div>
                     <Input 
                       id="name" 
-                      value={profileName} 
+                      value={profileName || ""} 
                       onChange={(e) => setProfileName(e.target.value)}
                       className="w-full h-10" 
                     />
@@ -2690,7 +2690,7 @@ function DashboardContent() {
                     </div>
                     <Input 
                       id="phone" 
-                      value={profilePhone} 
+                      value={profilePhone || ""} 
                       onChange={(e) => setProfilePhone(e.target.value)}
                       className="w-full h-10" 
                     />
@@ -2702,7 +2702,7 @@ function DashboardContent() {
                         {t("memberSince")}
                       </Label>
                     </div>
-                    <Input id="memberSince" defaultValue={userMemberSince} disabled className="w-full h-10" />
+                    <Input id="memberSince" defaultValue={userMemberSince || "N/A"} disabled className="w-full h-10" />
                   </div>
                 </div>
                 <div className="flex justify-end pt-4 border-t">
@@ -2734,7 +2734,7 @@ function DashboardContent() {
                     id="currentPassword" 
                     type="password" 
                     placeholder={t("enterCurrentPassword")} 
-                    value={currentPassword}
+                    value={currentPassword || ""}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     className="w-full h-10" 
                   />
@@ -2746,7 +2746,7 @@ function DashboardContent() {
                       id="newPassword" 
                       type="password" 
                       placeholder={t("enterNewPassword")} 
-                      value={newPassword}
+                      value={newPassword || ""}
                       onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full h-10" 
                     />
@@ -2757,7 +2757,7 @@ function DashboardContent() {
                       id="confirmPassword" 
                       type="password" 
                       placeholder={t("confirmNewPassword")} 
-                      value={confirmPassword}
+                      value={confirmPassword || ""}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full h-10" 
                     />
@@ -2812,7 +2812,7 @@ function DashboardContent() {
                   {t("currency")}
                 </Label>
                 <select
-                  value={currency}
+                  value={currency || "USD"}
                   onChange={(e) => setCurrency(e.target.value)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
@@ -2828,7 +2828,7 @@ function DashboardContent() {
                   {t("language")}
                 </Label>
                 <select
-                  value={language}
+                  value={language || "English"}
                   onChange={(e) => setLanguage(e.target.value)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >

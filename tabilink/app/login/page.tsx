@@ -356,15 +356,12 @@ export default function LoginPage() {
                 />
 
                 <div className="flex items-center justify-between text-sm">
-                  <div className="text-muted-foreground">
-                    <span>{t("forgotPassword")}</span>{" "}
-                    <Link
-                      href="/contact"
-                      className="font-medium text-primary hover:underline"
-                    >
-                      {t("contactSupport")}
-                    </Link>
-                  </div>
+                  <Link
+                    href="/forgot-password"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {t("forgotPassword")}
+                  </Link>
                   <Link
                     href="/signup"
                     className="font-medium text-primary hover:underline"

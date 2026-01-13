@@ -10,6 +10,8 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  forgotPassword,
+  resetPassword,
 } from '../controllers/authController';
 import { authenticate, authorize } from '../middleware/auth';
 import { validate } from '../middleware/validator';
@@ -62,6 +64,20 @@ const googleLoginSchema = z.object({
   }),
 });
 
+const forgotPasswordSchema = z.object({
+  body: z.object({
+    email: z.string().email('Invalid email address'),
+  }),
+});
+
+const resetPasswordSchema = z.object({
+  body: z.object({
+    token: z.string().min(10, 'Reset token is required'),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+  }),
+});
+
 const createUserSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -93,6 +109,8 @@ const updateUserSchema = z.object({
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
 router.post('/google', validate(googleLoginSchema), googleLogin);
+router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
+router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
 
 // Protected routes
 router.get('/me', authenticate, getMe);
