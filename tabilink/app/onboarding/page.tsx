@@ -213,7 +213,7 @@ export default function OnboardingPage() {
                       <FormItem>
                         <FormLabel>Preferred language</FormLabel>
                         <FormControl>
-                          <Select value={field.value} onChange={field.onChange}>
+                          <Select value={field.value || ""} onChange={field.onChange}>
                             <option value="" disabled>
                               Choose language
                             </option>
@@ -235,7 +235,7 @@ export default function OnboardingPage() {
                       <FormItem>
                         <FormLabel>Travel style</FormLabel>
                         <FormControl>
-                          <Select value={field.value} onChange={field.onChange}>
+                          <Select value={field.value || ""} onChange={field.onChange}>
                             <option value="" disabled>
                               Select a style
                             </option>

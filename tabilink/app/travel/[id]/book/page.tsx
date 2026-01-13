@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select } from "@/components/ui/select"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import { useRole } from "@/contexts/RoleContext"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 const bookingSchema = z.object({
   travelers: z.string().min(1, "Number of travelers is required"),
@@ -33,6 +35,7 @@ type BookingFormData = z.infer<typeof bookingSchema>
 export default function TravelBookingPage() {
   const router = useRouter()
   const params = useParams()
+  const { user } = useRole()
   const packageId = params?.id as string
   const [packageData, setPackageData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -103,6 +106,16 @@ export default function TravelBookingPage() {
       return
     }
 
+    // Check if user is authenticated
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token || !user) {
+      toast.error("Authentication required", {
+        description: "Please log in to make a booking.",
+      })
+      router.push("/login")
+      return
+    }
+
     setIsProcessing(true)
     
     try {
@@ -118,12 +131,35 @@ export default function TravelBookingPage() {
         }],
       }
 
-      const response = await api.createBooking(bookingData)
-      const bookingId = response.data?.bookingId || response.data?.id || `TRAVEL-${Date.now()}`
+      console.log("Creating booking with data:", bookingData)
+      const response = await api.createBooking(bookingData) as { success: boolean; message?: string; data?: { booking?: any } }
+      console.log("Booking response:", response)
+
+      if (!response.success) {
+        throw new Error(response.message || "Failed to create booking")
+      }
+
+      // Extract booking ID from the response
+      const booking = response.data?.booking
+      const bookingId = booking?.bookingId || booking?.id || `TRAVEL-${Date.now()}`
+      
+      if (!bookingId) {
+        throw new Error("Booking ID not found in response")
+      }
+
+      console.log("Booking created successfully with ID:", bookingId)
+      toast.success("Booking confirmed!", {
+        description: "Your travel package booking has been successfully created.",
+      })
       
       router.push(`/booking/confirmation?bookingId=${bookingId}&type=travel`)
     } catch (error: any) {
       console.error("Booking error:", error)
+      console.error("Error details:", {
+        message: error.message,
+        status: error.status,
+        response: error.response,
+      })
       toast.error("Booking failed", {
         description: error.message || "Please try again later.",
       })
@@ -153,11 +189,12 @@ export default function TravelBookingPage() {
   }
 
   return (
-    <div className="container py-6 sm:py-8 px-4 max-w-6xl">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Complete Your Booking</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Secure checkout for {packageData.title}</p>
-      </div>
+    <ProtectedRoute>
+      <div className="container py-6 sm:py-8 px-4 max-w-6xl">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Complete Your Booking</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Secure checkout for {packageData.title}</p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Booking Form */}
@@ -176,7 +213,7 @@ export default function TravelBookingPage() {
                       <FormItem>
                         <FormLabel>Number of Travelers</FormLabel>
                         <FormControl>
-                          <Select value={field.value} onChange={field.onChange}>
+                          <Select value={field.value || "1"} onChange={field.onChange}>
                             <option value="1">1 Traveler</option>
                             <option value="2">2 Travelers</option>
                             <option value="3">3 Travelers</option>
@@ -428,6 +465,7 @@ export default function TravelBookingPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   )
 }
 

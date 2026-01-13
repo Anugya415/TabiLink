@@ -248,7 +248,7 @@ export default function HotelBookingPage() {
                       <FormItem>
                         <FormLabel>Number of Guests</FormLabel>
                         <FormControl>
-                          <Select value={field.value} onChange={field.onChange}>
+                          <Select value={field.value || "1"} onChange={field.onChange}>
                             <option value="1">1 Guest</option>
                             <option value="2">2 Guests</option>
                             <option value="3">3 Guests</option>
