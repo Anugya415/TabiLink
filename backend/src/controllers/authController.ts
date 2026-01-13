@@ -340,7 +340,10 @@ export const googleLogin = asyncHandler(async (req: AuthRequest, res: Response) 
 
   try {
     // Initialize Google OAuth client
-    const clientId = process.env.GOOGLE_CLIENT_ID;
+    // Prefer backend-specific client ID but gracefully fall back to the
+    // public one used on the frontend to avoid silent misconfiguration
+    // where the frontend and backend use different client IDs.
+    const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) {
       throw new AppError('Google Sign-In is not available. Please contact the administrator.', 503);
     }
@@ -420,6 +423,21 @@ export const googleLogin = asyncHandler(async (req: AuthRequest, res: Response) 
       },
     });
   } catch (error: any) {
+    // Surface more specific Google auth errors when possible
+    const rawMessage = error?.message || '';
+    // Common google-auth-library error codes/messages
+    if (!(error instanceof AppError)) {
+      if (rawMessage.includes('Token used too late') || rawMessage.includes('expired')) {
+        throw new AppError('Your Google session has expired. Please try signing in again.', 401);
+      }
+      if (rawMessage.includes('wrong number of segments') || rawMessage.includes('Invalid token')) {
+        throw new AppError('Received an invalid Google token. Please try again.', 401);
+      }
+      if (rawMessage.includes('audience') || rawMessage.includes('client_id')) {
+        throw new AppError('Google Sign-In is misconfigured. Please contact the administrator.', 503);
+      }
+    }
+
     if (error instanceof AppError) {
       throw error;
     }

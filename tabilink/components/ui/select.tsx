@@ -5,7 +5,10 @@ export interface SelectProps
   extends React.SelectHTMLAttributes<HTMLSelectElement> {}
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, value, ...props }, ref) => {
+    // Ensure value is never undefined to prevent uncontrolled/controlled warning
+    const controlledValue = value === undefined || value === null ? "" : value
+    
     return (
       <select
         className={cn(
@@ -13,6 +16,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           className
         )}
         ref={ref}
+        value={controlledValue}
         {...props}
       >
         {children}
@@ -23,6 +27,8 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 Select.displayName = "Select"
 
 export { Select }
+
+
 
 
 

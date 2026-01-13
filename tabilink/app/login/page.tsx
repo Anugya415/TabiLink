@@ -65,10 +65,26 @@ export default function LoginPage() {
   })
 
   const handleGoogleSignIn = useCallback(async (response: any) => {
+    // Handle error responses from Google
+    if (response.error) {
+      const errorMessage = response.error === 'popup_closed_by_user' 
+        ? 'Sign-in was cancelled. Please try again.'
+        : response.error === 'access_denied'
+        ? 'Access denied. Please try again or use email/password login.'
+        : 'Google sign-in was cancelled or failed. Please try again.';
+      
+      toast.error("Google sign-in cancelled", {
+        description: errorMessage,
+      });
+      setIsGoogleLoading(false);
+      return;
+    }
+
     if (!response.credential) {
       toast.error("Google sign-in failed", {
-        description: "No credential received from Google.",
+        description: "No credential received from Google. Please try again.",
       });
+      setIsGoogleLoading(false);
       return;
     }
 
@@ -150,15 +166,23 @@ export default function LoginPage() {
       return;
     }
 
-    // Check if script already exists
-    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
-      // Script already loaded, just initialize
-      if (window.google && window.google.accounts) {
+    const initializeGoogleSignIn = () => {
+      if (!window.google || !window.google.accounts) {
+        return;
+      }
+
+      try {
+        // Initialize Google Identity Services
+        // Disable FedCM to avoid IdentityCredentialError issues
         window.google.accounts.id.initialize({
           client_id: clientId,
           callback: handleGoogleSignIn,
+          use_fedcm_for_prompt: false, // Disable FedCM to prevent errors
+          auto_select: false,
+          cancel_on_tap_outside: true,
         });
-        
+
+        // Render the button
         const button = document.getElementById('google-signin-button');
         if (button && !button.hasAttribute('data-google-rendered')) {
           try {
@@ -174,6 +198,19 @@ export default function LoginPage() {
             console.error('Error rendering Google button:', error);
           }
         }
+      } catch (error) {
+        console.error('Error initializing Google Sign-In:', error);
+      }
+    };
+
+    // Check if script already exists
+    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+      // Script already loaded, just initialize
+      if (window.google && window.google.accounts) {
+        initializeGoogleSignIn();
+      } else {
+        // Wait a bit for the script to fully load
+        setTimeout(initializeGoogleSignIn, 100);
       }
       return;
     }
@@ -183,31 +220,18 @@ export default function LoginPage() {
     script.async = true;
     script.defer = true;
     script.onload = () => {
-      if (window.google && window.google.accounts) {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleGoogleSignIn,
-        });
-        
-        // Small delay to ensure DOM is ready
-        setTimeout(() => {
-          const button = document.getElementById('google-signin-button');
-          if (button && !button.hasAttribute('data-google-rendered')) {
-            try {
-              window.google.accounts.id.renderButton(button, {
-                type: 'standard',
-                theme: 'outline',
-                size: 'large',
-                text: 'signin_with',
-                width: 300,
-              });
-              button.setAttribute('data-google-rendered', 'true');
-            } catch (error) {
-              console.error('Error rendering Google button:', error);
-            }
-          }
-        }, 200);
-      }
+      // Wait for Google Identity Services to be fully ready
+      const checkGoogleReady = () => {
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+          initializeGoogleSignIn();
+        } else {
+          setTimeout(checkGoogleReady, 50);
+        }
+      };
+      checkGoogleReady();
+    };
+    script.onerror = () => {
+      console.error('Failed to load Google Sign-In script');
     };
     document.body.appendChild(script);
 
