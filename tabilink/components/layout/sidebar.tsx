@@ -25,6 +25,7 @@ import {
   Server,
   Hotel,
   Tag,
+  Gift,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -184,6 +185,12 @@ function SidebarContent() {
               label: "Payment Methods",
               icon: CreditCard,
               iconColor: "text-teal-600",
+            },
+            {
+              href: "/rewards",
+              label: "Rewards & Points",
+              icon: Gift,
+              iconColor: "text-yellow-600",
             },
           ],
         },

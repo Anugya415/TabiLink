@@ -62,6 +62,7 @@ app.get('/', (req, res) => {
         bookings: `/api/${API_VERSION}/bookings`,
         contact: `/api/${API_VERSION}/contact`,
         discounts: `/api/${API_VERSION}/discounts`,
+        rewards: `/api/${API_VERSION}/rewards`,
       },
     documentation: 'Visit /api/v1 for API information',
   });

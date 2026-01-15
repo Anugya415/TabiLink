@@ -2612,7 +2612,22 @@ function DashboardContent() {
                       <Star className="h-4 w-4 text-yellow-500" />
                       <span className="text-sm text-muted-foreground">Loyalty Points</span>
                     </div>
-                    <span className="font-bold text-lg">{userLoyaltyPoints.toLocaleString()}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-lg">{userLoyaltyPoints.toLocaleString()}</span>
+                      {userLoyaltyPoints > 0 && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs"
+                          asChild
+                        >
+                          <Link href="/rewards">
+                            Redeem
+                            <ArrowRight className="ml-1 h-3 w-3" />
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">

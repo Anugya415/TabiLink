@@ -5,6 +5,7 @@ import packageRoutes from './packageRoutes';
 import bookingRoutes from './bookingRoutes';
 import contactRoutes from './contactRoutes';
 import discountRoutes from './discountRoutes';
+import rewardsRoutes from './rewardsRoutes';
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.get('/', (req, res) => {
       bookings: '/api/v1/bookings',
       contact: '/api/v1/contact',
       discounts: '/api/v1/discounts',
+      rewards: '/api/v1/rewards',
     },
   });
 });
@@ -31,6 +33,7 @@ router.use('/packages', packageRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/contact', contactRoutes);
 router.use('/discounts', discountRoutes);
+router.use('/rewards', rewardsRoutes);
 
 export default router;
 

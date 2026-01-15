@@ -464,6 +464,42 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Rewards & Redemptions
+  async getRewards(params?: {
+    category?: 'discount' | 'cashback' | 'voucher' | 'upgrade' | 'freebie';
+    minPoints?: number;
+    maxPoints?: number;
+  }) {
+    return this.request('/rewards', { params });
+  }
+
+  async getReward(id: string | number) {
+    return this.request(`/rewards/${id}`);
+  }
+
+  async getUserRedemptions(params?: {
+    status?: 'pending' | 'completed' | 'cancelled' | 'expired';
+  }) {
+    return this.request('/rewards/redemptions', { params });
+  }
+
+  async redeemReward(id: string | number) {
+    return this.request(`/rewards/${id}/redeem`, {
+      method: 'POST',
+    });
+  }
+
+  async getConversionRate() {
+    return this.request('/rewards/conversion-rate');
+  }
+
+  async calculatePointsValue(points: number) {
+    return this.request('/rewards/calculate-value', {
+      method: 'POST',
+      body: JSON.stringify({ points }),
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);

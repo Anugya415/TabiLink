@@ -8,6 +8,8 @@ import Favorite from './Favorite';
 import Payment from './Payment';
 import Contact from './Contact';
 import Discount from './Discount';
+import Reward from './Reward';
+import Redemption from './Redemption';
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId', as: 'bookings' });
@@ -46,7 +48,16 @@ Review.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 Booking.hasOne(Payment, { foreignKey: 'bookingId', as: 'payment' });
 Payment.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 
-export { User, Hotel, TravelPackage, Booking, Review, Favorite, Payment, Contact, Discount };
+User.hasMany(Redemption, { foreignKey: 'userId', as: 'redemptions' });
+Redemption.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+Reward.hasMany(Redemption, { foreignKey: 'rewardId', as: 'redemptions' });
+Redemption.belongsTo(Reward, { foreignKey: 'rewardId', as: 'reward' });
+
+Booking.hasOne(Redemption, { foreignKey: 'appliedToBookingId', as: 'redemption' });
+Redemption.belongsTo(Booking, { foreignKey: 'appliedToBookingId', as: 'appliedToBooking' });
+
+export { User, Hotel, TravelPackage, Booking, Review, Favorite, Payment, Contact, Discount, Reward, Redemption };
 
 // Export types
 export type { IUserAttributes as IUser } from './User';
@@ -58,3 +69,5 @@ export type { IFavoriteAttributes as IFavorite } from './Favorite';
 export type { IPaymentAttributes as IPayment } from './Payment';
 export type { IContactAttributes as IContact } from './Contact';
 export type { IDiscountAttributes as IDiscount } from './Discount';
+export type { IRewardAttributes as IReward } from './Reward';
+export type { IRedemptionAttributes as IRedemption } from './Redemption';

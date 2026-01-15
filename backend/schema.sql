@@ -283,6 +283,64 @@ CREATE TABLE IF NOT EXISTS `discounts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- Table: rewards
+-- =====================================================
+CREATE TABLE IF NOT EXISTS `rewards` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NOT NULL,
+  `category` ENUM('discount', 'cashback', 'voucher', 'upgrade', 'freebie') NOT NULL,
+  `points_required` INT UNSIGNED NOT NULL,
+  `discount_type` ENUM('percentage', 'fixed') NULL,
+  `discount_value` DECIMAL(10, 2) NULL,
+  `cashback_amount` DECIMAL(10, 2) NULL,
+  `voucher_code` VARCHAR(100) NULL,
+  `max_redemptions` INT UNSIGNED NULL,
+  `redemption_count` INT UNSIGNED NOT NULL DEFAULT 0,
+  `valid_from` DATETIME NOT NULL,
+  `valid_until` DATETIME NOT NULL,
+  `applicable_to` ENUM('all', 'hotel', 'travel') NULL,
+  `min_purchase_amount` DECIMAL(10, 2) NULL,
+  `image` VARCHAR(500) NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_category` (`category`),
+  KEY `idx_is_active_dates` (`is_active`, `valid_from`, `valid_until`),
+  KEY `idx_points_required` (`points_required`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- Table: redemptions
+-- =====================================================
+CREATE TABLE IF NOT EXISTS `redemptions` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `reward_id` INT UNSIGNED NOT NULL,
+  `points_used` INT UNSIGNED NOT NULL,
+  `status` ENUM('pending', 'completed', 'cancelled', 'expired') NOT NULL DEFAULT 'pending',
+  `discount_code` VARCHAR(50) NULL,
+  `voucher_code` VARCHAR(100) NULL,
+  `cashback_amount` DECIMAL(10, 2) NULL,
+  `applied_to_booking_id` INT UNSIGNED NULL,
+  `expires_at` DATETIME NULL,
+  `redeemed_at` DATETIME NULL,
+  `cancelled_at` DATETIME NULL,
+  `cancellation_reason` TEXT NULL,
+  `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_reward_id` (`reward_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_createdAt` (`createdAt`),
+  CONSTRAINT `fk_redemptions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_redemptions_reward` FOREIGN KEY (`reward_id`) REFERENCES `rewards` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_redemptions_booking` FOREIGN KEY (`applied_to_booking_id`) REFERENCES `bookings` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- Indexes Summary
 -- =====================================================
 -- users:
@@ -329,6 +387,15 @@ CREATE TABLE IF NOT EXISTS `discounts` (
 --   - PRIMARY KEY: id
 --   - UNIQUE: code
 --   - INDEX: code, (is_active, start_date, end_date), applicable_to
+--
+-- rewards:
+--   - PRIMARY KEY: id
+--   - INDEX: category, (is_active, valid_from, valid_until), points_required
+--
+-- redemptions:
+--   - PRIMARY KEY: id
+--   - INDEX: user_id, reward_id, status, createdAt
+--   - FOREIGN KEYS: user_id -> users.id, reward_id -> rewards.id, applied_to_booking_id -> bookings.id
 
 -- =====================================================
 -- Notes
