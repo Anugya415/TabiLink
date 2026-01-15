@@ -53,15 +53,16 @@ app.get('/', (req, res) => {
     message: 'TabiLink API Server',
     version: '1.0.0',
     apiVersion: API_VERSION,
-    endpoints: {
-      health: '/health',
-      api: `/api/${API_VERSION}`,
-      auth: `/api/${API_VERSION}/auth`,
-      hotels: `/api/${API_VERSION}/hotels`,
-      packages: `/api/${API_VERSION}/packages`,
-      bookings: `/api/${API_VERSION}/bookings`,
-      contact: `/api/${API_VERSION}/contact`,
-    },
+      endpoints: {
+        health: '/health',
+        api: `/api/${API_VERSION}`,
+        auth: `/api/${API_VERSION}/auth`,
+        hotels: `/api/${API_VERSION}/hotels`,
+        packages: `/api/${API_VERSION}/packages`,
+        bookings: `/api/${API_VERSION}/bookings`,
+        contact: `/api/${API_VERSION}/contact`,
+        discounts: `/api/${API_VERSION}/discounts`,
+      },
     documentation: 'Visit /api/v1 for API information',
   });
 });

@@ -39,6 +39,12 @@ import {
   AlertCircle,
   BookOpen,
   Mail,
+  Tag,
+  Percent,
+  Trash2,
+  Edit,
+  Eye,
+  Plus,
 } from "lucide-react"
 import { toast } from "sonner"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
@@ -75,6 +81,7 @@ function AdminDashboardContent() {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false)
   const [isLoadingHotels, setIsLoadingHotels] = useState(false)
   const [isLoadingPackages, setIsLoadingPackages] = useState(false)
+  const [isLoadingDiscounts, setIsLoadingDiscounts] = useState(false)
 
   // Update URL when tab changes
   useEffect(() => {
@@ -93,6 +100,7 @@ function AdminDashboardContent() {
   const [userSearch, setUserSearch] = useState("")
   const [hotelSearch, setHotelSearch] = useState("")
   const [packageSearch, setPackageSearch] = useState("")
+  const [discountSearch, setDiscountSearch] = useState("")
 
   // State for dialogs and editing
   const [dialogType, setDialogType] = useState<string | null>(null)
@@ -334,6 +342,33 @@ function AdminDashboardContent() {
   // Packages data from backend
   const [allPackages, setAllPackages] = useState<any[]>([])
 
+  // Discounts data from backend
+  const [allDiscounts, setAllDiscounts] = useState<any[]>([])
+
+  // Fetch discounts from backend
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      setIsLoadingDiscounts(true)
+      try {
+        const response = await api.getDiscounts() as { success: boolean; data: { discounts?: any[] } }
+        if (response.success && response.data?.discounts) {
+          setAllDiscounts(response.data.discounts)
+        }
+      } catch (error: any) {
+        console.error("Error fetching discounts:", error)
+        toast.error("Failed to load discounts", {
+          description: error.message || "An error occurred while fetching discounts",
+        })
+      } finally {
+        setIsLoadingDiscounts(false)
+      }
+    }
+
+    if (activeTab === "discounts") {
+      fetchDiscounts()
+    }
+  }, [activeTab])
+
   // Fetch packages from backend
   useEffect(() => {
     const fetchPackages = async () => {
@@ -410,6 +445,14 @@ function AdminDashboardContent() {
     p != null && (
       (p.name?.toLowerCase() || '').includes(packageSearch.toLowerCase()) ||
       (p.destination?.toLowerCase() || '').includes(packageSearch.toLowerCase())
+    )
+  )
+
+  // Filter discounts
+  const filteredDiscounts = allDiscounts.filter((d) =>
+    d != null && (
+      (d.code?.toLowerCase() || '').includes(discountSearch.toLowerCase()) ||
+      (d.name?.toLowerCase() || '').includes(discountSearch.toLowerCase())
     )
   )
 
@@ -1103,6 +1146,180 @@ function AdminDashboardContent() {
                     </Button>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        )
+
+      case "discounts":
+        return (
+          <div className="space-y-6">
+            <Card className="hover-lift bg-card">
+              <CardHeader>
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div>
+                    <CardTitle>Discount Management</CardTitle>
+                    <CardDescription>Create and manage discount codes ({filteredDiscounts.length} total)</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search discounts..."
+                        className="w-64 pl-10"
+                        value={discountSearch}
+                        onChange={(e) => setDiscountSearch(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setDialogType("discount")
+                        setDialogAction("add")
+                        setSelectedItem(null)
+                      }}
+                      className="hover-lift"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Discount
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoadingDiscounts ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p>Loading discounts...</p>
+                  </div>
+                ) : filteredDiscounts.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Tag className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No discounts found</p>
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => {
+                        setDialogType("discount")
+                        setDialogAction("add")
+                        setSelectedItem(null)
+                      }}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create First Discount
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredDiscounts.map((discount) => {
+                      const isExpired = new Date(discount.endDate) < new Date()
+                      const isActive = discount.isActive && !isExpired && (!discount.usageLimit || discount.usageCount < discount.usageLimit)
+                      
+                      return (
+                        <div
+                          key={discount.id}
+                          className="flex items-center justify-between p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <div className="space-y-1 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-lg text-primary">{discount.code}</span>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  isActive
+                                    ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                                    : isExpired
+                                    ? "bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400"
+                                    : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
+                                }`}
+                              >
+                                {isActive ? "Active" : isExpired ? "Expired" : "Inactive"}
+                              </span>
+                            </div>
+                            <p className="text-sm font-medium text-foreground">{discount.name}</p>
+                            {discount.description && (
+                              <p className="text-xs text-muted-foreground">{discount.description}</p>
+                            )}
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                {discount.discountType === 'percentage' ? (
+                                  <Percent className="h-3 w-3" />
+                                ) : (
+                                  <DollarSign className="h-3 w-3" />
+                                )}
+                                {discount.discountType === 'percentage' 
+                                  ? `${discount.discountValue}% OFF`
+                                  : `$${discount.discountValue} OFF`}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {new Date(discount.startDate).toLocaleDateString()} - {new Date(discount.endDate).toLocaleDateString()}
+                              </span>
+                              {discount.usageLimit && (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {discount.usageCount} / {discount.usageLimit} uses
+                                </span>
+                              )}
+                              <span className="capitalize">
+                                {discount.applicableTo === 'all' ? 'All Bookings' : discount.applicableTo}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setDialogType("discount")
+                                setDialogAction("view")
+                                setSelectedItem(discount)
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setDialogType("discount")
+                                setDialogAction("edit")
+                                setSelectedItem(discount)
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={async () => {
+                                if (confirm(`Are you sure you want to delete discount code ${discount.code}?`)) {
+                                  try {
+                                    setIsLoadingDiscounts(true)
+                                    await api.deleteDiscount(discount.id)
+                                    toast.success("Discount deleted", {
+                                      description: `Discount code ${discount.code} has been deleted`,
+                                    })
+                                    const response = await api.getDiscounts() as { success: boolean; data: { discounts?: any[] } }
+                                    if (response.success && response.data?.discounts) {
+                                      setAllDiscounts(response.data.discounts)
+                                    }
+                                  } catch (error: any) {
+                                    toast.error("Failed to delete discount", {
+                                      description: error.message || "An error occurred",
+                                    })
+                                  } finally {
+                                    setIsLoadingDiscounts(false)
+                                  }
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -2652,6 +2869,244 @@ function AdminDashboardContent() {
                     setIsLoadingPackages(false)
                   }
                 }} disabled={isLoadingPackages}>Save</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Discount Dialog */}
+      <Dialog open={dialogType === "discount" && dialogAction !== null} onOpenChange={(open) => !open && (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {dialogAction === "add" ? "Add New Discount" : dialogAction === "view" ? "Discount Details" : "Edit Discount"}
+            </DialogTitle>
+            <DialogDescription>
+              {dialogAction === "add" ? "Create a new discount code" : dialogAction === "view" ? "View discount information" : "Update discount details"}
+            </DialogDescription>
+          </DialogHeader>
+          {dialogAction === "view" ? (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Discount Code</Label>
+                  <p className="text-sm font-mono font-bold text-primary">{selectedItem?.code}</p>
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                    selectedItem?.isActive ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" :
+                    "bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400"
+                  }`}>
+                    {selectedItem?.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div>
+                  <Label>Name</Label>
+                  <p className="text-sm font-medium text-foreground">{selectedItem?.name}</p>
+                </div>
+                <div>
+                  <Label>Description</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.description || "N/A"}</p>
+                </div>
+                <div>
+                  <Label>Discount Type</Label>
+                  <p className="text-sm text-foreground capitalize">{selectedItem?.discountType}</p>
+                </div>
+                <div>
+                  <Label>Discount Value</Label>
+                  <p className="text-sm font-semibold text-foreground">
+                    {selectedItem?.discountType === 'percentage' 
+                      ? `${selectedItem?.discountValue}%`
+                      : `$${selectedItem?.discountValue}`}
+                  </p>
+                </div>
+                <div>
+                  <Label>Min Purchase Amount</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.minPurchaseAmount ? `$${selectedItem.minPurchaseAmount}` : "No minimum"}</p>
+                </div>
+                <div>
+                  <Label>Max Discount Amount</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.maxDiscountAmount ? `$${selectedItem.maxDiscountAmount}` : "No limit"}</p>
+                </div>
+                <div>
+                  <Label>Applicable To</Label>
+                  <p className="text-sm text-foreground capitalize">{selectedItem?.applicableTo === 'all' ? 'All Bookings' : selectedItem?.applicableTo}</p>
+                </div>
+                <div>
+                  <Label>Start Date</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.startDate ? new Date(selectedItem.startDate).toLocaleDateString() : "N/A"}</p>
+                </div>
+                <div>
+                  <Label>End Date</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.endDate ? new Date(selectedItem.endDate).toLocaleDateString() : "N/A"}</p>
+                </div>
+                <div>
+                  <Label>Usage Limit</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.usageLimit ? `${selectedItem.usageLimit} uses` : "Unlimited"}</p>
+                </div>
+                <div>
+                  <Label>Usage Count</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.usageCount || 0}</p>
+                </div>
+                <div>
+                  <Label>User Usage Limit</Label>
+                  <p className="text-sm text-foreground">{selectedItem?.userUsageLimit ? `${selectedItem.userUsageLimit} per user` : "Unlimited"}</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Close</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Discount Code *</Label>
+                  <Input defaultValue={selectedItem?.code ?? ""} id="discount-code" placeholder="WEEKEND25" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Name *</Label>
+                  <Input defaultValue={selectedItem?.name ?? ""} id="discount-name" placeholder="Weekend Getaway Sale" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Description</Label>
+                  <Input defaultValue={selectedItem?.description ?? ""} id="discount-description" placeholder="Get 25% off on weekend bookings" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Discount Type *</Label>
+                  <Select defaultValue={selectedItem?.discountType || "percentage"} id="discount-type">
+                    <option value="percentage">Percentage</option>
+                    <option value="fixed">Fixed Amount</option>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Discount Value *</Label>
+                  <Input type="number" defaultValue={String(selectedItem?.discountValue || 0)} min="0" step="0.01" id="discount-value" placeholder="25" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Min Purchase Amount ($)</Label>
+                  <Input type="number" defaultValue={String(selectedItem?.minPurchaseAmount || "")} min="0" step="0.01" id="discount-min-purchase" placeholder="Optional" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Max Discount Amount ($)</Label>
+                  <Input type="number" defaultValue={String(selectedItem?.maxDiscountAmount || "")} min="0" step="0.01" id="discount-max-amount" placeholder="Optional" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Applicable To *</Label>
+                  <Select defaultValue={selectedItem?.applicableTo || "all"} id="discount-applicable">
+                    <option value="all">All Bookings</option>
+                    <option value="hotel">Hotels Only</option>
+                    <option value="travel">Travel Packages Only</option>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Start Date *</Label>
+                  <Input type="datetime-local" defaultValue={selectedItem?.startDate ? new Date(selectedItem.startDate).toISOString().slice(0, 16) : ""} id="discount-start-date" />
+                </div>
+                <div className="space-y-2">
+                  <Label>End Date *</Label>
+                  <Input type="datetime-local" defaultValue={selectedItem?.endDate ? new Date(selectedItem.endDate).toISOString().slice(0, 16) : ""} id="discount-end-date" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Usage Limit</Label>
+                  <Input type="number" defaultValue={String(selectedItem?.usageLimit || "")} min="0" id="discount-usage-limit" placeholder="Unlimited" />
+                </div>
+                <div className="space-y-2">
+                  <Label>User Usage Limit</Label>
+                  <Input type="number" defaultValue={String(selectedItem?.userUsageLimit || "")} min="0" id="discount-user-limit" placeholder="Unlimited per user" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Status *</Label>
+                  <Select defaultValue={selectedItem?.isActive !== undefined ? (selectedItem.isActive ? "active" : "inactive") : "active"} id="discount-status">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => (setDialogType(null), setDialogAction(null), setSelectedItem(null))}>Cancel</Button>
+                <Button onClick={async () => {
+                  try {
+                    const code = (document.getElementById("discount-code") as HTMLInputElement)?.value
+                    const name = (document.getElementById("discount-name") as HTMLInputElement)?.value
+                    const description = (document.getElementById("discount-description") as HTMLInputElement)?.value
+                    const discountType = (document.getElementById("discount-type") as HTMLSelectElement)?.value as 'percentage' | 'fixed'
+                    const discountValue = parseFloat((document.getElementById("discount-value") as HTMLInputElement)?.value || "0")
+                    const minPurchaseAmount = (document.getElementById("discount-min-purchase") as HTMLInputElement)?.value
+                    const maxDiscountAmount = (document.getElementById("discount-max-amount") as HTMLInputElement)?.value
+                    const applicableTo = (document.getElementById("discount-applicable") as HTMLSelectElement)?.value as 'all' | 'hotel' | 'travel'
+                    const startDate = (document.getElementById("discount-start-date") as HTMLInputElement)?.value
+                    const endDate = (document.getElementById("discount-end-date") as HTMLInputElement)?.value
+                    const usageLimit = (document.getElementById("discount-usage-limit") as HTMLInputElement)?.value
+                    const userUsageLimit = (document.getElementById("discount-user-limit") as HTMLInputElement)?.value
+                    const status = (document.getElementById("discount-status") as HTMLSelectElement)?.value
+
+                    // Validation
+                    if (!code || !name || !discountType || !discountValue || !startDate || !endDate) {
+                      toast.error("Validation Error", {
+                        description: "Please fill in all required fields",
+                      })
+                      return
+                    }
+
+                    if (discountType === 'percentage' && (discountValue < 0 || discountValue > 100)) {
+                      toast.error("Validation Error", {
+                        description: "Percentage discount must be between 0 and 100",
+                      })
+                      return
+                    }
+
+                    setIsLoadingDiscounts(true)
+
+                    const discountData: any = {
+                      code: code.toUpperCase().trim(),
+                      name,
+                      description: description || undefined,
+                      discountType,
+                      discountValue,
+                      minPurchaseAmount: minPurchaseAmount ? parseFloat(minPurchaseAmount) : undefined,
+                      maxDiscountAmount: maxDiscountAmount ? parseFloat(maxDiscountAmount) : undefined,
+                      applicableTo,
+                      startDate: new Date(startDate).toISOString(),
+                      endDate: new Date(endDate).toISOString(),
+                      usageLimit: usageLimit ? parseInt(usageLimit) : undefined,
+                      userUsageLimit: userUsageLimit ? parseInt(userUsageLimit) : undefined,
+                      isActive: status === "active",
+                    }
+
+                    if (dialogAction === "add") {
+                      const response = await api.createDiscount(discountData) as { success: boolean; message: string; data: { discount: any } }
+                      if (response.success) {
+                        toast.success("Discount created", { description: `Discount code ${code} has been created successfully` })
+                        const discountsResponse = await api.getDiscounts() as { success: boolean; data: { discounts?: any[] } }
+                        if (discountsResponse.success && discountsResponse.data?.discounts) {
+                          setAllDiscounts(discountsResponse.data.discounts)
+                        }
+                      }
+                    } else {
+                      const response = await api.updateDiscount(selectedItem?.id, discountData) as { success: boolean; message: string; data: { discount: any } }
+                      if (response.success) {
+                        toast.success("Discount updated", { description: `Discount code ${code} has been updated successfully` })
+                        const discountsResponse = await api.getDiscounts() as { success: boolean; data: { discounts?: any[] } }
+                        if (discountsResponse.success && discountsResponse.data?.discounts) {
+                          setAllDiscounts(discountsResponse.data.discounts)
+                        }
+                      }
+                    }
+                    setDialogType(null)
+                    setDialogAction(null)
+                    setSelectedItem(null)
+                  } catch (error: any) {
+                    console.error("Error saving discount:", error)
+                    toast.error("Failed to save discount", {
+                      description: error.message || "An error occurred while saving the discount",
+                    })
+                  } finally {
+                    setIsLoadingDiscounts(false)
+                  }
+                }} disabled={isLoadingDiscounts}>Save</Button>
               </div>
             </div>
           )}

@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import api from "@/lib/api"
 import { toast } from "sonner"
-import { Calendar, Users, CreditCard, Lock, Plane } from "lucide-react"
+import { Calendar, Users, CreditCard, Lock, Plane, Tag, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -40,6 +40,10 @@ export default function TravelBookingPage() {
   const [packageData, setPackageData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [discountCode, setDiscountCode] = useState("")
+  const [discountAmount, setDiscountAmount] = useState(0)
+  const [discountError, setDiscountError] = useState("")
+  const [validatingDiscount, setValidatingDiscount] = useState(false)
 
   useEffect(() => {
     const fetchPackage = async () => {
@@ -94,11 +98,63 @@ export default function TravelBookingPage() {
 
   const travelers = parseInt(form.watch("travelers") || "1")
   const subtotal = (packageData?.price || 0) * travelers
-  const discount = packageData?.originalPrice && packageData?.price 
+  const packageDiscount = packageData?.originalPrice && packageData?.price 
     ? (packageData.originalPrice - packageData.price) * travelers 
     : 0
-  const tax = subtotal * 0.1
-  const total = subtotal + tax
+  const tax = (subtotal - discountAmount) * 0.1
+  const total = subtotal - discountAmount + tax
+
+  const validateDiscount = async () => {
+    if (!discountCode.trim()) {
+      setDiscountAmount(0)
+      setDiscountError("")
+      return
+    }
+
+    if (!packageData || travelers === 0) {
+      setDiscountError("Please wait for package details to load")
+      return
+    }
+
+    setValidatingDiscount(true)
+    setDiscountError("")
+
+    try {
+      const response = await api.validateDiscountCode({
+        code: discountCode.trim(),
+        subtotal,
+        type: "travel",
+        travelPackageId: packageId,
+      })
+
+      if (response.success && response.data?.discount) {
+        setDiscountAmount(response.data.discount.discountAmount || 0)
+        toast.success("Discount code applied!", {
+          description: `${response.data.discount.name} - ${response.data.discount.discountAmount > 0 ? `$${response.data.discount.discountAmount} off` : 'Applied'}`,
+        })
+      }
+    } catch (error: any) {
+      setDiscountAmount(0)
+      setDiscountError(error.message || "Invalid discount code")
+      toast.error("Invalid discount code", {
+        description: error.message || "Please check the code and try again",
+      })
+    } finally {
+      setValidatingDiscount(false)
+    }
+  }
+
+  useEffect(() => {
+    if (discountCode.trim() && packageData) {
+      const timeoutId = setTimeout(() => {
+        validateDiscount()
+      }, 500)
+      return () => clearTimeout(timeoutId)
+    } else {
+      setDiscountAmount(0)
+      setDiscountError("")
+    }
+  }, [discountCode, subtotal, packageData])
 
   const onSubmit = async (data: BookingFormData) => {
     if (!packageId) {
@@ -123,6 +179,7 @@ export default function TravelBookingPage() {
         type: "travel" as const,
         travelPackage: packageId,
         travelers: parseInt(data.travelers),
+        discountCode: discountCode.trim() || undefined,
         guests: [{
           firstName: data.firstName,
           lastName: data.lastName,
@@ -225,6 +282,54 @@ export default function TravelBookingPage() {
                       </FormItem>
                     )}
                   />
+                </CardContent>
+              </Card>
+
+              {/* Discount Code */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Tag className="h-5 w-5" />
+                    Discount Code
+                  </CardTitle>
+                  <CardDescription>
+                    Enter a discount code to save on your booking
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Input
+                        placeholder="Enter discount code"
+                        value={discountCode}
+                        onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                        className={discountError ? "border-red-500" : ""}
+                      />
+                      {discountError && (
+                        <p className="text-sm text-red-500 mt-1">{discountError}</p>
+                      )}
+                    </div>
+                    {discountCode && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setDiscountCode("")
+                          setDiscountAmount(0)
+                          setDiscountError("")
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/20 rounded-md">
+                      <p className="text-sm text-green-700 dark:text-green-400 font-semibold">
+                        Discount applied: -${discountAmount.toFixed(2)}
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -447,6 +552,15 @@ export default function TravelBookingPage() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                    <span className="flex items-center gap-1">
+                      <Tag className="h-3 w-3" />
+                      Discount ({discountCode})
+                    </span>
+                    <span>-${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Taxes & Fees</span>
                   <span>${tax.toFixed(2)}</span>

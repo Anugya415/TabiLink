@@ -7,6 +7,7 @@ import Review from './Review';
 import Favorite from './Favorite';
 import Payment from './Payment';
 import Contact from './Contact';
+import Discount from './Discount';
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId', as: 'bookings' });
@@ -45,7 +46,7 @@ Review.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 Booking.hasOne(Payment, { foreignKey: 'bookingId', as: 'payment' });
 Payment.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 
-export { User, Hotel, TravelPackage, Booking, Review, Favorite, Payment, Contact };
+export { User, Hotel, TravelPackage, Booking, Review, Favorite, Payment, Contact, Discount };
 
 // Export types
 export type { IUserAttributes as IUser } from './User';
@@ -56,3 +57,4 @@ export type { IReviewAttributes as IReview } from './Review';
 export type { IFavoriteAttributes as IFavorite } from './Favorite';
 export type { IPaymentAttributes as IPayment } from './Payment';
 export type { IContactAttributes as IContact } from './Contact';
+export type { IDiscountAttributes as IDiscount } from './Discount';

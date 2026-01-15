@@ -24,6 +24,7 @@ import {
   BarChart3,
   Server,
   Hotel,
+  Tag,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -269,6 +270,12 @@ function SidebarContent() {
               label: "Packages",
               icon: Plane,
               iconColor: "text-orange-600",
+            },
+            {
+              href: "/admin/dashboard?tab=discounts",
+              label: "Discounts",
+              icon: Tag,
+              iconColor: "text-pink-600",
             },
             {
               href: "/admin/dashboard?tab=analytics",

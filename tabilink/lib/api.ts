@@ -309,6 +309,7 @@ class ApiClient {
     checkIn?: string;
     checkOut?: string;
     travelers: number;
+    discountCode?: string;
     guests?: Array<{
       firstName: string;
       lastName: string;
@@ -383,6 +384,83 @@ class ApiClient {
 
   async deleteUser(id: string | number) {
     return this.request(`/auth/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Discounts
+  async getDiscounts(params?: {
+    active?: boolean;
+    applicableTo?: 'all' | 'hotel' | 'travel';
+  }) {
+    return this.request('/discounts', { params });
+  }
+
+  async getDiscount(id: string | number) {
+    return this.request(`/discounts/${id}`);
+  }
+
+  async validateDiscountCode(data: {
+    code: string;
+    subtotal: number;
+    type: 'hotel' | 'travel';
+    hotelId?: string | number;
+    travelPackageId?: string | number;
+  }) {
+    return this.request('/discounts/validate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async createDiscount(data: {
+    code: string;
+    name: string;
+    description?: string;
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+    minPurchaseAmount?: number;
+    maxDiscountAmount?: number;
+    applicableTo?: 'all' | 'hotel' | 'travel';
+    applicableHotelIds?: number[];
+    applicableTravelPackageIds?: number[];
+    startDate: string;
+    endDate: string;
+    usageLimit?: number;
+    userUsageLimit?: number;
+    isActive?: boolean;
+  }) {
+    return this.request('/discounts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateDiscount(id: string | number, data: {
+    code?: string;
+    name?: string;
+    description?: string;
+    discountType?: 'percentage' | 'fixed';
+    discountValue?: number;
+    minPurchaseAmount?: number;
+    maxDiscountAmount?: number;
+    applicableTo?: 'all' | 'hotel' | 'travel';
+    applicableHotelIds?: number[];
+    applicableTravelPackageIds?: number[];
+    startDate?: string;
+    endDate?: string;
+    usageLimit?: number;
+    userUsageLimit?: number;
+    isActive?: boolean;
+  }) {
+    return this.request(`/discounts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteDiscount(id: string | number) {
+    return this.request(`/discounts/${id}`, {
       method: 'DELETE',
     });
   }

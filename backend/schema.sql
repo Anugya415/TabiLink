@@ -253,6 +253,36 @@ CREATE TABLE IF NOT EXISTS `contacts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- Table: discounts
+-- =====================================================
+CREATE TABLE IF NOT EXISTS `discounts` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `discount_type` ENUM('percentage', 'fixed') NOT NULL,
+  `discount_value` DECIMAL(10, 2) NOT NULL,
+  `min_purchase_amount` DECIMAL(10, 2) NULL,
+  `max_discount_amount` DECIMAL(10, 2) NULL,
+  `applicable_to` ENUM('all', 'hotel', 'travel') NOT NULL DEFAULT 'all',
+  `applicable_hotel_ids` JSON NULL,
+  `applicable_travel_package_ids` JSON NULL,
+  `start_date` DATETIME NOT NULL,
+  `end_date` DATETIME NOT NULL,
+  `usage_limit` INT UNSIGNED NULL,
+  `usage_count` INT UNSIGNED NOT NULL DEFAULT 0,
+  `user_usage_limit` INT UNSIGNED NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`),
+  KEY `idx_code` (`code`),
+  KEY `idx_is_active_dates` (`is_active`, `start_date`, `end_date`),
+  KEY `idx_applicable_to` (`applicable_to`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- Indexes Summary
 -- =====================================================
 -- users:
@@ -294,6 +324,11 @@ CREATE TABLE IF NOT EXISTS `contacts` (
 -- contacts:
 --   - PRIMARY KEY: id
 --   - INDEX: (status, createdAt), email
+--
+-- discounts:
+--   - PRIMARY KEY: id
+--   - UNIQUE: code
+--   - INDEX: code, (is_active, start_date, end_date), applicable_to
 
 -- =====================================================
 -- Notes

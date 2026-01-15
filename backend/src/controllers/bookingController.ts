@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth';
 import Booking from '../models/Booking';
 import Hotel from '../models/Hotel';
 import TravelPackage from '../models/TravelPackage';
+import Discount from '../models/Discount';
 import { AppError } from '../middleware/errorHandler';
 import { asyncHandler } from '../utils/asyncHandler';
 
@@ -82,7 +83,7 @@ export const getBooking = asyncHandler(async (req: AuthRequest, res: Response) =
 // @route   POST /api/v1/bookings
 // @access  Private
 export const createBooking = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { type, hotel, travelPackage, checkIn, checkOut, travelers, guests } = req.body;
+  const { type, hotel, travelPackage, checkIn, checkOut, travelers, guests, discountCode } = req.body;
 
   let item: any;
   let price = 0;
@@ -116,8 +117,53 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
     throw new AppError('Invalid booking type', 400);
   }
 
-  const tax = price * 0.1;
-  const total = price + tax;
+  // Apply discount if discount code is provided
+  let discountAmount = 0;
+  let discountId: number | undefined;
+
+  if (discountCode) {
+    const discount = await Discount.findOne({
+      where: {
+        code: discountCode.toUpperCase().trim(),
+        isActive: true,
+      },
+    });
+
+    if (discount && discount.isValid()) {
+      // Check if discount applies to this booking type
+      if (
+        discount.applicableTo === 'all' ||
+        (discount.applicableTo === 'hotel' && type === 'hotel') ||
+        (discount.applicableTo === 'travel' && type === 'travel')
+      ) {
+        // Check if discount applies to specific hotels/packages
+        let appliesToItem = true;
+        if (discount.applicableTo === 'hotel' && discount.applicableHotelIds && hotel) {
+          appliesToItem = discount.applicableHotelIds.includes(parseInt(hotel));
+        }
+        if (discount.applicableTo === 'travel' && discount.applicableTravelPackageIds && travelPackage) {
+          appliesToItem = discount.applicableTravelPackageIds.includes(parseInt(travelPackage));
+        }
+
+        if (appliesToItem) {
+          // Check minimum purchase amount
+          if (!discount.minPurchaseAmount || price >= parseFloat(discount.minPurchaseAmount.toString())) {
+            discountAmount = discount.calculateDiscount(price);
+            discountId = discount.id;
+
+            // Increment usage count
+            await discount.update({
+              usageCount: discount.usageCount + 1,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  const subtotal = price;
+  const tax = (subtotal - discountAmount) * 0.1;
+  const total = subtotal - discountAmount + tax;
 
   // Generate booking ID
   const prefix = type === 'hotel' ? 'HOTEL' : 'TRAVEL';
@@ -141,7 +187,8 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
       checkOut: type === 'hotel' ? new Date(checkOut) : undefined,
       travelers,
       guests: guests || [],
-      subtotal: price,
+      subtotal,
+      discount: discountAmount > 0 ? discountAmount : undefined,
       tax,
       total,
       status: 'pending',
