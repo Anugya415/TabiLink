@@ -83,7 +83,7 @@ export const getBooking = asyncHandler(async (req: AuthRequest, res: Response) =
 // @route   POST /api/v1/bookings
 // @access  Private
 export const createBooking = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { type, hotel, travelPackage, checkIn, checkOut, travelers, guests, discountCode } = req.body;
+  const { type, hotel, travelPackage, checkIn, checkOut, travelers, guests, discountCode, hotelRoomType, travelPackageTier } = req.body;
 
   let item: any;
   let price = 0;
@@ -101,7 +101,17 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
     const nights = Math.ceil(
       (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
     );
-    price = parseFloat(item.price.toString()) * nights * travelers;
+
+    // Use room type price if provided, otherwise use base hotel price
+    let roomPrice = parseFloat(item.price.toString());
+    if (hotelRoomType && item.rooms) {
+      const selectedRoom = item.rooms.find((r: any) => r.type === hotelRoomType);
+      if (selectedRoom) {
+        roomPrice = parseFloat(selectedRoom.price.toString());
+      }
+    }
+
+    price = roomPrice * nights * travelers;
   } else if (type === 'travel') {
     if (!travelPackage) {
       throw new AppError('Travel package is required', 400);
@@ -113,6 +123,9 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
     }
 
     price = parseFloat(item.price.toString()) * travelers;
+
+    // Add logic for travel package tiers if they exist in the model in the future
+    // For now, we use the base price
   } else {
     throw new AppError('Invalid booking type', 400);
   }
@@ -185,6 +198,8 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
       travelPackageId: type === 'travel' ? parseInt(travelPackage) : undefined,
       checkIn: type === 'hotel' ? new Date(checkIn) : undefined,
       checkOut: type === 'hotel' ? new Date(checkOut) : undefined,
+      hotelRoomType: type === 'hotel' ? hotelRoomType : undefined,
+      travelPackageTier: type === 'travel' ? travelPackageTier : undefined,
       travelers,
       guests: guests || [],
       subtotal,
@@ -262,6 +277,92 @@ export const cancelBooking = asyncHandler(async (req: AuthRequest, res: Response
   res.json({
     success: true,
     message: 'Booking cancelled successfully',
+    data: {
+      booking,
+    },
+  });
+});
+
+// @desc    Modify booking
+// @route   PUT /api/v1/bookings/:id
+// @access  Private
+export const modifyBooking = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { checkIn, checkOut, travelers, guests, hotelRoomType, travelPackageTier } = req.body;
+
+  const booking = await Booking.findOne({
+    where: { id: req.params.id, userId: req.user?.id },
+  });
+
+  if (!booking) {
+    throw new AppError('Booking not found', 404);
+  }
+
+  if (booking.status === 'cancelled' || booking.status === 'completed') {
+    throw new AppError(`Cannot modify a ${booking.status} booking`, 400);
+  }
+
+  // Update dates if hotel booking
+  if (booking.type === 'hotel') {
+    if (checkIn) booking.checkIn = new Date(checkIn);
+    if (checkOut) booking.checkOut = new Date(checkOut);
+    if (hotelRoomType) booking.hotelRoomType = hotelRoomType;
+  } else if (booking.type === 'travel') {
+    if (travelPackageTier) booking.travelPackageTier = travelPackageTier;
+  }
+
+  if (travelers) booking.travelers = travelers;
+  if (guests) booking.guests = guests;
+
+  // Recalculate price
+  let item: any;
+  let price = 0;
+
+  if (booking.type === 'hotel') {
+    item = await Hotel.findByPk(booking.hotelId);
+    if (!item) throw new AppError('Hotel not found', 404);
+
+    const nights = Math.ceil(
+      (new Date(booking.checkOut!).getTime() - new Date(booking.checkIn!).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    let roomPrice = parseFloat(item.price.toString());
+    if (booking.hotelRoomType && item.rooms) {
+      const selectedRoom = item.rooms.find((r: any) => r.type === booking.hotelRoomType);
+      if (selectedRoom) {
+        roomPrice = parseFloat(selectedRoom.price.toString());
+      }
+    }
+
+    price = roomPrice * nights * booking.travelers;
+  } else {
+    item = await TravelPackage.findByPk(booking.travelPackageId);
+    if (!item) throw new AppError('Travel package not found', 404);
+
+    price = parseFloat(item.price.toString()) * booking.travelers;
+  }
+
+  const subtotal = price;
+  const discountAmount = booking.discount || 0;
+  const tax = (subtotal - discountAmount) * 0.1;
+  const total = subtotal - discountAmount + tax;
+
+  await booking.update({
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    hotelRoomType: booking.hotelRoomType,
+    travelPackageTier: booking.travelPackageTier,
+    travelers: booking.travelers,
+    guests: booking.guests,
+    subtotal,
+    tax,
+    total,
+    // If price increased, we might want to set payment status back to pending
+    // depending on the business logic. For now, we'll just update the total.
+  });
+
+  res.json({
+    success: true,
+    message: 'Booking modified successfully',
     data: {
       booking,
     },

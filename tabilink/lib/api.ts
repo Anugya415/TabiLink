@@ -95,7 +95,7 @@ class ApiClient {
           const statusCode = response.status ?? 500;
           const msg = errorMessage || 'Server error occurred';
           const requestUrl = url || 'Unknown URL';
-          
+
           // Log with explicit properties to avoid empty object issues
           console.error(`Server error (${statusCode}):`, msg);
           console.error('Request URL:', requestUrl);
@@ -142,7 +142,7 @@ class ApiClient {
           error: error.toString(),
         });
       }
-      
+
       // If error has a message, throw it; otherwise wrap it
       if (error.message) {
         throw error;
@@ -327,6 +327,25 @@ class ApiClient {
     return this.request(`/bookings/${id}/cancel`, {
       method: 'PUT',
       body: JSON.stringify({ cancellationReason: reason }),
+    });
+  }
+
+  async modifyBooking(id: string, data: {
+    checkIn?: string;
+    checkOut?: string;
+    travelers?: number;
+    hotelRoomType?: string;
+    travelPackageTier?: string;
+    guests?: Array<{
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string;
+    }>;
+  }) {
+    return this.request(`/bookings/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
     });
   }
 

@@ -10,6 +10,8 @@ export interface IBookingAttributes {
   travelPackageId?: number;
   checkIn?: Date;
   checkOut?: Date;
+  hotelRoomType?: string;
+  travelPackageTier?: string;
   travelers: number;
   guests?: {
     firstName: string;
@@ -47,6 +49,8 @@ class Booking extends Model<IBookingAttributes, IBookingCreationAttributes> impl
   public travelPackageId?: number;
   public checkIn?: Date;
   public checkOut?: Date;
+  public hotelRoomType?: string;
+  public travelPackageTier?: string;
   public travelers!: number;
   public guests?: {
     firstName: string;
@@ -126,6 +130,16 @@ Booking.init(
       type: DataTypes.DATE,
       allowNull: true,
       field: 'check_out',
+    },
+    hotelRoomType: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'hotel_room_type',
+    },
+    travelPackageTier: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'travel_package_tier',
     },
     travelers: {
       type: DataTypes.INTEGER.UNSIGNED,

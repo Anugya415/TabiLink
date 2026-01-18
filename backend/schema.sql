@@ -123,6 +123,8 @@ CREATE TABLE IF NOT EXISTS `bookings` (
   `travel_package_id` INT UNSIGNED NULL,
   `check_in` DATETIME NULL,
   `check_out` DATETIME NULL,
+  `hotel_room_type` VARCHAR(100) NULL,
+  `travel_package_tier` VARCHAR(100) NULL,
   `travelers` INT UNSIGNED NOT NULL,
   `guests` JSON NULL,
   `subtotal` DECIMAL(10, 2) NOT NULL,
