@@ -8,6 +8,7 @@ export interface IBookingAttributes {
   type: 'hotel' | 'travel';
   hotelId?: number;
   travelPackageId?: number;
+  tripId?: number;
   checkIn?: Date;
   checkOut?: Date;
   hotelRoomType?: string;
@@ -38,7 +39,7 @@ export interface IBookingAttributes {
   updatedAt?: Date;
 }
 
-interface IBookingCreationAttributes extends Optional<IBookingAttributes, 'id' | 'bookingId' | 'createdAt' | 'updatedAt' | 'confirmationEmailSent'> {}
+interface IBookingCreationAttributes extends Optional<IBookingAttributes, 'id' | 'bookingId' | 'createdAt' | 'updatedAt' | 'confirmationEmailSent'> { }
 
 class Booking extends Model<IBookingAttributes, IBookingCreationAttributes> implements IBookingAttributes {
   public id!: number;
@@ -47,6 +48,7 @@ class Booking extends Model<IBookingAttributes, IBookingCreationAttributes> impl
   public type!: 'hotel' | 'travel';
   public hotelId?: number;
   public travelPackageId?: number;
+  public tripId?: number;
   public checkIn?: Date;
   public checkOut?: Date;
   public hotelRoomType?: string;
@@ -118,6 +120,15 @@ Booking.init(
       field: 'travel_package_id',
       references: {
         model: 'travel_packages',
+        key: 'id',
+      },
+    },
+    tripId: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      field: 'trip_id',
+      references: {
+        model: 'trips',
         key: 'id',
       },
     },

@@ -267,6 +267,49 @@ class ApiClient {
     });
   }
 
+  // Social & Reviews
+  async createReview(data: any) {
+    return this.request('/social/reviews', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getReviews(params?: { hotelId?: number; travelPackageId?: number }) {
+    return this.request('/social/reviews', { params });
+  }
+
+  // Trips
+  async createTrip(data: { name: string; startDate?: string; endDate?: string }) {
+    return this.request('/social/trips', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTrips() {
+    return this.request('/social/trips');
+  }
+
+  async getTrip(id: number | string) {
+    return this.request(`/social/trips/${id}`);
+  }
+
+  async addBookingToTrip(tripId: number | string, bookingId: number) {
+    return this.request(`/social/trips/${tripId}/bookings`, {
+      method: 'POST',
+      body: JSON.stringify({ bookingId }),
+    });
+  }
+
+  async inviteCollaborator(tripId: number | string, email: string) {
+    return this.request(`/social/trips/${tripId}/invite`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+
 
 
   // Travel Packages

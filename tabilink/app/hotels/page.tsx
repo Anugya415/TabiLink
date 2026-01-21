@@ -399,8 +399,8 @@ export default function HotelsPage() {
                 variant={isActive ? "default" : "outline"}
                 onClick={() => setSelectedCategory(category.id)}
                 className={`h-11 px-6 rounded-full transition-all duration-300 ${isActive
-                    ? "shadow-lg scale-105"
-                    : "hover:scale-105 hover:shadow-md"
+                  ? "shadow-lg scale-105"
+                  : "hover:scale-105 hover:shadow-md"
                   }`}
               >
                 <Icon className="h-4 w-4 mr-2" />
@@ -464,14 +464,16 @@ export default function HotelsPage() {
                 >
                   {/* Image Section */}
                   <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900">
-                    <Image
-                      src={hotel.image}
-                      alt={hotel.name}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, (max-width: 1536px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      loading="lazy"
-                    />
+                    <Link href={`/hotels/${hotel.id}`}>
+                      <Image
+                        src={hotel.image}
+                        alt={hotel.name}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, (max-width: 1536px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                    </Link>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                     {/* Badges */}
@@ -499,8 +501,8 @@ export default function HotelsPage() {
                     >
                       <Heart
                         className={`h-5 w-5 transition-all duration-200 ${isFavorite
-                            ? "fill-red-500 text-red-500 scale-110"
-                            : "text-muted-foreground"
+                          ? "fill-red-500 text-red-500 scale-110"
+                          : "text-muted-foreground"
                           }`}
                       />
                     </button>
@@ -532,7 +534,9 @@ export default function HotelsPage() {
                   <CardHeader className="space-y-3 pb-3">
                     <div>
                       <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">
-                        {hotel.name}
+                        <Link href={`/hotels/${hotel.id}`} className="hover:underline">
+                          {hotel.name}
+                        </Link>
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2 text-sm mt-1.5">
                         <MapPin className="h-4 w-4 text-blue-500 dark:text-blue-400 flex-shrink-0" />
@@ -624,6 +628,11 @@ export default function HotelsPage() {
                         <Link href={`/hotels/${hotel.id}/book`}>
                           {t("bookNow")}
                           <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                        </Link>
+                      </Button>
+                      <Button variant="outline" className="w-full mt-2" asChild>
+                        <Link href={`/hotels/${hotel.id}`}>
+                          View Details
                         </Link>
                       </Button>
                     </div>
