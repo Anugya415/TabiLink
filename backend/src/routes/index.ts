@@ -7,6 +7,7 @@ import contactRoutes from './contactRoutes';
 import discountRoutes from './discountRoutes';
 import rewardsRoutes from './rewardsRoutes';
 import ticketRoutes from './ticketRoutes';
+import savedSearchRoutes from './savedSearchRoutes';
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ router.get('/', (req, res) => {
       discounts: '/api/v1/discounts',
       rewards: '/api/v1/rewards',
       tickets: '/api/v1/tickets',
+      savedSearches: '/api/v1/saved-searches',
     },
   });
 });
@@ -37,6 +39,7 @@ router.use('/contact', contactRoutes);
 router.use('/discounts', discountRoutes);
 router.use('/rewards', rewardsRoutes);
 router.use('/tickets', ticketRoutes);
+router.use('/saved-searches', savedSearchRoutes);
 
 export default router;
 

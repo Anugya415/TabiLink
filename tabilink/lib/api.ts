@@ -219,6 +219,8 @@ class ApiClient {
     page?: number;
     limit?: number;
     sort?: string;
+    checkIn?: string;
+    checkOut?: string;
   }) {
     return this.request('/hotels', { params });
   }
@@ -246,6 +248,26 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Saved Searches
+  async getSavedSearches() {
+    return this.request('/saved-searches');
+  }
+
+  async createSavedSearch(name: string, criteria: any) {
+    return this.request('/saved-searches', {
+      method: 'POST',
+      body: JSON.stringify({ name, criteria }),
+    });
+  }
+
+  async deleteSavedSearch(id: number) {
+    return this.request(`/saved-searches/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+
 
   // Travel Packages
   async getPackages(params?: {

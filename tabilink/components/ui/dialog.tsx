@@ -84,7 +84,7 @@ const DialogContent = React.forwardRef<
       <div
         className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-lg"
         onClick={() => context.onOpenChange(false)}
-        style={{ 
+        style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -166,6 +166,21 @@ export {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 }
+
+const DialogFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    )}
+    {...props}
+  />
+)
+DialogFooter.displayName = "DialogFooter"
 
 
