@@ -584,7 +584,40 @@ class ApiClient {
       body: JSON.stringify({ points }),
     });
   }
+  // Price Alerts
+  async createAlert(data: { hotelId?: number; travelPackageId?: number; targetPrice: number }) {
+    return this.request('/alerts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getAlerts() {
+    return this.request('/alerts');
+  }
+
+  async deleteAlert(id: number) {
+    return this.request(`/alerts/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async checkAlertStatus(params: { hotelId?: number; travelPackageId?: number }) {
+    return this.request('/alerts/status', { params });
+  }
+
+  // Notifications
+  async getNotifications() {
+    return this.request('/notifications');
+  }
+
+  async markNotificationRead(id: number | 'all') {
+    return this.request(`/notifications/${id}/read`, {
+      method: 'PUT',
+    });
+  }
 }
+
 
 export const api = new ApiClient(API_BASE_URL);
 export default api;

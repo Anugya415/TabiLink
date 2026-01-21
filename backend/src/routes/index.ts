@@ -9,6 +9,8 @@ import rewardsRoutes from './rewardsRoutes';
 import ticketRoutes from './ticketRoutes';
 import savedSearchRoutes from './savedSearchRoutes';
 import socialRoutes from './socialRoutes';
+import alertRoutes from './alertRoutes';
+import notificationRoutes from './notificationRoutes';
 
 const router = express.Router();
 
@@ -42,6 +44,8 @@ router.use('/rewards', rewardsRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/saved-searches', savedSearchRoutes);
 router.use('/social', socialRoutes);
+router.use('/alerts', alertRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;
 

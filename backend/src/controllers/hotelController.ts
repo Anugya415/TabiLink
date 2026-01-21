@@ -5,6 +5,9 @@ import { AppError } from '../middleware/errorHandler';
 import { asyncHandler } from '../utils/asyncHandler';
 import { Op } from 'sequelize';
 import Booking from '../models/Booking';
+import PriceAlert from '../models/PriceAlert';
+import Notification from '../models/Notification';
+import User from '../models/User';
 
 // @desc    Get all hotels
 // @route   GET /api/v1/hotels
@@ -175,7 +178,63 @@ export const updateHotel = asyncHandler(async (req: AuthRequest, res: Response) 
     throw new AppError('Hotel not found', 404);
   }
 
+  const previousPrice = hotel.price;
+
   await hotel.update(req.body);
+
+  // Trigger Price Alerts
+  const newPrice = Number(hotel.price);
+  const hasAvailability = hotel.rooms && hotel.rooms.some((r: any) => r.available > 0);
+
+  // 1. Price Drop Alerts
+  if (newPrice < previousPrice) {
+    const priceAlerts = await PriceAlert.findAll({
+      where: {
+        hotelId: hotel.id,
+        isActive: true,
+        triggerType: 'price_drop',
+        targetPrice: { [Op.gte]: newPrice }
+      },
+      include: [{ model: User, as: 'user' }]
+    });
+
+    if (priceAlerts.length > 0) {
+      const notifications = priceAlerts.map(alert => ({
+        userId: alert.userId,
+        title: 'Price Drop Alert!',
+        message: `Good news! The price for ${hotel.name} has dropped to $${newPrice}.`,
+        type: 'price_alert',
+        isRead: false,
+        link: `/hotels/${hotel.id}`
+      }));
+
+      await Notification.bulkCreate(notifications as any);
+    }
+  }
+
+  // 2. Availability Alerts
+  if (hasAvailability) {
+    const availabilityAlerts = await PriceAlert.findAll({
+      where: {
+        hotelId: hotel.id,
+        isActive: true,
+        triggerType: 'availability'
+      },
+      include: [{ model: User, as: 'user' }]
+    });
+
+    if (availabilityAlerts.length > 0) {
+      const notifications = availabilityAlerts.map(alert => ({
+        userId: alert.userId,
+        title: 'Availability Alert!',
+        message: `Rooms are now available at ${hotel.name}! Book now before they run out.`,
+        type: 'price_alert',
+        isRead: false,
+        link: `/hotels/${hotel.id}`
+      }));
+      await Notification.bulkCreate(notifications as any);
+    }
+  }
 
   res.json({
     success: true,

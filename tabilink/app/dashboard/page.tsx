@@ -72,6 +72,7 @@ import {
   type Notification,
 } from "@/lib/mock-data"
 import api from "@/lib/api"
+import { PriceAlertsList } from "@/components/alerts/PriceAlertsList"
 
 const visitedDiscounts = [
   {
@@ -3388,6 +3389,25 @@ function DashboardContent() {
     },
   ]
 
+  if (sidebarTab === "alerts") {
+    return (
+      <div className="container space-y-8 py-12 page-content relative max-w-5xl">
+        <div className="flex flex-col gap-3 animate-fade-in-down">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+              {t("alerts")}
+            </p>
+            <h1 className="text-2xl sm:text-3xl font-bold">{t("priceAlerts")}</h1>
+            <p className="text-muted-foreground">
+              {t("trackPriceDrops")}
+            </p>
+          </div>
+        </div>
+        <PriceAlertsList />
+      </div>
+    )
+  }
+
   return (
     <div className="container space-y-8 py-12 page-content relative">
       <div className="flex flex-col gap-3 animate-fade-in-down">
@@ -3720,6 +3740,8 @@ function DashboardContent() {
     </div>
   )
 }
+
+
 
 export default function DashboardPage() {
   return (

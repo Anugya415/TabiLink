@@ -10,6 +10,7 @@ import { useTranslation } from "@/contexts/TranslationContext"
 import { useRole } from "@/contexts/RoleContext"
 import { toast } from "sonner"
 import { Shield, Crown } from "lucide-react"
+import { NotificationBell } from "@/components/layout/NotificationBell"
 
 export function Header() {
   const pathname = usePathname()
@@ -78,7 +79,7 @@ export function Header() {
   // Hide header on dashboard and related pages when logged in
   const dashboardPages = ["/dashboard", "/hotels", "/travel", "/admin", "/super-admin"]
   const isDashboardPage = dashboardPages.some(page => pathname.startsWith(page))
-  
+
   if (isDashboardPage && isLoggedIn) {
     return null
   }
@@ -119,7 +120,7 @@ export function Header() {
               <span className="font-semibold text-sm">{language}</span>
               <ChevronDown className="h-4 w-4" />
             </button>
-            
+
             {selectorOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-popover rounded-lg shadow-xl border border-border overflow-hidden z-50">
                 <div className="p-2">
@@ -148,13 +149,14 @@ export function Header() {
               </div>
             )}
           </div>
-          
+
           {!isLoggedIn ? (
             <Button asChild className="hidden md:inline-flex hover-lift">
               <Link href="/login">{t("login")}</Link>
             </Button>
           ) : (
             <div className="hidden md:flex items-center gap-2">
+              <NotificationBell />
               {user && (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted border">
                   {user.role === "super_admin" && (
@@ -168,13 +170,13 @@ export function Header() {
                   </span>
                 </div>
               )}
-            <Button
-              variant="outline"
+              <Button
+                variant="outline"
                 className="hover-lift"
-              onClick={handleSignOut}
-            >
+                onClick={handleSignOut}
+              >
                 {t("signOut")}
-            </Button>
+              </Button>
             </div>
           )}
           <Button
@@ -220,7 +222,7 @@ export function Header() {
                 <span className="font-semibold text-sm">{language}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              
+
               {selectorOpen && (
                 <div className="mt-2 w-full bg-popover rounded-lg shadow-xl border border-border overflow-hidden z-50">
                   <div className="p-2">

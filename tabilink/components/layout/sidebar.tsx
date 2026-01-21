@@ -123,6 +123,12 @@ function SidebarContent() {
               iconColor: "text-green-600",
             },
             {
+              href: "/dashboard?tab=alerts",
+              label: "My Alerts",
+              icon: Bell,
+              iconColor: "text-amber-500",
+            },
+            {
               href: "/dashboard?tab=saved",
               label: "Saved Trips",
               icon: Heart,
@@ -303,88 +309,94 @@ function SidebarContent() {
 
     // Regular user menu
     return [
-    {
-      title: "Main",
-      items: [
-        {
-          href: "/dashboard",
-          label: "Dashboard",
-          icon: LayoutDashboard,
+      {
+        title: "Main",
+        items: [
+          {
+            href: "/dashboard",
+            label: "Dashboard",
+            icon: LayoutDashboard,
             iconColor: "text-blue-600",
-        },
-        {
-          href: "/dashboard?tab=bookings",
-          label: "My Bookings",
-          icon: Calendar,
+          },
+          {
+            href: "/dashboard?tab=bookings",
+            label: "My Bookings",
+            icon: Calendar,
             iconColor: "text-green-600",
-        },
-        {
-          href: "/dashboard?tab=saved",
-          label: "Saved Trips",
-          icon: Heart,
+          },
+          {
+            href: "/dashboard?tab=alerts",
+            label: "My Alerts",
+            icon: Bell,
+            iconColor: "text-amber-500",
+          },
+          {
+            href: "/dashboard?tab=saved",
+            label: "Saved Trips",
+            icon: Heart,
             iconColor: "text-red-500",
-        },
-      ],
-    },
-    {
-      title: "Account",
-      items: [
-        {
-          href: "/dashboard?tab=profile",
-          label: "Profile",
-          icon: User,
+          },
+        ],
+      },
+      {
+        title: "Account",
+        items: [
+          {
+            href: "/dashboard?tab=profile",
+            label: "Profile",
+            icon: User,
             iconColor: "text-indigo-600",
-        },
-        {
-          href: "/dashboard?tab=settings",
-          label: "Settings",
-          icon: Settings,
+          },
+          {
+            href: "/dashboard?tab=settings",
+            label: "Settings",
+            icon: Settings,
             iconColor: "text-slate-600",
-        },
-        {
-          href: "/dashboard?tab=notifications",
-          label: "Notifications",
-          icon: Bell,
+          },
+          {
+            href: "/dashboard?tab=notifications",
+            label: "Notifications",
+            icon: Bell,
             iconColor: "text-amber-600",
-        },
-      ],
-    },
-    {
-      title: "Travel",
-      items: [
-        {
-          href: "/dashboard?tab=transportation",
-          label: "Book Transportation",
-          icon: Navigation,
+          },
+        ],
+      },
+      {
+        title: "Travel",
+        items: [
+          {
+            href: "/dashboard?tab=transportation",
+            label: "Book Transportation",
+            icon: Navigation,
             iconColor: "text-purple-600",
-        },
-        {
-          href: "/dashboard?tab=plan-trip",
-          label: "Plan Your Trip",
-          icon: Compass,
+          },
+          {
+            href: "/dashboard?tab=plan-trip",
+            label: "Plan Your Trip",
+            icon: Compass,
             iconColor: "text-cyan-600",
-        },
-        {
-          href: "/hotels",
-          label: "Browse Hotels",
-          icon: MapPin,
+          },
+          {
+            href: "/hotels",
+            label: "Browse Hotels",
+            icon: MapPin,
             iconColor: "text-blue-500",
-        },
-        {
-          href: "/travel",
-          label: "Travel Packages",
-          icon: Plane,
+          },
+          {
+            href: "/travel",
+            label: "Travel Packages",
+            icon: Plane,
             iconColor: "text-orange-600",
-        },
-        {
-          href: "/dashboard?tab=payments",
-          label: "Payment Methods",
-          icon: CreditCard,
+          },
+          {
+            href: "/dashboard?tab=payments",
+            label: "Payment Methods",
+            icon: CreditCard,
             iconColor: "text-teal-600",
-        },
-      ],
-    },
-  ]
+          },
+        ],
+      },
+    ]
   }
 
   const menuItems = getMenuItems()
@@ -477,36 +489,36 @@ function SidebarContent() {
                     const itemPath = item.href.split("?")[0]
                     const itemTab = item.href.split("tab=")[1]
                     const currentTab = searchParams.get("tab")
-                      
-                      // Determine if this item is active
-                      let isActive = false
-                      
-                      // Check if pathname matches the item path
-                      if (pathname === itemPath) {
-                        // Exact path match - check tab if present
+
+                    // Determine if this item is active
+                    let isActive = false
+
+                    // Check if pathname matches the item path
+                    if (pathname === itemPath) {
+                      // Exact path match - check tab if present
+                      if (itemTab) {
+                        isActive = currentTab === itemTab
+                      } else {
+                        // No tab in item href - should be active when no tab is selected
+                        isActive = !currentTab || currentTab === null
+                      }
+                    } else if (itemPath.includes("/dashboard") && pathname.includes("/dashboard")) {
+                      // Both are dashboard paths - check if same dashboard type and tab matches
+                      // Normalize paths by removing leading/trailing slashes
+                      const normalizePath = (p: string) => p.replace(/^\/+|\/+$/g, "")
+                      const pathNormalized = normalizePath(pathname)
+                      const itemNormalized = normalizePath(itemPath)
+
+                      // Check if they're the same dashboard (user, admin, or super-admin)
+                      if (pathNormalized === itemNormalized) {
+                        // Same dashboard path - check tab
                         if (itemTab) {
                           isActive = currentTab === itemTab
                         } else {
-                          // No tab in item href - should be active when no tab is selected
                           isActive = !currentTab || currentTab === null
                         }
-                      } else if (itemPath.includes("/dashboard") && pathname.includes("/dashboard")) {
-                        // Both are dashboard paths - check if same dashboard type and tab matches
-                        // Normalize paths by removing leading/trailing slashes
-                        const normalizePath = (p: string) => p.replace(/^\/+|\/+$/g, "")
-                        const pathNormalized = normalizePath(pathname)
-                        const itemNormalized = normalizePath(itemPath)
-                        
-                        // Check if they're the same dashboard (user, admin, or super-admin)
-                        if (pathNormalized === itemNormalized) {
-                          // Same dashboard path - check tab
-                          if (itemTab) {
-                            isActive = currentTab === itemTab
-                          } else {
-                            isActive = !currentTab || currentTab === null
-                          }
-                        }
                       }
+                    }
 
                     return (
                       <Link
@@ -524,8 +536,8 @@ function SidebarContent() {
                       >
                         <Icon className={cn(
                           "h-5 w-5 flex-shrink-0 transition-colors",
-                          isActive 
-                            ? "text-primary" 
+                          isActive
+                            ? "text-primary"
                             : (item.iconColor || "text-muted-foreground")
                         )} />
                         {isOpen && !isMobile && (

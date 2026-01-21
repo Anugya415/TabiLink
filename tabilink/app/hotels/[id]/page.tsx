@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ShareButton } from "@/components/social/ShareButton"
+import { PriceAlertButton } from "@/components/alerts/PriceAlertButton"
 import { ReviewSection } from "@/components/social/ReviewSection"
 
 const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -176,7 +177,7 @@ export default function HotelDetailsPage() {
                                         <div>
                                             <p className="text-sm text-muted-foreground">Price starts from</p>
                                             <div className="flex items-baseline gap-2">
-                                                <h3 className="text-3xl font-bold text-primary">${hotel.pricePerNight}</h3>
+                                                <h3 className="text-3xl font-bold text-primary">${hotel.price}</h3>
                                                 <span className="text-muted-foreground">/ night</span>
                                             </div>
                                             {hotel.originalPrice && (
@@ -186,6 +187,10 @@ export default function HotelDetailsPage() {
                                             )}
                                         </div>
                                         <div className="flex gap-2">
+                                            <PriceAlertButton
+                                                hotelId={hotel.id}
+                                                currentPrice={hotel.price || 0}
+                                            />
                                             <ShareButton
                                                 title={`Check out ${hotel.name} on TabiLink`}
                                                 text={`I found this amazing hotel: ${hotel.name} in ${hotel.locationCity}!`}

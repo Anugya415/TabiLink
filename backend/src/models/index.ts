@@ -12,6 +12,10 @@ import Reward from './Reward';
 import Redemption from './Redemption';
 import Trip from './Trip';
 import TripCollaborator from './TripCollaborator';
+import SavedSearch from './SavedSearch';
+import Ticket from './Ticket';
+import Chat from './Chat';
+import Message from './Message';
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId', as: 'bookings' });
@@ -69,7 +73,39 @@ User.belongsToMany(Trip, { through: TripCollaborator, as: 'sharedTrips', foreign
 Trip.hasMany(Booking, { foreignKey: 'tripId', as: 'bookings' });
 Booking.belongsTo(Trip, { foreignKey: 'tripId', as: 'trip' });
 
-export { User, Hotel, TravelPackage, Booking, Review, Favorite, Payment, Contact, Discount, Reward, Redemption, Trip, TripCollaborator };
+// Price Alerts
+import PriceAlert from './PriceAlert';
+import Notification from './Notification';
+
+User.hasMany(PriceAlert, { foreignKey: 'userId', as: 'priceAlerts' });
+PriceAlert.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+Hotel.hasMany(PriceAlert, { foreignKey: 'hotelId', as: 'subscribers' });
+PriceAlert.belongsTo(Hotel, { foreignKey: 'hotelId', as: 'hotel' });
+
+TravelPackage.hasMany(PriceAlert, { foreignKey: 'travelPackageId', as: 'subscribers' });
+PriceAlert.belongsTo(TravelPackage, { foreignKey: 'travelPackageId', as: 'travelPackage' });
+
+// Saved Searches
+User.hasMany(SavedSearch, { foreignKey: 'userId', as: 'savedSearches' });
+SavedSearch.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Tickets
+User.hasMany(Ticket, { foreignKey: 'userId', as: 'tickets' });
+Ticket.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Chat & Messages
+User.hasMany(Chat, { foreignKey: 'userId', as: 'chats' });
+Chat.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+Chat.hasMany(Message, { foreignKey: 'chatId', as: 'messages' });
+Message.belongsTo(Chat, { foreignKey: 'chatId', as: 'chat' });
+
+// Notifications
+User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
+Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+export { User, Hotel, TravelPackage, Booking, Review, Favorite, Payment, Contact, Discount, Reward, Redemption, Trip, TripCollaborator, PriceAlert, Notification, SavedSearch, Ticket, Chat, Message };
 
 // Export types
 export type { IUserAttributes as IUser } from './User';
@@ -83,4 +119,12 @@ export type { IContactAttributes as IContact } from './Contact';
 export type { IDiscountAttributes as IDiscount } from './Discount';
 export type { IRewardAttributes as IReward } from './Reward';
 export type { IRedemptionAttributes as IRedemption } from './Redemption';
+export type { ITripAttributes as ITrip } from './Trip';
+export type { IPriceAlertAttributes as IPriceAlert } from './PriceAlert';
+export type { INotificationAttributes as INotification } from './Notification';
+export type { ISavedSearchAttributes as ISavedSearch } from './SavedSearch';
+export type { ITicketAttributes as ITicket } from './Ticket';
+export type { IChatAttributes as IChat } from './Chat';
+export type { IMessageAttributes as IMessage } from './Message';
+
 

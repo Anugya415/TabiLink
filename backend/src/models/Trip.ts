@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 
-interface ITripAttributes {
+export interface ITripAttributes {
     id: number;
     ownerId: number;
     name: string;

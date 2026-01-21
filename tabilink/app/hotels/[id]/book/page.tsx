@@ -82,6 +82,14 @@ export default function HotelBookingPage() {
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       guests: "1",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      cardNumber: "",
+      cardExpiry: "",
+      cardCVC: "",
+      cardName: "",
     },
   })
 
@@ -119,7 +127,7 @@ export default function HotelBookingPage() {
     setDiscountError("")
 
     try {
-      const response = await api.validateDiscountCode({
+      const response: any = await api.validateDiscountCode({
         code: discountCode.trim(),
         subtotal,
         type: "hotel",
@@ -172,7 +180,7 @@ export default function HotelBookingPage() {
     }
 
     setIsProcessing(true)
-    
+
     try {
       const bookingData = {
         type: "hotel" as const,
@@ -200,7 +208,7 @@ export default function HotelBookingPage() {
       // Extract booking ID from the response
       const booking = response.data?.booking
       const bookingId = booking?.bookingId || booking?.id || `HOTEL-${Date.now()}`
-      
+
       if (!bookingId) {
         throw new Error("Booking ID not found in response")
       }
@@ -209,7 +217,7 @@ export default function HotelBookingPage() {
       toast.success("Booking confirmed!", {
         description: "Your hotel booking has been successfully created.",
       })
-      
+
       router.push(`/booking/confirmation?bookingId=${bookingId}&type=hotel`)
     } catch (error: any) {
       console.error("Booking error:", error)
@@ -249,363 +257,363 @@ export default function HotelBookingPage() {
   return (
     <ProtectedRoute>
       <div className="container py-6 sm:py-8 px-4 max-w-6xl">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Complete Your Booking</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Secure checkout for {hotelData.name}</p>
-      </div>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Complete Your Booking</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Secure checkout for {hotelData.name}</p>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Booking Form */}
-        <div className="lg:col-span-2 space-y-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Booking Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Booking Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                      name="checkIn"
-                      render={({ field, fieldState }) => (
-                        <FormItem>
-                          <FormLabel>Check In</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              date={field.value}
-                              onSelect={field.onChange}
-                              placeholder="Check in date"
-                            />
-                          </FormControl>
-                          <FormMessage fieldState={fieldState} />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      name="checkOut"
-                      render={({ field, fieldState }) => (
-                        <FormItem>
-                          <FormLabel>Check Out</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              date={field.value}
-                              onSelect={field.onChange}
-                              placeholder="Check out date"
-                            />
-                          </FormControl>
-                          <FormMessage fieldState={fieldState} />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    name="guests"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Number of Guests</FormLabel>
-                        <FormControl>
-                          <Select value={field.value || "1"} onChange={field.onChange}>
-                            <option value="1">1 Guest</option>
-                            <option value="2">2 Guests</option>
-                            <option value="3">3 Guests</option>
-                            <option value="4">4 Guests</option>
-                            <option value="5">5+ Guests</option>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Discount Code */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Tag className="h-5 w-5" />
-                    Discount Code
-                  </CardTitle>
-                  <CardDescription>
-                    Enter a discount code to save on your booking
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Input
-                        placeholder="Enter discount code"
-                        value={discountCode}
-                        onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                        className={discountError ? "border-red-500" : ""}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Booking Form */}
+          <div className="lg:col-span-2 space-y-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Booking Details */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Booking Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField
+                        name="checkIn"
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormLabel>Check In</FormLabel>
+                            <FormControl>
+                              <DatePicker
+                                date={field.value}
+                                onSelect={field.onChange}
+                                placeholder="Check in date"
+                              />
+                            </FormControl>
+                            <FormMessage fieldState={fieldState} />
+                          </FormItem>
+                        )}
                       />
-                      {discountError && (
-                        <p className="text-sm text-red-500 mt-1">{discountError}</p>
+                      <FormField
+                        name="checkOut"
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormLabel>Check Out</FormLabel>
+                            <FormControl>
+                              <DatePicker
+                                date={field.value}
+                                onSelect={field.onChange}
+                                placeholder="Check out date"
+                              />
+                            </FormControl>
+                            <FormMessage fieldState={fieldState} />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      name="guests"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Number of Guests</FormLabel>
+                          <FormControl>
+                            <Select value={field.value || "1"} onChange={field.onChange}>
+                              <option value="1">1 Guest</option>
+                              <option value="2">2 Guests</option>
+                              <option value="3">3 Guests</option>
+                              <option value="4">4 Guests</option>
+                              <option value="5">5+ Guests</option>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Discount Code */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Tag className="h-5 w-5" />
+                      Discount Code
+                    </CardTitle>
+                    <CardDescription>
+                      Enter a discount code to save on your booking
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Input
+                          placeholder="Enter discount code"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                          className={discountError ? "border-red-500" : ""}
+                        />
+                        {discountError && (
+                          <p className="text-sm text-red-500 mt-1">{discountError}</p>
+                        )}
+                      </div>
+                      {discountCode && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setDiscountCode("")
+                            setDiscountAmount(0)
+                            setDiscountError("")
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
-                    {discountCode && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setDiscountCode("")
-                          setDiscountAmount(0)
-                          setDiscountError("")
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    {discountAmount > 0 && (
+                      <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/20 rounded-md">
+                        <p className="text-sm text-green-700 dark:text-green-400 font-semibold">
+                          Discount applied: -${discountAmount.toFixed(2)}
+                        </p>
+                      </div>
                     )}
-                  </div>
-                  {discountAmount > 0 && (
-                    <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/20 rounded-md">
-                      <p className="text-sm text-green-700 dark:text-green-400 font-semibold">
-                        Discount applied: -${discountAmount.toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Guest Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Guest Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                {/* Guest Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Guest Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        name="firstName"
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="John" {...field} />
+                            </FormControl>
+                            <FormMessage fieldState={fieldState} />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="lastName"
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Doe" {...field} />
+                            </FormControl>
+                            <FormMessage fieldState={fieldState} />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
-                      name="firstName"
-                      render={({ field, fieldState }) => (
+                      name="email"
+                      render={({ field }) => (
                         <FormItem>
-                          <FormLabel>First Name</FormLabel>
+                          <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="John" {...field} />
+                            <Input type="email" placeholder="john@example.com" {...field} />
                           </FormControl>
-                          <FormMessage fieldState={fieldState} />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
                     <FormField
-                      name="lastName"
-                      render={({ field, fieldState }) => (
+                      name="phone"
+                      render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Last Name</FormLabel>
+                          <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="Doe" {...field} />
+                            <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
                           </FormControl>
-                          <FormMessage fieldState={fieldState} />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <FormField
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="john@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Payment Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Lock className="h-5 w-5" />
-                    <span>Payment Information</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Your payment is secured with 256-bit SSL encryption
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    name="cardName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cardholder Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="cardNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Card Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="1234 5678 9012 3456"
-                            maxLength={19}
-                            {...field}
-                            onChange={(e) => {
-                              const value = e.target.value.replace(/\s/g, "")
-                              const formatted = value.match(/.{1,4}/g)?.join(" ") || value
-                              field.onChange(formatted)
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Payment Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Lock className="h-5 w-5" />
+                      <span>Payment Information</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Your payment is secured with 256-bit SSL encryption
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <FormField
-                      name="cardExpiry"
-                      render={({ field, fieldState }) => (
+                      name="cardName"
+                      render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Expiry Date</FormLabel>
+                          <FormLabel>Cardholder Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="John Doe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="cardNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Card Number</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="MM/YY"
-                              maxLength={5}
+                              placeholder="1234 5678 9012 3456"
+                              maxLength={19}
                               {...field}
                               onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, "")
-                                if (value.length >= 2) {
-                                  value = value.slice(0, 2) + "/" + value.slice(2, 4)
-                                }
-                                field.onChange(value)
+                                const value = e.target.value.replace(/\s/g, "")
+                                const formatted = value.match(/.{1,4}/g)?.join(" ") || value
+                                field.onChange(formatted)
                               }}
                             />
                           </FormControl>
-                          <FormMessage fieldState={fieldState} />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      name="cardCVC"
-                      render={({ field, fieldState }) => (
-                        <FormItem>
-                          <FormLabel>CVC</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="123"
-                              maxLength={3}
-                              type="password"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage fieldState={fieldState} />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField
+                        name="cardExpiry"
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormLabel>Expiry Date</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="MM/YY"
+                                maxLength={5}
+                                {...field}
+                                onChange={(e) => {
+                                  let value = e.target.value.replace(/\D/g, "")
+                                  if (value.length >= 2) {
+                                    value = value.slice(0, 2) + "/" + value.slice(2, 4)
+                                  }
+                                  field.onChange(value)
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage fieldState={fieldState} />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="cardCVC"
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormLabel>CVC</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="123"
+                                maxLength={3}
+                                type="password"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage fieldState={fieldState} />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
 
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  "Processing Payment..."
-                ) : (
-                  <>
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Complete Secure Payment
-                  </>
-                )}
-              </Button>
-            </form>
-          </Form>
-        </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    "Processing Payment..."
+                  ) : (
+                    <>
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Complete Secure Payment
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </div>
 
-        {/* Booking Summary */}
-        <div className="lg:col-span-1">
-          <Card className="lg:sticky lg:top-4">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">Booking Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex space-x-4">
-                <Image
-                  src={hotelData.image}
-                  alt={hotelData.name}
-                  width={96}
-                  height={96}
-                  className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold">{hotelData.name}</h3>
-                  <p className="text-sm text-muted-foreground">{hotelData.location}</p>
-                </div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Check In</span>
-                  <span>{checkIn ? checkIn.toLocaleDateString() : "—"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Check Out</span>
-                  <span>{checkOut ? checkOut.toLocaleDateString() : "—"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Nights</span>
-                  <span>{nights}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Guests</span>
-                  <span>{guests}</span>
-                </div>
-              </div>
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
-                </div>
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
-                    <span className="flex items-center gap-1">
-                      <Tag className="h-3 w-3" />
-                      Discount ({discountCode})
-                    </span>
-                    <span>-${discountAmount.toFixed(2)}</span>
+          {/* Booking Summary */}
+          <div className="lg:col-span-1">
+            <Card className="lg:sticky lg:top-4">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl">Booking Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex space-x-4">
+                  <Image
+                    src={hotelData.image}
+                    alt={hotelData.name}
+                    width={96}
+                    height={96}
+                    className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{hotelData.name}</h3>
+                    <p className="text-sm text-muted-foreground">{hotelData.location}</p>
                   </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Taxes & Fees</span>
-                  <span>${tax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                  <span>Total</span>
-                  <span className="text-primary">${total.toFixed(2)}</span>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Check In</span>
+                    <span>{checkIn ? checkIn.toLocaleDateString() : "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Check Out</span>
+                    <span>{checkOut ? checkOut.toLocaleDateString() : "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Nights</span>
+                    <span>{nights}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Guests</span>
+                    <span>{guests}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-2 text-xs text-muted-foreground pt-2">
-                <Lock className="h-3 w-3" />
-                <span>Secure 256-bit SSL encryption</span>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="border-t pt-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                      <span className="flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        Discount ({discountCode})
+                      </span>
+                      <span>-${discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Taxes & Fees</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                    <span>Total</span>
+                    <span className="text-primary">${total.toFixed(2)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 text-xs text-muted-foreground pt-2">
+                  <Lock className="h-3 w-3" />
+                  <span>Secure 256-bit SSL encryption</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
     </ProtectedRoute>
   )
 }
