@@ -1,4 +1,6 @@
 import express from 'express';
+import { createServer } from 'http';
+import { initializeSocket } from './utils/socket';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -12,6 +14,7 @@ import { errorHandler } from './middleware/errorHandler';
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 5000;
 const API_VERSION = process.env.API_VERSION || 'v1';
 
@@ -24,13 +27,13 @@ app.use(helmet({
 })); // Security headers
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = process.env.CORS_ORIGIN 
+    const allowedOrigins = process.env.CORS_ORIGIN
       ? process.env.CORS_ORIGIN.split(',')
       : ['http://localhost:3000', 'http://127.0.0.1:3000'];
-    
+
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
@@ -53,17 +56,17 @@ app.get('/', (req, res) => {
     message: 'TabiLink API Server',
     version: '1.0.0',
     apiVersion: API_VERSION,
-      endpoints: {
-        health: '/health',
-        api: `/api/${API_VERSION}`,
-        auth: `/api/${API_VERSION}/auth`,
-        hotels: `/api/${API_VERSION}/hotels`,
-        packages: `/api/${API_VERSION}/packages`,
-        bookings: `/api/${API_VERSION}/bookings`,
-        contact: `/api/${API_VERSION}/contact`,
-        discounts: `/api/${API_VERSION}/discounts`,
-        rewards: `/api/${API_VERSION}/rewards`,
-      },
+    endpoints: {
+      health: '/health',
+      api: `/api/${API_VERSION}`,
+      auth: `/api/${API_VERSION}/auth`,
+      hotels: `/api/${API_VERSION}/hotels`,
+      packages: `/api/${API_VERSION}/packages`,
+      bookings: `/api/${API_VERSION}/bookings`,
+      contact: `/api/${API_VERSION}/contact`,
+      discounts: `/api/${API_VERSION}/discounts`,
+      rewards: `/api/${API_VERSION}/rewards`,
+    },
     documentation: 'Visit /api/v1 for API information',
   });
 });
@@ -92,7 +95,11 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
+// Initialize Socket.io
+initializeSocket(server);
+
+// Start server
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
   console.log(`API available at http://localhost:${PORT}/api/${API_VERSION}`);
 });

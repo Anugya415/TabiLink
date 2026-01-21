@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Toaster } from "@/components/ui/toaster";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { TranslationProvider } from "@/contexts/TranslationContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { RoleProvider } from "@/contexts/RoleContext";
@@ -40,11 +41,12 @@ export default function RootLayout({
         <ThemeProvider>
           <TranslationProvider>
             <RoleProvider>
-        <Header />
-        <Sidebar />
+              <Header />
+              <Sidebar />
               <main className="min-h-screen transition-all duration-300 relative z-10 lg:pl-0 bg-background">{children}</main>
-        <Footer />
-        <Toaster />
+              <Footer />
+              <Toaster />
+              <ChatWidget />
             </RoleProvider>
           </TranslationProvider>
         </ThemeProvider>

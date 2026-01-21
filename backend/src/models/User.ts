@@ -34,7 +34,7 @@ export interface IUserAttributes {
   updatedAt?: Date;
 }
 
-interface IUserCreationAttributes extends Optional<IUserAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface IUserCreationAttributes extends Optional<IUserAttributes, 'id' | 'createdAt' | 'updatedAt'> { }
 
 class User extends Model<IUserAttributes, IUserCreationAttributes> implements IUserAttributes {
   public id!: number;

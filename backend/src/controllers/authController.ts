@@ -93,7 +93,7 @@ export const login = asyncHandler(async (req: AuthRequest, res: Response) => {
     const user = await User.scope('withPassword').findOne({
       where: { email: email.toLowerCase() },
     });
-    
+
     if (!user) {
       throw new AppError('Invalid credentials', 401);
     }
@@ -349,7 +349,7 @@ export const googleLogin = asyncHandler(async (req: AuthRequest, res: Response) 
     }
 
     const client = new OAuth2Client(clientId);
-    
+
     // Verify the ID token
     const ticket = await client.verifyIdToken({
       idToken,
@@ -451,7 +451,7 @@ export const googleLogin = asyncHandler(async (req: AuthRequest, res: Response) 
 // @access  Private (Admin/Super Admin)
 export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { role, search, page = 1, limit = 50 } = req.query;
-  
+
   const where: any = {};
   if (role && typeof role === 'string') {
     where.role = role;

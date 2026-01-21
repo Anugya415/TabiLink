@@ -10,7 +10,7 @@ export interface IFavoriteAttributes {
   createdAt?: Date;
 }
 
-interface IFavoriteCreationAttributes extends Optional<IFavoriteAttributes, 'id' | 'createdAt'> {}
+interface IFavoriteCreationAttributes extends Optional<IFavoriteAttributes, 'id' | 'createdAt'> { }
 
 class Favorite extends Model<IFavoriteAttributes, IFavoriteCreationAttributes> implements IFavoriteAttributes {
   public id!: number;
