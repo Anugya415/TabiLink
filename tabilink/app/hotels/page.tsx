@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import { useTranslation } from "@/contexts/TranslationContext"
 import api from "@/lib/api"
 import { toast } from "sonner"
@@ -110,6 +111,70 @@ export default function HotelsPage() {
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [savedSearchName, setSavedSearchName] = useState("")
   const [isSavedSearchDialogOpen, setIsSavedSearchDialogOpen] = useState(false)
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HotelsContent
+        hotels={hotels}
+        loading={loading}
+        setHotels={setHotels}
+        setLoading={setLoading}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        checkInDate={checkInDate}
+        setCheckInDate={setCheckInDate}
+        checkOutDate={checkOutDate}
+        setCheckOutDate={setCheckOutDate}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        favorites={favorites}
+        setFavorites={setFavorites}
+        showMap={showMap}
+        setShowMap={setShowMap}
+        showSavedSearches={showSavedSearches}
+        setShowSavedSearches={setShowSavedSearches}
+        savedSearchName={savedSearchName}
+        setSavedSearchName={setSavedSearchName}
+        isSavedSearchDialogOpen={isSavedSearchDialogOpen}
+        setIsSavedSearchDialogOpen={setIsSavedSearchDialogOpen}
+      />
+    </Suspense>
+  )
+}
+
+function HotelsContent({
+  hotels, setHotels, loading, setLoading,
+  searchTerm, setSearchTerm,
+  sortBy, setSortBy,
+  priceRange, setPriceRange,
+  selectedCategory, setSelectedCategory,
+  checkInDate, setCheckInDate,
+  checkOutDate, setCheckOutDate,
+  showFilters, setShowFilters,
+  favorites, setFavorites,
+  showMap, setShowMap,
+  showSavedSearches, setShowSavedSearches,
+  savedSearchName, setSavedSearchName,
+  isSavedSearchDialogOpen, setIsSavedSearchDialogOpen
+}: any) {
+  const { t } = useTranslation()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const dest = searchParams.get("destination")
+    const checkIn = searchParams.get("checkIn")
+    const checkOut = searchParams.get("checkOut")
+
+    if (dest) setSearchTerm(dest)
+    if (checkIn) setCheckInDate(new Date(checkIn))
+    if (checkOut) setCheckOutDate(new Date(checkOut))
+  }, [searchParams])
 
   const fetchHotels = async () => {
     try {

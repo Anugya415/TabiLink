@@ -80,29 +80,29 @@ const featuredDestinations = [
 export default function Home() {
   const { t } = useTranslation()
 
-const collections = [
-  {
+  const collections = [
+    {
       title: t("weekendEscapes"),
       copy: t("weekendEscapesDesc"),
-    icon: Compass,
-  },
-  {
+      icon: Compass,
+    },
+    {
       title: t("workFriendlyStays"),
       copy: t("workFriendlyStaysDesc"),
-    icon: BadgeCheck,
-  },
-  {
+      icon: BadgeCheck,
+    },
+    {
       title: t("familyBundles"),
       copy: t("familyBundlesDesc"),
-    icon: Users,
-  },
-  {
+      icon: Users,
+    },
+    {
       title: t("lowImpactTravel"),
       copy: t("lowImpactTravelDesc"),
-    icon: Leaf,
-  },
-]
-  
+      icon: Leaf,
+    },
+  ]
+
   const stats = [
     { label: t("happyCustomers"), value: "15M+" },
     { label: t("bookingsEveryMonth"), value: "1M+" },
@@ -138,64 +138,64 @@ const collections = [
       code: "FIRST50",
       icon: Gift,
       gradient: "from-gray-500 to-gray-300",
-  },
-]
+    },
+  ]
 
-const journeySteps = [
-  {
+  const journeySteps = [
+    {
       title: t("bookInOnePlace"),
       copy: t("bookInOnePlaceDesc"),
-    icon: Plane,
-  },
-  {
+      icon: Plane,
+    },
+    {
       title: t("stayFlexible"),
       copy: t("stayFlexibleDesc"),
-    icon: Calendar,
-  },
-  {
+      icon: Calendar,
+    },
+    {
       title: t("protectedOnTrip"),
       copy: t("protectedOnTripDesc"),
-    icon: ShieldCheck,
-  },
-  {
+      icon: ShieldCheck,
+    },
+    {
       title: t("earnStackPerks"),
       copy: t("earnStackPerksDesc"),
-    icon: Sparkles,
-  },
-]
+      icon: Sparkles,
+    },
+  ]
 
-const testimonials = [
-  {
-    name: "Priya K.",
+  const testimonials = [
+    {
+      name: "Priya K.",
       role: t("frequentTraveler"),
       quote: t("testimonial1"),
-  },
-  {
-    name: "Marco L.",
+    },
+    {
+      name: "Marco L.",
       role: t("remoteFounder"),
       quote: t("testimonial2"),
-  },
-  {
-    name: "Isabella M.",
+    },
+    {
+      name: "Isabella M.",
       role: t("designer"),
       quote: t("testimonial3"),
-  },
-]
+    },
+  ]
 
-const faqs = [
-  {
+  const faqs = [
+    {
       question: t("faq1Question"),
       answer: t("faq1Answer"),
-  },
-  {
+    },
+    {
       question: t("faq2Question"),
       answer: t("faq2Answer"),
-  },
-  {
+    },
+    {
       question: t("faq3Question"),
       answer: t("faq3Answer"),
-  },
-]
+    },
+  ]
   const [checkInDate, setCheckInDate] = useState<Date>()
   const [checkOutDate, setCheckOutDate] = useState<Date>()
   const [destination, setDestination] = useState("")
@@ -274,11 +274,20 @@ const faqs = [
                       <label className="text-sm font-medium mb-2 block opacity-0 pointer-events-none select-none">
                         {t("search")}
                       </label>
-                      <Button className="w-full h-11 text-base font-semibold" asChild>
-                        <Link href="/hotels">
-                          <Search className="mr-2 h-5 w-5" />
-                          {t("searchHotels").toUpperCase()}
-                        </Link>
+                      <Button
+                        className="w-full h-11 text-base font-semibold"
+                        onClick={() => {
+                          const params = new URLSearchParams();
+                          if (destination) params.set("destination", destination);
+                          if (checkInDate) params.set("checkIn", checkInDate.toISOString());
+                          if (checkOutDate) params.set("checkOut", checkOutDate.toISOString());
+                          if (travelers) params.set("travelers", travelers);
+                          // Use window.location or router for navigation
+                          window.location.href = `/hotels?${params.toString()}`;
+                        }}
+                      >
+                        <Search className="mr-2 h-5 w-5" />
+                        {t("searchHotels").toUpperCase()}
                       </Button>
                     </div>
                   </div>
@@ -307,21 +316,21 @@ const faqs = [
               </CardHeader>
               <CardContent className="flex-1 flex flex-col min-h-0 px-6 pb-6">
                 <div className="space-y-3 flex-1 overflow-y-auto">
-                {featuredDestinations.map((trip, index) => (
-                  <div
-                    key={trip.title}
+                  {featuredDestinations.map((trip, index) => (
+                    <div
+                      key={trip.title}
                       className="flex items-center gap-3 rounded-lg border bg-muted/50 p-3 hover-lift transition-all duration-300 cursor-pointer group"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
                       <div className="relative h-20 w-28 overflow-hidden rounded-md hover-scale transition-transform flex-shrink-0">
-        <Image
-                        src={trip.image}
-                        alt={trip.title}
-                        fill
+                        <Image
+                          src={trip.image}
+                          alt={trip.title}
+                          fill
                           sizes="112px"
                           className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
+                        />
+                      </div>
                       <div className="flex-1 space-y-1 min-w-0">
                         <p className="text-sm font-semibold line-clamp-1">{trip.title}</p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -335,18 +344,18 @@ const faqs = [
                         </div>
                       </div>
                       <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary flex-shrink-0">
-                      {trip.tag}
-                    </span>
-                  </div>
-                ))}
+                        {trip.tag}
+                      </span>
+                    </div>
+                  ))}
                 </div>
                 <div className="pt-4 flex-shrink-0">
                   <Button variant="outline" className="w-full hover-lift text-xs h-8" asChild>
-                  <Link href="/travel">
+                    <Link href="/travel">
                       {t("browseMore")}
                       <ArrowRight className="ml-2 h-3 w-3" />
-                  </Link>
-                </Button>
+                    </Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -385,13 +394,13 @@ const faqs = [
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-black border-2 border-black shadow-lg group-hover:scale-110 group-hover:shadow-xl group-hover:border-gray-800 transition-all duration-300 relative overflow-hidden">
                       <Icon className="h-6 w-6 text-white drop-shadow-sm" />
                     </div>
-                    
+
                     <div className="space-y-1.5">
                       <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors leading-tight">{offer.title}</CardTitle>
                       <CardDescription className="text-xs leading-relaxed text-muted-foreground">{offer.description}</CardDescription>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent className="flex-1 flex flex-col justify-end p-6 pt-4">
                     {/* Enhanced code section */}
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border-2 border-border group-hover:border-primary/30 transition-all duration-300">
@@ -400,7 +409,7 @@ const faqs = [
                       </div>
                       <span className="font-mono font-bold text-base text-primary tracking-wider group-hover:scale-105 transition-transform duration-300">{offer.code}</span>
                     </div>
-                    
+
                     {/* Subtle decorative element */}
                     <div className="mt-3 flex items-center justify-center gap-1.5 opacity-40 group-hover:opacity-60 transition-opacity">
                       <div className="h-1.5 w-1.5 rounded-full bg-gray-500" />
@@ -620,10 +629,10 @@ const faqs = [
             {t("planOnceManage")}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button 
-              asChild 
-              size="lg" 
-              variant="secondary" 
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
               className="hover-lift bg-secondary text-secondary-foreground hover:bg-secondary/80 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
             >
               <Link href="/signup">Create free account</Link>
@@ -636,7 +645,7 @@ const faqs = [
             >
               <Link href="/travel">{t("browsePackages")}</Link>
             </Button>
-        </div>
+          </div>
         </div>
       </section>
     </div>
